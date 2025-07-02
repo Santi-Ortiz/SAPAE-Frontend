@@ -1,33 +1,32 @@
-<div class="pensum-container">
-    <div class="pensum-column">
-      <h1 class="titulo-pensum">Plan de estudios</h1>
-  
-      <div class="semestres">
-        <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(allPensum)">
-          <h3>Semestre {{ grupo.semestre }}</h3>
-            <div class="caja"
-                *ngFor="let materia of grupo.materias"
-                [id]="materia.codigo"
-                [attr.data-requisitos]="materia.requisitosJson"
-                [attr.data-codigo]="materia.codigo"
-                [attr.data-nombre]="materia.nombre"
-                [attr.data-creditos]="materia.creditos"
-                (click)="seleccionarMateria(materia.codigo)">
-                <strong>{{ materia.nombre }}</strong><br>
-                <span class="codigo">{{ materia.codigo }}</span> • 
-                <span class="creditos">{{ materia.creditos }} créditos</span>
-            </div>
+<div #contenedor class="pensum-container">
+  <div class="pensum-column">
+    <h1 class="titulo-pensum">Plan de estudios</h1>
+
+    <div class="semestres">
+      <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(allPensum)">
+        <h3>Semestre {{ grupo.semestre }}</h3>
+        <div class="caja"
+            *ngFor="let materia of grupo.materias"
+            [id]="materia.codigo"
+            [attr.data-requisitos]="materia.requisitosJson"
+            [attr.data-codigo]="materia.codigo"
+            [attr.data-nombre]="materia.nombre"
+            [attr.data-creditos]="materia.creditos"
+            (click)="seleccionarMateria(materia.codigo)">
+            <strong>{{ materia.nombre }}</strong><br>
+            <span class="codigo">{{ materia.codigo }}</span> • 
+            <span class="creditos">{{ materia.creditos }} créditos</span>
         </div>
       </div>
     </div>
-  
-    <svg #svgRef class="svg-lines">
-        <defs>
-            <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5"
-              orient="auto" markerUnits="strokeWidth">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#2a5885" />
-            </marker>
-          </defs>          
-    </svg>
   </div>
-  
+
+  <svg #svgRef class="svg-lines"></svg>
+  <div *ngIf="mostrarMensaje"
+     class="mensaje-pop"
+     [style.left.px]="mensajeX"
+     [style.top.px]="mensajeY">
+      {{ mensajeSinRequisitos }}
+  </div>
+
+</div>
