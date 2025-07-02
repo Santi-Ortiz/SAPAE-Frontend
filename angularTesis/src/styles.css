@@ -1,0 +1,62 @@
+/* General layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* Sidebar styles */
+  .sidebar {
+    width: 220px;
+    background-color: #2a5885;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 22px;
+    border-bottom: 1px solid #4779a9;
+    padding-bottom: 10px;
+  }
+  
+  .nav-link {
+    display: block;
+    padding: 12px;
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: background 0.3s;
+  }
+  
+  .nav-link:hover,
+  .nav-link.activo {
+    background-color: #1d3f66;
+  }
+  
+  .logout-button {
+    margin-top: auto;
+    padding: 10px;
+    background-color: #89ace1;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+  }
+  
+  .logout-button:hover {
+    background-color: #6d9bdf;
+  }
+  
+  /* Main content */
+  .main-content {
+    flex-grow: 1;
+    padding: 40px;
+    background-color: #f2f6fc;
+  }
+  

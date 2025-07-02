@@ -1,0 +1,16 @@
+<!-- app.html -->
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>SAPAE</h2>
+    <nav>
+      <a [routerLink]="['/pensum/view']" routerLinkActive="activo" class="nav-link">Plan de Estudios</a>
+    </nav>
+    <button class="logout-button" (click)="logout()">Cerrar Sesión</button>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
