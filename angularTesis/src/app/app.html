@@ -1,13 +1,36 @@
-<!-- app.html -->
+<!-- app.component.html -->
 <div class="app-container">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <!-- Sidebar -->
   <aside class="sidebar">
-    <h2>SAPAE</h2>
-    <nav>
-      <a [routerLink]="['/pensum/view']" routerLinkActive="activo" class="nav-link">Plan de Estudios</a>
-      <a [routerLink]="['/historial']" routerLinkActive="activo" class="nav-link">Historial</a>
+    <div class="logo-section">
+      <h2>SAPAE</h2>
+    </div>
+
+    <nav class="nav-menu">
+      <a [routerLink]="['/inicio']" routerLinkActive="activo" class="nav-link">
+        <i class="fas fa-home"></i>
+        <span>Inicio</span>
+      </a>
+      <a [routerLink]="['/pensum/view']" routerLinkActive="activo" class="nav-link">
+        <i class="fas fa-list-alt"></i>
+        <span>Plan de estudios</span>
+      </a>
+      <a [routerLink]="['/historial']" routerLinkActive="activo" class="nav-link selected">
+        <i class="fas fa-history"></i>
+        <span>Historial</span>
+      </a>
+      <a [routerLink]="['/simulaciones']" routerLinkActive="activo" class="nav-link">
+        <i class="fas fa-calculator"></i>
+        <span>Simulaciones</span>
+      </a>
+      <a [routerLink]="['/recomendaciones']" routerLinkActive="activo" class="nav-link">
+        <i class="fas fa-lightbulb"></i>
+        <span>Recomendaciones</span>
+      </a>
     </nav>
-    <button class="logout-button" (click)="logout()">Cerrar Sesión</button>
+
+    <button class="logout-button" (click)="logout()">Cerrar sesión</button>
   </aside>
 
   <!-- Main content -->

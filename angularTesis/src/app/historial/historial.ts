@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
-import { MateriaDTO } from '../../app/dto/materia-dto';
+import { Component, AfterViewInit } from '@angular/core';
+import { ProgresoDTO } from '../dto/progreso-dto';
 import { RouterModule } from '@angular/router';
 import { LecturaService } from '../shared/lectura.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-historial',
@@ -12,62 +13,84 @@ import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
   templateUrl: './historial.html',
   styleUrl: './historial.css'
 })
-
-export class Historial {
-  materias: MateriaDTO[] = [];
-  bloques: any[] = [];
-  promedio: number = 0;
-  porcentaje: number = 0;
-  materiasCursadas: number = 0;
-  materiasCursando: number = 0;
-  materiasFaltantes: number = 0;
-  faltanElectiva: number = 0;
-  faltanComplementaria: number = 0;
-  faltanEnfasis: number = 0;
-  faltanElectivaBasicas: number = 0;
-  listaMateriasFaltantes: string[] = [];
-  lineasRequisitosGrado: string[] = [];
-  error: string = '';
-  archivoSeleccionado!: File;
+export class Historial implements AfterViewInit {
+  public historial: ProgresoDTO = new ProgresoDTO();
 
   constructor(private lecturaService: LecturaService) {}
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
-      this.archivoSeleccionado = file;
+      this.historial.archivoSeleccionado = file;
     } else {
-      this.error = 'Debe seleccionar un archivo PDF válido.';
+      this.historial.error = 'Debe seleccionar un archivo PDF válido.';
     }
   }
-  
+
   onSubmit(): void {
-    if (!this.archivoSeleccionado) {
-      this.error = 'Primero seleccione un archivo PDF.';
+    if (!this.historial.archivoSeleccionado) {
+      this.historial.error = 'Primero seleccione un archivo PDF.';
       return;
     }
   
-    this.lecturaService.subirArchivo(this.archivoSeleccionado).subscribe({
+    this.lecturaService.subirArchivo(this.historial.archivoSeleccionado).subscribe({
       next: (respuesta) => {
-        this.materias = respuesta.materias;
-        this.bloques = respuesta.bloques || [];
-        this.promedio = respuesta.promedio || 0;
-        this.porcentaje = respuesta.porcentaje || 0;
-        this.materiasCursadas = respuesta.materiasCursadas || 0;
-        this.materiasCursando = respuesta.materiasCursando || 0;
-        this.materiasFaltantes = respuesta.materiasFaltantes || 0;
-        this.faltanElectiva = respuesta.faltanElectiva || 0;
-        this.faltanComplementaria = respuesta.faltanComplementaria || 0;
-        this.faltanEnfasis = respuesta.faltanEnfasis || 0;
-        this.faltanElectivaBasicas = respuesta.faltanElectivaBasicas || 0;
-        this.listaMateriasFaltantes = respuesta.listaMateriasFaltantes || [];
-        this.lineasRequisitosGrado = respuesta.lineasRequisitosGrado || [];
-        this.error = '';
-      },
-      error: (err) => {
-        this.error = err.error?.message || 'Error al procesar el archivo.';
+        console.log('Respuesta del backend:', respuesta); 
+        this.historial = {
+          ...respuesta,
+          archivoSeleccionado: this.historial.archivoSeleccionado,
+          error: ''
+        };
+        this.crearDonut();
+      },      
+      error: () => {
+        this.historial.error = 'Error al procesar el archivo.';
       }
     });
   }
   
+  
+
+  ngAfterViewInit() {
+    this.crearDonut();
+  }
+
+  crearDonut() {
+    if (!this.historial) return;
+
+    const data = [
+      { label: 'Cursados', value: this.historial.materiasCursadas || 0 },
+      { label: 'En curso', value: this.historial.materiasCursando || 0 },
+      { label: 'Faltantes', value: this.historial.materiasFaltantes || 0 }
+    ];
+
+    d3.select('#donutChartContainer svg')?.remove(); // Elimina gráfico anterior si lo hay
+
+    const width = 300, height = 300, radius = Math.min(width, height) / 2;
+
+    const color = d3.scaleOrdinal<string>()
+      .domain(data.map(d => d.label))
+      .range(["#0077B6", "#90e0ef", "#caf0f8"]);
+
+    const svg = d3.select('#donutChartContainer')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+    const arc = d3.arc<d3.PieArcDatum<{ label: string, value: number }>>()
+      .innerRadius(70)
+      .outerRadius(radius);
+
+    const pie = d3.pie<{ label: string, value: number }>()
+      .value(d => d.value);
+
+    svg.selectAll('path')
+      .data(pie(data))
+      .enter()
+      .append('path')
+      .attr('d', d => arc(d)!)
+      .attr('fill', d => color(d.data.label));
+  }
 }

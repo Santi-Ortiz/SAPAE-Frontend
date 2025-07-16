@@ -1,136 +1,123 @@
 .pensum-container {
-    padding: 20px;
-    padding-left: 250px;
-    background-color: #ffffff;
-    border-radius: 30px;
-    overflow-x: auto;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .pensum-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .titulo-pensum {
-    text-align: center;
-    color: #2a5885;
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 30px;
-    border-bottom: 3px solid #2a5885;
-    padding-bottom: 10px;
-    width: 100%;
-  }
-  
-  .semestres {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-  }
-  
-  .semestre-columna {
-    min-width: 200px;
-    padding: 5px;
-  }
-  
-  .semestre-columna h3 {
-    text-align: center;
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: bold;
-    background-color: white;
-    border: 2px solid #2a5885;
-    color: #2a5885;
-    margin-bottom: 15px;
-    font-size: 16px;
-  }
-  .semestres, .pensum-container {
-    overflow: visible; /* importante para que las flechas salgan de las cajas */
-  }
-  
-  .caja {
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 40px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .caja:hover {
-    background-color: #f5f9ff;
-  }
-  
-  .codigo, .creditos {
-    font-size: 12px;
-    color: #555;
-  }
-  
-  .caja-destino-activa {
-    background-color: #ffe6ea !important;
-    border-color: #e91e63 !important;
-  }
-  
-  .caja {
-    margin-bottom: 40px; /* Asegura espacio vertical */
-    position: relative;
-    z-index: 2;
-  }
-  
-  svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-  }
-  
-  .svg-lines {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-  }
-  
-  .caja.resaltada {
-    border: 2px solid red;
-    z-index: 2;
-  }
-   
-  
-  path.resaltada {
-    stroke: red !important;
-    stroke-width: 3 !important;
-  }
+  padding: 10px;
+  background-color: #ffffff;
+  overflow-x: auto;
+  position: relative;
+  z-index: 1;
+}
 
-  .mensaje-pop {
-    position: absolute;
-    background-color: #ffdddd;
-    color: #a80000;
-    padding: 10px 14px;
-    border-radius: 6px;
-    border: 1px solid #cc0000;
-    font-size: 13px;
-    z-index: 10;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    max-width: 200px;
-    animation: fadein 0.3s ease;
-  }
-  
-  @keyframes fadein {
-    from { opacity: 0; transform: translateY(-5px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  
+.pensum-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-pensum {
+  text-align: center;
+  color: black;
+  width: 100%;
+}
+
+.description {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #9095A0;
+  font-size: 16px;
+  width: 70%;
+}
+
+.semestres {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  overflow: visible;
+}
+
+.semestre-columna {
+  min-width: 200px;
+  padding: 5px;
+}
+
+.semestre-columna h3 {
+  text-align: center;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: bold;
+  background-color: white;
+  border: 2px solid #00B4D8;
+  color: #00B4D8;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.caja {
+  background-color: #ffffff;
+  border: 1px solid #00B4D8;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  position: relative;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.caja:hover {
+  background-color: #CAF0F8;
+}
+
+.codigo, .creditos {
+  font-size: 12px;
+  color: black;
+}
+
+.caja.resaltada {
+  border: 2px solid #0077B6 !important;
+  background-color: #CAF0F8 !important;
+}
+
+svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.svg-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+path.resaltada, line.resaltada {
+  stroke: #0077B6 !important;
+  stroke-width: 3 !important;
+}
+
+.mensaje-pop {
+  position: absolute;
+  background-color: #ffdddd;
+  color: #a80000;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #cc0000;
+  font-size: 13px;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  max-width: 200px;
+  animation: fadein 0.3s ease;
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

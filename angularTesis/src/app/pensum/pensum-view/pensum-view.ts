@@ -12,6 +12,7 @@ import { PensumDTO } from '../../dto/pensum-dto';
 import { catchError, of } from 'rxjs';
 import { PensumService } from '../../shared/pensum.service';
 import { NgZone, ChangeDetectorRef } from '@angular/core';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-pensum-view',
@@ -129,114 +130,126 @@ export class PensumView implements OnInit, AfterViewInit {
     const svg = this.svgRef?.nativeElement;
     const contenedor = this.contenedorRef?.nativeElement;
     if (!svg || !contenedor) return;
-  
-    // Ajustar tamaño del SVG al contenedor
+
     const width = contenedor.scrollWidth;
     const height = contenedor.scrollHeight;
-    svg.setAttribute('width', width + 'px');
-    svg.setAttribute('height', height + 'px');
-  
-    svg.innerHTML = `
-      <defs>
-        <marker id="flecha" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#2a5885" />
-        </marker>
-        <marker id="flecha-roja" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-          <polygon points="0 0, 10 3.5, 0 7" fill="red" />
-        </marker>
-      </defs>
-    `;
-  
+    svg.setAttribute('width', `${width}px`);
+    svg.setAttribute('height', `${height}px`);
+
+    svg.innerHTML = ''; // limpiar SVG antes de dibujar
+
+    const d3svg = d3.select(svg);
+
+    // Definir flechas
+    const defs = d3svg.append('defs');
+
+    const marker = defs.append('marker')
+      .attr('id', 'flecha')
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 7)
+      .attr('refX', 10)
+      .attr('refY', 3.5)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'userSpaceOnUse');
+
+    marker.append('polygon')
+      .attr('points', '0 0, 10 3.5, 0 7')
+      .attr('fill', '#2a5885');
+
+    const markerRojo = defs.append('marker')
+      .attr('id', 'flecha-roja')
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 7)
+      .attr('refX', 10)
+      .attr('refY', 3.5)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'userSpaceOnUse');
+
+    markerRojo.append('polygon')
+      .attr('points', '0 0, 10 3.5, 0 7')
+      .attr('fill', 'black');
+
     const contenedorRect = contenedor.getBoundingClientRect();
     const cajas = Array.from(document.querySelectorAll('.caja'));
-  
-    // Mapear cuántas conexiones salen y llegan a cada caja
+
     const salidasPorCaja = new Map<string, number>();
     const llegadasPorCaja = new Map<string, number>();
-  
+
     cajas.forEach(destino => {
       const requisitosJson = destino.getAttribute('data-requisitos') || '[]';
-      const destinoId = destino.getAttribute('id');
+      const destinoId = destino.getAttribute('id')!;
       let requisitos: string[] = [];
-  
+
       try {
         requisitos = JSON.parse(requisitosJson);
       } catch {}
-  
-      requisitos.forEach((codigoOrigen: string) => {
+
+      requisitos.forEach(codigoOrigen => {
         salidasPorCaja.set(codigoOrigen, (salidasPorCaja.get(codigoOrigen) || 0) + 1);
-        llegadasPorCaja.set(destinoId || '', (llegadasPorCaja.get(destinoId || '') || 0) + 1);
+        llegadasPorCaja.set(destinoId, (llegadasPorCaja.get(destinoId) || 0) + 1);
       });
     });
-  
-    // Track para distribuir salidas/llegadas
+
     const salidasUsadas = new Map<string, number>();
     const llegadasUsadas = new Map<string, number>();
-  
+
     cajas.forEach(destino => {
       const requisitosJson = destino.getAttribute('data-requisitos') || '[]';
-      const destinoId = destino.getAttribute('id');
+      const destinoId = destino.getAttribute('id')!;
       let requisitos: string[] = [];
-  
+
       try {
         requisitos = JSON.parse(requisitosJson);
-      } catch {
-        return;
-      }
-  
+      } catch { return; }
+
       const destinoRect = destino.getBoundingClientRect();
-      const totalLlegadas = llegadasPorCaja.get(destinoId || '') || 1;
-      const destinoIndex = llegadasUsadas.get(destinoId || '') || 0;
-  
-      // Distribuir verticalmente las llegadas
+      const totalLlegadas = llegadasPorCaja.get(destinoId) || 1;
+      const destinoIndex = llegadasUsadas.get(destinoId) || 0;
+
       const destinoYOffset = ((destinoIndex + 1) / (totalLlegadas + 1)) * destinoRect.height;
       const xDestino = destinoRect.left - contenedorRect.left;
       const yDestino = destinoRect.top - contenedorRect.top + destinoYOffset;
-  
-      llegadasUsadas.set(destinoId || '', destinoIndex + 1);
-  
-      requisitos.forEach((codigoOrigen: string) => {
+
+      llegadasUsadas.set(destinoId, destinoIndex + 1);
+
+      requisitos.forEach(codigoOrigen => {
         const origen = document.getElementById(codigoOrigen);
         if (!origen) return;
-  
+
         const origenRect = origen.getBoundingClientRect();
         const totalSalidas = salidasPorCaja.get(codigoOrigen) || 1;
         const origenIndex = salidasUsadas.get(codigoOrigen) || 0;
-  
-        // Distribuir verticalmente las salidas
+
         const origenYOffset = ((origenIndex + 1) / (totalSalidas + 1)) * origenRect.height;
         const xOrigen = origenRect.right - contenedorRect.left;
         const yOrigen = origenRect.top - contenedorRect.top + origenYOffset;
-  
+
         salidasUsadas.set(codigoOrigen, origenIndex + 1);
-  
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  
-        const canalX = (xOrigen + xDestino) / 2;
 
-        const d = `
-          M${xOrigen},${yOrigen}
-          H${canalX}
-          V${yDestino}
-          H${xDestino}
-        `;
+        const esLineaActiva = this.conexionesActivas.includes(destinoId);
 
-        path.setAttribute('d', d.trim());
-        path.setAttribute('fill', 'none');
-  
-        const esLineaActiva = this.conexionesActivas.includes(destinoId || '');
-        path.setAttribute('stroke', esLineaActiva ? 'red' : '#2a5885');
-        path.setAttribute('stroke-width', esLineaActiva ? '3' : '2');
-        path.setAttribute('marker-end', `url(#${esLineaActiva ? 'flecha-roja' : 'flecha'})`);
-  
+        // Dibuja curva Bezier (suave)
+        const curva = d3svg.append('path')
+          .attr('d', `
+            M${xOrigen},${yOrigen}
+            C${(xOrigen + xDestino) / 2},${yOrigen}
+            ${(xOrigen + xDestino) / 2},${yDestino}
+            ${xDestino},${yDestino}
+          `)
+          .attr('fill', 'none')
+          .attr('stroke', esLineaActiva ? 'red' : '#2a5885')
+          .attr('stroke-width', esLineaActiva ? 3 : 2)
+          .attr('marker-end', `url(#${esLineaActiva ? 'flecha-roja' : 'flecha'})`);
+
         if (esLineaActiva) {
-          path.classList.add('resaltada');
+          curva.classed('resaltada', true);
           destino.classList.add('resaltada');
         }
-  
-        svg.appendChild(path);
       });
     });
-  }    
+
+    
+  }
+    
   
 }

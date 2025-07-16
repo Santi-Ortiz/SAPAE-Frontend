@@ -1,125 +1,131 @@
-<h1 id="historial">Historial de Cursos</h1>
-<p class="description">
-  Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
-</p>
-
-<form (ngSubmit)="onSubmit()" enctype="multipart/form-data">
-    <input type="file" (change)="onFileSelected($event)" accept="application/pdf" required />
-  <button type="submit">Cargar PDF</button>
-</form>
-
-<p *ngIf="error" class="error">{{ error }}</p>
-
-<!-- Tabla General de Materias -->
-<table *ngIf="materias?.length">
-  <thead>
-    <tr>
-      <th>Ciclo</th>
-      <th>Materia</th>
-      <th>N° Cat</th>
-      <th>Curso</th>
-      <th>Título</th>
-      <th>Calif</th>
-      <th>Cred</th>
-      <th>Tipo</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let m of materias">
-      <td>{{ m.cicloLectivo }}</td>
-      <td>{{ m.materia }}</td>
-      <td>{{ m.numeroCat }}</td>
-      <td>{{ m.curso }}</td>
-      <td>{{ m.titulo }}</td>
-      <td [ngClass]="{'sin-calificacion': m.calif === 'SIN CALIFICACIÓN'}">
-        {{ m.calif === 'SIN CALIFICACIÓN' ? '⚠️' : m.calif }}
-      </td>
-      <td>{{ m.cred }}</td>
-      <td>{{ m.tipo }}</td>
-    </tr>
-  </tbody>
-</table>
-
-<p *ngIf="materias?.length" class="nota">
-  <span class="warning">⚠️</span> Indica que la asignatura aún no tiene calificación registrada.
-</p>
-
-<!-- Reutilizable para cursos -->
-<ng-container *ngFor="let bloque of bloques">
-  <div *ngIf="bloque.lista?.length">
-    <h2>{{ bloque.titulo }}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Ciclo</th>
-          <th>Materia</th>
-          <th>N° Cat</th>
-          <th>Curso</th>
-          <th>Título</th>
-          <th>Calif</th>
-          <th>Cred</th>
-          <th>Tipo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let m of bloque.lista">
-          <td>{{ m.cicloLectivo }}</td>
-          <td>{{ m.materia }}</td>
-          <td>{{ m.numeroCat }}</td>
-          <td>{{ m.curso }}</td>
-          <td>{{ m.titulo }}</td>
-          <td>{{ m.calif }}</td>
-          <td>{{ m.cred }}</td>
-          <td>{{ m.tipo }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</ng-container>
-
-<!-- Progreso -->
-<div *ngIf="promedio">
-  <h3>Progreso de la carrera</h3>
-  <div class="progress-container">
-    <div class="progress-bar" [style.width.%]="porcentaje">
-      <span>{{ porcentaje.toFixed(2) }}%</span>
+<div class="historial-container">
+    <h1 id="historial">Progreso académico</h1>
+    <p class="description">Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe.</p>
+  
+    <!-- Subida del PDF -->
+    <div class="form-wrapper">
+      <div class="form">
+        <input type="file" (change)="onFileSelected($event)" />
+        <button (click)="onSubmit()">Cargar PDF</button>
+      </div>
     </div>
+    
+  
+    <!-- Mensaje de error -->
+    <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
+  
+    <!-- Tutorial antes de subir -->
+    <div *ngIf="!historial.materias?.length" class="tutorial-box">
+      <div class="tutorial-text">
+        <h2>¿Cómo descargar mi informe de avance?</h2>
+        <p>Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para comenzar a planear tu camino académico.</p>
+      </div>
+      <div class="tutorial-video">
+        
+      </div>
+    </div>
+  
+    <!-- Contenido académico (solo si hay datos) -->
+    <ng-container *ngIf="historial.materias?.length">
+      <!-- Barra de progreso -->
+      <div class="progress-container">
+        <div class="progress-bar" [style.width.%]="historial.porcentaje">
+          {{ historial.porcentaje?.toFixed(2) || '0.00' }}%
+        </div>
+      </div>
+      <h3>Promedio</h3>
+        <p>{{ historial.promedio }}</p>
+      <h3>Semestre</h3>
+      <p>{{ historial.semestre }}</p>
+      <h3>Créditos faltantes</h3>
+      <!-- Créditos y gráfico -->
+      <div class="resumen-grid">
+        <div class="creditos-grid">
+          <div class="cuadro-credito">
+            <h3>ELECTIVAS</h3>
+            <p>{{ historial.faltanElectiva }} créditos</p>
+          </div>
+          <div class="cuadro-credito">
+            <h3>COMPLEMENTARIAS</h3>
+            <p>{{ historial.faltanComplementaria }} créditos</p>
+          </div>
+          <div class="cuadro-credito">
+            <h3>ÉNFASIS</h3>
+            <p>{{ historial.faltanEnfasis }} créditos</p>
+          </div>
+          <div class="cuadro-credito">
+            <h3>ELECTIVA CIENCIAS BÁSICAS</h3>
+            <p>{{ historial.faltanElectivaBasicas }} créditos</p>
+          </div>
+        </div>
+  
+        <div class="grafico-d3" id="donutChartContainer">
+          <h3 class="titulo-grafico">Cantidad de Créditos</h3>
+          
+          <div id="graficoSVG"></div>
+          <div id="leyendaGrafico" class="leyenda-d3"></div>
+        </div>
+        
+      </div>
+  
+      <!-- Requisitos -->
+      <div class="resumen-grid">
+        <div *ngIf="historial.lineasRequisitosGrado?.length" class="requisitos-container">
+          <h3>Requisitos de grado</h3>
+          <div class="badges">
+            <span *ngFor="let linea of historial.lineasRequisitosGrado" class="badge">
+              {{ linea }}
+            </span>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Materias que faltan -->
+      <div *ngIf="historial.listaMateriasFaltantes?.length" class="faltantes-container">
+        <h3>Materias que faltan</h3>
+        <table class="faltantes">
+          <tbody>
+            <tr *ngFor="let mat of historial.listaMateriasFaltantes">
+              <td>{{ mat.nombre }}</td>
+              <td>{{ mat.creditos }} créditos</td> 
+              <td>{{ mat.codigo }}</td>
+            </tr>
+          <tbody>
+        </table>
+      </div>
+  
+      <!-- Historial de cursos -->
+      <div *ngIf="historial.materias?.length" class="tabla-materias">
+        <h3>Historial de cursos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Ciclo</th>
+              <th>Materia</th>
+              <th>N° Cat</th>
+              <th>Curso</th>
+              <th>Título</th>
+              <th>Calif</th>
+              <th>Cred</th>
+              <th>Tipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of historial.materias">
+              <td>{{ m.cicloLectivo }}</td>
+              <td>{{ m.materia }}</td>
+              <td>{{ m.numeroCat }}</td>
+              <td>{{ m.curso }}</td>
+              <td>{{ m.titulo }}</td>
+              <td [ngClass]="{'sin-calificacion': m.calif === 'SIN CALIFICACIÓN'}">
+                {{ m.calif === 'SIN CALIFICACIÓN' ? '⚠️' : m.calif }}
+              </td>
+              <td>{{ m.cred }}</td>
+              <td>{{ m.tipo }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
   </div>
-
-  <h2>Promedio: {{ promedio.toFixed(2) }}</h2>
-  <p>
-    <b>Materias cursadas:</b> {{ materiasCursadas }}<br />
-    <b>Materias que se están cursando:</b> {{ materiasCursando }}<br />
-    <b>Materias faltantes:</b> {{ materiasFaltantes }}
-  </p>
-
-  <div>
-    <h3>Créditos faltantes por tipo:</h3>
-    <ul>
-      <li><b>Electivas:</b> {{ faltanElectiva }} créditos</li>
-      <li><b>Complementarias:</b> {{ faltanComplementaria }} créditos</li>
-      <li><b>Énfasis:</b> {{ faltanEnfasis }} créditos</li>
-      <li><b>Electiva de Ciencias Básicas:</b> {{ faltanElectivaBasicas }} créditos</li>
-    </ul>
-  </div>
-
-  <div *ngIf="listaMateriasFaltantes?.length">
-    <h3>Materias que te faltan:</h3>
-    <ul>
-        <li *ngFor="let mat of listaMateriasFaltantes">
-            {{ mat }}
-        </li>          
-    </ul>
-  </div>
-</div>
-
-<!-- Requisitos de Grado -->
-<div *ngIf="lineasRequisitosGrado?.length">
-  <h2>Requisitos de Grado</h2>
-  <p>{{ lineasRequisitosGrado[0] }}</p>
-  <ul>
-    <li *ngFor="let linea of lineasRequisitosGrado.slice(1)">
-      {{ linea.replace(' / ', ' ➔ ') }}
-    </li>
-  </ul>
-</div>
+  

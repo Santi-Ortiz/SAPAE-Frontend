@@ -15,11 +15,12 @@ export class LecturaService {
   subirArchivo(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('archivo', file);
-
+  
     return this.http.post(this.apiUrl, formData).pipe(
       catchError(this.handleError)
     );
   }
+  
 
   private handleError(error: HttpErrorResponse) {
     console.error('Error en la petición:', error);
