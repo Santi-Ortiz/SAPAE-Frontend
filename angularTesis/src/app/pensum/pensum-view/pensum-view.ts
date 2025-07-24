@@ -126,130 +126,130 @@ export class PensumView implements OnInit, AfterViewInit {
   }
   
 
-  dibujarConexiones(origenSeleccionado: string = '') {
-    const svg = this.svgRef?.nativeElement;
-    const contenedor = this.contenedorRef?.nativeElement;
-    if (!svg || !contenedor) return;
-
-    const width = contenedor.scrollWidth;
-    const height = contenedor.scrollHeight;
-    svg.setAttribute('width', `${width}px`);
-    svg.setAttribute('height', `${height}px`);
-
-    svg.innerHTML = ''; // limpiar SVG antes de dibujar
-
-    const d3svg = d3.select(svg);
-
-    // Definir flechas
+  private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
+    const { scrollWidth: width, scrollHeight: height } = contenedor;
+    svg.setAttribute('width', `${width}`);
+    svg.setAttribute('height', `${height}`);
+    svg.innerHTML = ''; // limpiar SVG
+  }
+  
+  private crearMarcadores(d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) {
     const defs = d3svg.append('defs');
-
-    const marker = defs.append('marker')
-      .attr('id', 'flecha')
+  
+    // Flecha azul clara
+    defs.append('marker')
+      .attr('id', 'flecha-clara')
       .attr('markerWidth', 10)
       .attr('markerHeight', 7)
       .attr('refX', 10)
       .attr('refY', 3.5)
       .attr('orient', 'auto')
-      .attr('markerUnits', 'userSpaceOnUse');
-
-    marker.append('polygon')
+      .attr('markerUnits', 'userSpaceOnUse')
+      .append('polygon')
       .attr('points', '0 0, 10 3.5, 0 7')
-      .attr('fill', '#2a5885');
-
-    const markerRojo = defs.append('marker')
-      .attr('id', 'flecha-roja')
+      .attr('fill', '#90E0EF');
+  
+    // Flecha azul oscura (para resaltado)
+    defs.append('marker')
+      .attr('id', 'flecha-oscura')
       .attr('markerWidth', 10)
       .attr('markerHeight', 7)
       .attr('refX', 10)
       .attr('refY', 3.5)
       .attr('orient', 'auto')
-      .attr('markerUnits', 'userSpaceOnUse');
-
-    markerRojo.append('polygon')
+      .attr('markerUnits', 'userSpaceOnUse')
+      .append('polygon')
       .attr('points', '0 0, 10 3.5, 0 7')
-      .attr('fill', 'black');
+      .attr('fill', '#0077B6');
+  }
+  
 
-    const contenedorRect = contenedor.getBoundingClientRect();
-    const cajas = Array.from(document.querySelectorAll('.caja'));
-
-    const salidasPorCaja = new Map<string, number>();
-    const llegadasPorCaja = new Map<string, number>();
-
+  private obtenerRelaciones(cajas: HTMLElement[]) {
+    const salidas = new Map<string, HTMLElement[]>();
+    const llegadas = new Map<string, HTMLElement[]>();
+  
     cajas.forEach(destino => {
-      const requisitosJson = destino.getAttribute('data-requisitos') || '[]';
-      const destinoId = destino.getAttribute('id')!;
-      let requisitos: string[] = [];
-
-      try {
-        requisitos = JSON.parse(requisitosJson);
-      } catch {}
-
-      requisitos.forEach(codigoOrigen => {
-        salidasPorCaja.set(codigoOrigen, (salidasPorCaja.get(codigoOrigen) || 0) + 1);
-        llegadasPorCaja.set(destinoId, (llegadasPorCaja.get(destinoId) || 0) + 1);
+      const requisitos: string[] = JSON.parse(destino.getAttribute('data-requisitos') || '[]');
+      requisitos.forEach(origenId => {
+        salidas.set(origenId, [...(salidas.get(origenId) || []), destino]);
+        llegadas.set(destino.id, [...(llegadas.get(destino.id) || []), document.getElementById(origenId)!]);
       });
     });
+  
+    return { salidas, llegadas };
+  }
 
-    const salidasUsadas = new Map<string, number>();
-    const llegadasUsadas = new Map<string, number>();
-
+  private dibujarCurvas(
+    d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+    cajas: HTMLElement[],
+    salidas: Map<string, HTMLElement[]>,
+    llegadas: Map<string, HTMLElement[]>,
+    contenedorRect: DOMRect
+  ) {
+    const offsetX = 40;
+  
     cajas.forEach(destino => {
-      const requisitosJson = destino.getAttribute('data-requisitos') || '[]';
-      const destinoId = destino.getAttribute('id')!;
-      let requisitos: string[] = [];
-
-      try {
-        requisitos = JSON.parse(requisitosJson);
-      } catch { return; }
-
+      const requisitos: string[] = JSON.parse(destino.getAttribute('data-requisitos') || '[]');
       const destinoRect = destino.getBoundingClientRect();
-      const totalLlegadas = llegadasPorCaja.get(destinoId) || 1;
-      const destinoIndex = llegadasUsadas.get(destinoId) || 0;
-
-      const destinoYOffset = ((destinoIndex + 1) / (totalLlegadas + 1)) * destinoRect.height;
-      const xDestino = destinoRect.left - contenedorRect.left;
-      const yDestino = destinoRect.top - contenedorRect.top + destinoYOffset;
-
-      llegadasUsadas.set(destinoId, destinoIndex + 1);
-
-      requisitos.forEach(codigoOrigen => {
-        const origen = document.getElementById(codigoOrigen);
+      const totalLlegadas = llegadas.get(destino.id)?.length || 1;
+      let destinoIndex = 0;
+  
+      requisitos.forEach(origenId => {
+        const origen = document.getElementById(origenId);
         if (!origen) return;
-
+  
         const origenRect = origen.getBoundingClientRect();
-        const totalSalidas = salidasPorCaja.get(codigoOrigen) || 1;
-        const origenIndex = salidasUsadas.get(codigoOrigen) || 0;
-
-        const origenYOffset = ((origenIndex + 1) / (totalSalidas + 1)) * origenRect.height;
+        const totalSalidas = salidas.get(origenId)?.length || 1;
+        const salidaIndex = salidas.get(origenId)?.indexOf(destino) || 0;
+  
+        // Coordenadas relativas al contenedor
         const xOrigen = origenRect.right - contenedorRect.left;
-        const yOrigen = origenRect.top - contenedorRect.top + origenYOffset;
+        const yOrigen = origenRect.top - contenedorRect.top + ((salidaIndex + 1) / (totalSalidas + 1)) * origenRect.height;
+  
+        const xDestino = destinoRect.left - contenedorRect.left;
+        const yDestino = destinoRect.top - contenedorRect.top + ((destinoIndex + 1) / (totalLlegadas + 1)) * destinoRect.height;
+        destinoIndex++;
+  
+        const esActiva = this.conexionesActivas.includes(destino.id);
+        const colorLinea = esActiva ? '#0077B6' : '#90E0EF';
+        const marcador = esActiva ? 'flecha-oscura' : 'flecha-clara';
 
-        salidasUsadas.set(codigoOrigen, origenIndex + 1);
-
-        const esLineaActiva = this.conexionesActivas.includes(destinoId);
-
-        // Dibuja curva Bezier (suave)
-        const curva = d3svg.append('path')
+        const path = d3svg.append('path')
           .attr('d', `
             M${xOrigen},${yOrigen}
-            C${(xOrigen + xDestino) / 2},${yOrigen}
-            ${(xOrigen + xDestino) / 2},${yDestino}
+            C${xOrigen + offsetX},${yOrigen}
+            ${xDestino - offsetX},${yDestino}
             ${xDestino},${yDestino}
           `)
           .attr('fill', 'none')
-          .attr('stroke', esLineaActiva ? 'red' : '#2a5885')
-          .attr('stroke-width', esLineaActiva ? 3 : 2)
-          .attr('marker-end', `url(#${esLineaActiva ? 'flecha-roja' : 'flecha'})`);
+          .attr('stroke', colorLinea)
+          .attr('stroke-width', esActiva ? 3 : 2)
+          .attr('marker-end', `url(#${marcador})`);
 
-        if (esLineaActiva) {
-          curva.classed('resaltada', true);
+  
+        if (esActiva) {
+          path.classed('resaltada', true);
           destino.classList.add('resaltada');
         }
       });
     });
-
-    
   }
+
+  dibujarConexiones(origenSeleccionado: string = '') {
+    const svg = this.svgRef?.nativeElement;
+    const contenedor = this.contenedorRef?.nativeElement;
+    if (!svg || !contenedor) return;
+  
+    this.configurarSVG(svg, contenedor);
+    const d3svg = d3.select(svg);
+    this.crearMarcadores(d3svg);
+  
+    const contenedorRect = contenedor.getBoundingClientRect();
+    const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
+    const { salidas, llegadas } = this.obtenerRelaciones(cajas);
+  
+    this.dibujarCurvas(d3svg, cajas, salidas, llegadas, contenedorRect);
+  }  
     
   
 }
