@@ -2,6 +2,7 @@ import { Component, AfterViewInit } from '@angular/core';
 import { ProgresoDTO } from '../dto/progreso-dto';
 import { RouterModule } from '@angular/router';
 import { LecturaService } from '../shared/lectura.service';
+import { EventEmitter, Output } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 import * as d3 from 'd3';
@@ -27,6 +28,8 @@ export class Historial implements AfterViewInit {
     }
   }
 
+  @Output() historialActualizado = new EventEmitter<ProgresoDTO>();
+
   onSubmit(): void {
     if (!this.historial.archivoSeleccionado) {
       this.historial.error = 'Primero seleccione un archivo PDF.';
@@ -42,6 +45,7 @@ export class Historial implements AfterViewInit {
           error: ''
         };
         this.crearDonut();
+        this.historialActualizado.emit(this.historial);
       },      
       error: () => {
         this.historial.error = 'Error al procesar el archivo.';
@@ -93,4 +97,5 @@ export class Historial implements AfterViewInit {
       .attr('d', d => arc(d)!)
       .attr('fill', d => color(d.data.label));
   }
+
 }
