@@ -5,20 +5,23 @@ import { SimulacionService } from '../shared/simulacion.service';
 import { ProgresoDTO } from '../dto/progreso-dto';
 import { ProyeccionDTO } from '../dto/proyeccion-dto';
 import { HistorialService } from '../shared/historial.service';
+import { ProyeccionService } from '../shared/proyeccion.service';
+import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { MateriajsonDTO } from '../dto/materiajson-dto';
 
 @Component({
   selector: 'app-simulacion',
-  imports: [],
+  standalone: true,
+  imports: [NgIf, NgFor, KeyValuePipe],
   templateUrl: './simulacion.html',
   styleUrl: './simulacion.css'
 })
 export class SimulacionComponent implements OnInit {
 
-  //public historial: ProgresoDTO = new ProgresoDTO();
-  public simulacionDTO: SimulacionDTO | null = null;
+  public simulacionDTO: SimulacionDTO = new SimulacionDTO();
   public resultadoSimulacion: Simulacion = new Simulacion();
 
-  constructor(private simulacionService: SimulacionService, private historialService: HistorialService) {}
+  constructor(private simulacionService: SimulacionService, private historialService: HistorialService, private proyeccionService: ProyeccionService) {}
 
   ngOnInit(): void {
 
@@ -29,13 +32,29 @@ export class SimulacionComponent implements OnInit {
           const historial = this.historialService.getHistorial();
           if (historial) {
             this.simulacionDTO.progreso = historial;
+            console.log('Historial DTO: ', this.historialService.getHistorial());
           }
         }
       }
     });
 
-    
+    console.log('Historial DTO: ', this.historialService.getHistorial());
 
+    const proyeccionDTO = {
+      id: 1,
+      semestre: 8,
+      creditos: 20,
+      materias: 10
+    }
+    this.proyeccionService.setProyeccion(proyeccionDTO);
+
+    console.log('Proyección DTO: ', this.proyeccionService.getProyeccion());
+
+    if(this.simulacionDTO){
+      this.simulacionDTO.proyeccion = this.proyeccionService.getProyeccion();
+    }
+
+    console.log('Simulacion DTO: ', this.simulacionDTO);
 
   }
 
@@ -43,6 +62,7 @@ export class SimulacionComponent implements OnInit {
       this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
         next: (resultado) => {
           this.resultadoSimulacion = resultado;
+          console.log('Simulacion generada: ', this.resultadoSimulacion);
         },
         error: (error) => {
           console.error('Error al generar la simulación:', error);
