@@ -1,40 +1,41 @@
-<!-- app.component.html -->
-<div class="app-container">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo-section">
-      <h2>SAPAE</h2>
-    </div>
+<ng-container *ngIf="!hideMenu">
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo-section">
+        <h2>SAPAE</h2>
+      </div>
 
-    <nav class="nav-menu">
-      <a [routerLink]="['/inicio']" routerLinkActive="activo" class="nav-link">
-        <i class="fas fa-home"></i>
-        <span>Inicio</span>
-      </a>
-      <a [routerLink]="['/pensum/view']" routerLinkActive="activo" class="nav-link">
-        <i class="fas fa-list-alt"></i>
-        <span>Plan de estudios</span>
-      </a>
-      <a [routerLink]="['/historial']" routerLinkActive="activo" class="nav-link selected">
-        <i class="fas fa-history"></i>
-        <span>Historial</span>
-      </a>
-      <a [routerLink]="['/simulacion']" routerLinkActive="activo" class="nav-link">
-        <i class="fas fa-calculator"></i>
-        <span>Simulaciones</span>
-      </a>
-      <a [routerLink]="['/recomendaciones']" routerLinkActive="activo" class="nav-link">
-        <i class="fas fa-lightbulb"></i>
-        <span>Recomendaciones</span>
-      </a>
-    </nav>
+      <nav class="nav-menu">
+        <a [routerLink]="['/historial']" routerLinkActive="activo" class="nav-link selected">
+          <i class="fas fa-history"></i>
+          <span>Historial</span>
+        </a>
+        <a [routerLink]="['/pensum/view']" routerLinkActive="activo" class="nav-link">
+          <i class="fas fa-list-alt"></i>
+          <span>Plan de estudios</span>
+        </a>
+        <a [routerLink]="['/simulacion']" routerLinkActive="activo" class="nav-link">
+          <i class="fas fa-calculator"></i>
+          <span>Simulaciones</span>
+        </a>
+        <a [routerLink]="['/recomendaciones']" routerLinkActive="activo" class="nav-link">
+          <i class="fas fa-lightbulb"></i>
+          <span>Recomendaciones</span>
+        </a>
+      </nav>
 
-    <button class="logout-button" (click)="logout()">Cerrar sesión</button>
-  </aside>
+      <button class="logout-button" (click)="logout()">Cerrar sesión</button>
+    </aside>
 
-  <!-- Main content -->
-  <main class="main-content">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+    <!-- Main content -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</ng-container>
+
+<!-- Se muestra cuando el menú está oculto -->
+<ng-container *ngIf="hideMenu">
+  <router-outlet></router-outlet>
+</ng-container>

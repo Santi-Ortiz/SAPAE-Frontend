@@ -1,35 +1,7 @@
-<div class="historial-container">
-    <h1 id="historial">Progreso académico</h1>
-    <p class="description">Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe.</p>
-  
-    <!-- Subida del PDF -->
-    <div class="form-wrapper">
-      <div class="form">
-        <input type="file" (change)="onFileSelected($event)" />
-        <button (click)="onSubmit()">Cargar PDF</button>
-      </div>
-    </div>
-    
-  
-    <!-- Mensaje de error -->
-    <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
-  
-    <!-- Tutorial antes de subir -->
-    <div *ngIf="!historial.materias?.length" class="tutorial-box">
-      <div class="tutorial-text">
-        <h2>¿Cómo descargar mi informe de avance?</h2>
-        <p>Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para comenzar a planear tu camino académico.</p>
-      </div>
-      <div class="tutorial-video">
-        <video controls width="400">
-          <source src="assets/tutorial/VideoInforme.mp4" type="video/mp4">
-          Tu navegador no soporta el video.
-        </video>
-      </div>
-    </div>
-  
+
     <!-- Contenido académico (solo si hay datos) -->
     <ng-container *ngIf="historial.materias?.length">
+      <h1> Progreso académico </h1>
       <!-- Barra de progreso -->
       <div class="progress-container">
         <div class="progress-bar" [style.width.%]="historial.porcentaje">
@@ -130,5 +102,5 @@
         </table>
       </div>
     </ng-container>
-  </div>
+
   

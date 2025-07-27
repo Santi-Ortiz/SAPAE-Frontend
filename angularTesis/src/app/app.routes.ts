@@ -9,11 +9,11 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { authInterceptor } from './interceptor/auth-interceptor';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'pensum/view', pathMatch: 'full' },
   { path: 'pensum/view', component: PensumView },
   { path: 'historial', component: Historial },
   { path: 'simulacion', component: SimulacionComponent },
   { path: 'main', component: Main },
+  { path: '', redirectTo: 'main', pathMatch: 'full' },
 ];
 
 

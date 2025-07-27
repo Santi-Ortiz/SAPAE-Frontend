@@ -1,12 +1,83 @@
 import { Component } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { LecturaService } from '../shared/lectura.service';
+import { HistorialService } from '../shared/historial.service';
+import { ProgresoDTO } from '../dto/progreso-dto';
+import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [],
+  imports: [RouterModule, NgIf, NgFor, NgClass, AsyncPipe],
   templateUrl: './main.html',
-  styleUrl: './main.css'
+  styleUrls: ['./main.css']
 })
 export class Main {
 
+  historial: ProgresoDTO = new ProgresoDTO();
+
+  constructor(
+    private lecturaService: LecturaService,
+    private historialService: HistorialService,
+    private router: Router
+  ) {}
+  
+  features = [
+    {
+      title: 'Historial de progreso',
+      description: 'Consulta tu progreso de manera visual e intuitiva a través del informe de avance cargado.',
+      image: 'assets/images/plan-de-carrera.jpg'
+    },
+    {
+      title: 'Simulación académica',
+      description: 'Genera proyecciones personalizadas según tus asignaturas aprobadas y objetivos académicos.',
+      image: 'assets/images/plan-de-carrera.jpg'
+    },
+    {
+      title: 'Recomendación de materias',
+      description: 'Recibe sugerencias de asignaturas basadas en tus gustos con ayuda de un sistema inteligente.',
+      image: 'assets/images/plan-de-carrera.jpg'
+    },
+    {
+      title: 'Búsqueda de materias',
+      description: 'Encuentra materias por nombre, área o nivel con inteligencia integrada.',
+      image: 'assets/images/plan-de-carrera.jpg'
+    }
+  ];
+
+  benefits = [
+    'Optimizar tu tiempo',
+    'Tener mayor control sobre tu avance',
+    'Planear según tus objetivos personales',
+    'Prevenir retrasos',
+    'Apoyar decisiones académicas con información confiable'
+  ];
+
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      this.historial.archivoSeleccionado = file;
+      this.historial.error = '';
+    } else {
+      this.historial.error = 'Debe seleccionar un archivo PDF válido.';
+    }
+  }
+
+  onSubmit(): void {
+    if (!this.historial.archivoSeleccionado) {
+      this.historial.error = 'Primero seleccione un archivo PDF.';
+      return;
+    }
+
+    this.lecturaService.subirArchivo(this.historial.archivoSeleccionado).subscribe({
+      next: (respuesta) => {
+        this.historialService.setHistorial(respuesta);
+        this.router.navigate(['/historial']); // Redirige con los datos
+      },
+      error: () => {
+        this.historial.error = 'Error al procesar el archivo.';
+      }
+    });
+  }
 }

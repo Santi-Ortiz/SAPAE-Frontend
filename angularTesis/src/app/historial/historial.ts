@@ -1,9 +1,6 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { ProgresoDTO } from '../dto/progreso-dto';
 import { RouterModule } from '@angular/router';
-import { LecturaService } from '../shared/lectura.service';
-import { EventEmitter, Output } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 import * as d3 from 'd3';
 import { HistorialService } from '../shared/historial.service';
@@ -15,48 +12,20 @@ import { HistorialService } from '../shared/historial.service';
   templateUrl: './historial.html',
   styleUrl: './historial.css'
 })
-export class Historial implements AfterViewInit {
+export class Historial implements OnInit, AfterViewInit {
   public historial: ProgresoDTO = new ProgresoDTO();
 
-  constructor(private lecturaService: LecturaService, private historialService: HistorialService) {}
+  constructor(private historialService: HistorialService) {}
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      this.historial.archivoSeleccionado = file;
-    } else {
-      this.historial.error = 'Debe seleccionar un archivo PDF válido.';
+  ngOnInit() {
+    const data = this.historialService.getHistorial();
+    if (data) {
+      this.historial = data;
     }
   }
-
-
-  onSubmit(): void {
-    if (!this.historial.archivoSeleccionado) {
-      this.historial.error = 'Primero seleccione un archivo PDF.';
-      return;
-    }
-  
-    this.lecturaService.subirArchivo(this.historial.archivoSeleccionado).subscribe({
-      next: (respuesta) => {
-        console.log('Respuesta del backend:', respuesta); 
-        this.historial = {
-          ...respuesta,
-          archivoSeleccionado: this.historial.archivoSeleccionado,
-          error: ''
-        };
-        this.historialService.setHistorial(respuesta);
-        this.crearDonut();
-      },      
-      error: () => {
-        this.historial.error = 'Error al procesar el archivo.';
-      }
-    });
-  }
-  
-  
 
   ngAfterViewInit() {
-    this.crearDonut();
+    setTimeout(() => this.crearDonut()); // Espera que el DOM esté listo
   }
 
   crearDonut() {
@@ -68,7 +37,7 @@ export class Historial implements AfterViewInit {
       { label: 'Faltantes', value: this.historial.materiasFaltantes || 0 }
     ];
 
-    d3.select('#donutChartContainer svg')?.remove(); // Elimina gráfico anterior si lo hay
+    d3.select('#donutChartContainer svg')?.remove();
 
     const width = 300, height = 300, radius = Math.min(width, height) / 2;
 
@@ -97,5 +66,4 @@ export class Historial implements AfterViewInit {
       .attr('d', d => arc(d)!)
       .attr('fill', d => color(d.data.label));
   }
-
 }
