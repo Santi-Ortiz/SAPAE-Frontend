@@ -1,2 +1,23 @@
 <button (click)="generarSimulacion()">Generar Simulación</button>
 
+<div *ngIf="resultadoSimulacion">
+  <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
+    <h2>Semestre {{ semestre.key }}</h2>
+
+    <ng-container *ngIf="semestre.value.materias">
+      <ul>
+        <li *ngFor="let materia of semestre.value.materias">
+          <strong>{{ materia.nombre }}</strong> (Código: {{ materia.codigo }})<br>
+          Créditos: {{ materia.creditos }}<br>
+          Requisitos:
+          <ng-container>
+            <ul>
+              <li *ngFor="let req of materia.requisitos">{{ req }}</li>
+            </ul>
+          </ng-container>
+        </li>
+      </ul>
+    </ng-container>
+
+  </div>
+</div>

@@ -19,7 +19,7 @@ import { MateriajsonDTO } from '../dto/materiajson-dto';
 export class SimulacionComponent implements OnInit {
 
   public simulacionDTO: SimulacionDTO = new SimulacionDTO();
-  public resultadoSimulacion: Simulacion = new Simulacion();
+  public resultadoSimulacion: { [semestre: string]: { materias: MateriajsonDTO[] } } = {};
 
   constructor(private simulacionService: SimulacionService, private historialService: HistorialService, private proyeccionService: ProyeccionService) {}
 
@@ -40,6 +40,7 @@ export class SimulacionComponent implements OnInit {
 
     console.log('Historial DTO: ', this.historialService.getHistorial());
 
+    // Se asigna proyección quemada mientras se realiza la interfaz de formulario para la simulación
     const proyeccionDTO = {
       id: 1,
       semestre: 8,
@@ -60,7 +61,7 @@ export class SimulacionComponent implements OnInit {
 
   generarSimulacion() {
       this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
-        next: (resultado) => {
+        next: (resultado: any) => {
           this.resultadoSimulacion = resultado;
           console.log('Simulacion generada: ', this.resultadoSimulacion);
         },
