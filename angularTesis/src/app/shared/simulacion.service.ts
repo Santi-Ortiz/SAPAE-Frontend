@@ -12,7 +12,7 @@ export class SimulacionService {
 
   constructor(private http: HttpClient) { }
 
-  generarSimulacion(): Observable<Simulacion> {
-    return this.http.post<Simulacion>(`${environment.SERVER_URL}/api/simulacion/generar`, {SimulacionDTO});
+  generarSimulacion(simulacionDTO: SimulacionDTO): Observable<Simulacion> {
+    return this.http.post<Simulacion>(`${environment.SERVER_URL}/api/simulacion/generar`, {simulacionDTO});
   }
 }

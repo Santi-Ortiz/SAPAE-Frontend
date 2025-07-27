@@ -6,6 +6,7 @@ import { EventEmitter, Output } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 import * as d3 from 'd3';
+import { HistorialService } from '../shared/historial.service';
 
 @Component({
   selector: 'app-historial',
@@ -17,7 +18,7 @@ import * as d3 from 'd3';
 export class Historial implements AfterViewInit {
   public historial: ProgresoDTO = new ProgresoDTO();
 
-  constructor(private lecturaService: LecturaService) {}
+  constructor(private lecturaService: LecturaService, private historialService: HistorialService) {}
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
@@ -28,7 +29,6 @@ export class Historial implements AfterViewInit {
     }
   }
 
-  @Output() historialActualizado = new EventEmitter<ProgresoDTO>();
 
   onSubmit(): void {
     if (!this.historial.archivoSeleccionado) {
@@ -44,8 +44,8 @@ export class Historial implements AfterViewInit {
           archivoSeleccionado: this.historial.archivoSeleccionado,
           error: ''
         };
+        this.historialService.setHistorial(respuesta);
         this.crearDonut();
-        this.historialActualizado.emit(this.historial);
       },      
       error: () => {
         this.historial.error = 'Error al procesar el archivo.';
