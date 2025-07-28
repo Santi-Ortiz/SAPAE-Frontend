@@ -7,6 +7,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { authInterceptor } from './interceptor/auth-interceptor';
+import { App } from './app';
 
 export const routes: Routes = [
   { path: 'pensum/view', component: PensumView },
@@ -17,7 +18,7 @@ export const routes: Routes = [
 ];
 
 
-bootstrapApplication(Main, {
+bootstrapApplication(App, {
     providers: [
         provideRouter(routes),
         provideHttpClient(withInterceptorsFromDi()),

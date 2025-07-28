@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { LecturaService } from '../shared/lectura.service';
 import { HistorialService } from '../shared/historial.service';
@@ -22,6 +22,8 @@ export class Main {
     private router: Router
   ) {}
   
+  @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
+
   features = [
     {
       title: 'Historial de progreso',
@@ -44,6 +46,20 @@ export class Main {
       image: 'assets/images/plan-de-carrera.jpg'
     }
   ];
+
+  scrollLeft() {
+    this.scrollContainer.nativeElement.scrollBy({
+      left: -300,
+      behavior: 'smooth'
+    });
+  }
+
+  scrollRight() {
+    this.scrollContainer.nativeElement.scrollBy({
+      left: 300,
+      behavior: 'smooth'
+    });
+  }
 
   benefits = [
     'Optimizar tu tiempo',

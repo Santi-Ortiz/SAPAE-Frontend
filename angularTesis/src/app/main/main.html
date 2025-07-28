@@ -18,7 +18,8 @@
 <div class="historial-container">
     <!-- <h1 id="historial">Progreso académico</h1> -->
     <p class="description">
-      Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el historial de cursos registrados en el informe.
+      Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
+       historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
     </p>
   
     <div class="form-wrapper">
@@ -55,49 +56,45 @@
       proceso formativo y garantizar una planeación académica clara y eficiente.
     </p>
   
-    <div class="feature-cards">
-      <div class="card" *ngFor="let feature of features">
-        <img [src]="feature.image" [alt]="feature.title" />
-        <h3>{{ feature.title }}</h3>
-        <p>{{ feature.description }}</p>
+    <div class="feature-carousel">
+      <button class="arrow left" (click)="scrollLeft()">
+        ‹
+      </button>
+    
+      <div class="feature-scroll-wrapper" #scrollContainer>
+        <div class="feature-cards">
+          <div class="card" *ngFor="let feature of features">
+            <img [src]="feature.image" [alt]="feature.title" />
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        </div>
       </div>
-    </div>
+    
+      <button class="arrow right" (click)="scrollRight()">
+        ›
+      </button>
+    </div>      
 </section>
   
   <!-- Beneficios -->
-<section class="benefits">
+  <section class="benefits">
     <h2>Te ayudará a</h2>
-    <ul>
-      <li *ngFor="let benefit of benefits">{{ benefit }}</li>
+    <ul class="benefit-list">
+      <li *ngFor="let benefit of benefits">
+        <span class="check-icon">✔</span>
+        <span class="benefit-text">{{ benefit }}</span>
+      </li>
     </ul>
-</section>
-  
+  </section>  
 
   <!-- Footer -->
 <footer class="footer">
     <div class="footer-logo">
       <!--<img src="assets/images/logo.png" alt="Logo" /> -->
     </div>
-    <div class="footer-links">
-      <div>
-        <h4>Product</h4>
-        <a href="#">Features</a>
-        <a href="#">Pricing</a>
-      </div>
-      <div>
-        <h4>Resources</h4>
-        <a href="#">Blog</a>
-        <a href="#">User guides</a>
-      </div>
-      <div>
-        <h4>Company</h4>
-        <a href="#">About</a>
-        <a href="#">Join us</a>
-      </div>
-    </div>
     <p class="footer-copy">
-      © 2022 Brand, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> ·
-      <a href="#">Sitemap</a>
+      © 2025 SAPAE. 
     </p>
   </footer>
   
