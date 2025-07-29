@@ -14,14 +14,28 @@ import { HistorialService } from '../shared/historial.service';
 })
 export class Historial implements OnInit, AfterViewInit {
   public historial: ProgresoDTO = new ProgresoDTO();
-
+  public tablasExtra: { titulo: string; lista: any[] }[] = [];
   constructor(private historialService: HistorialService) {}
 
   ngOnInit() {
     const data = this.historialService.getHistorial();
     if (data) {
       this.historial = data;
+      this.tablasExtra = [
+        { titulo: 'Electivas Universidad', lista: this.historial.cursosElectivas },
+        { titulo: 'Énfasis', lista: this.historial.cursosEnfasis },
+        { titulo: 'Complementaria Lenguas', lista: this.historial.cursosComplementariaLenguas },
+        { titulo: 'Complementaria Información', lista: this.historial.cursosComplementariaInformacion },
+        { titulo: 'Énfasis validado como Complementaria (IA)', lista: this.historial.cursosIA },
+        { titulo: 'Énfasis Computación', lista: this.historial.cursosDesarrolloComputacion },
+        { titulo: 'Énfasis Gestión', lista: this.historial.cursosDesarrolloGestion },
+        { titulo: 'Énfasis Visual', lista: this.historial.cursosComputacionVisual },
+        { titulo: 'CV validado como IA', lista: this.historial.cursosCVtoIA },
+        { titulo: 'SIG validado como IA', lista: this.historial.cursosSIGtoIA },
+        { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas }
+      ];
     }
+    
   }
 
   ngAfterViewInit() {
@@ -66,4 +80,26 @@ export class Historial implements OnInit, AfterViewInit {
       .attr('d', d => arc(d)!)
       .attr('fill', d => color(d.data.label));
   }
+
+  get requisitosProcesados() {
+    return this.historial.lineasRequisitosGrado
+      ?.filter(linea =>
+        !linea.includes('Condición general no satisfecha: Requisitos de grado') &&
+        !linea.includes('Condición general satisfecha: Requisitos de grado')&&
+        !linea.includes('Satisfecho: Requisitos de grado')
+      )
+      .map(linea => {
+        const partes = linea.split('/');
+        const nombre = partes[0]?.trim() || '';
+        const estado = partes[1]?.trim().toLowerCase() || '';
+        const cumplido = estado.includes('satisfecho') && !estado.includes('no');
+  
+        return {
+          nombre,
+          cumplido
+        };
+      }) || [];
+  }  
+  
+  
 }

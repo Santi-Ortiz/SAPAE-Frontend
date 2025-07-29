@@ -1,13 +1,195 @@
+
 h1 {
   text-align: center;
-  color: black;
+  color: #00B4D8;
+  font-size: 36px;
+  margin-bottom: 20px;
 }
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+h3 {
+  color: black;
+  font-size: 26px;
+  margin-top: 40px;
+}
+
+.titulo {
+  font-size: 18px;
+  color: black;
+  margin-top: 6px;
+}
+
+.valor {
+  font-size: 50px;
+  font-weight: bold;
+  color: #0077B6;
+  text-shadow: 2px 2px 4px #CAF0F8;
+}
+
+.seccion-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+.descripcion-seccion {
+  font-size: 16px;
+  color: #444;
+  max-width: 700px;
+  margin: 10px auto 0;
+  line-height: 1.6;
+}
+
+/* INFORMACIÓN RESUMIDA */
+.resumen-info {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 40px auto 20px;
+  flex-wrap: wrap;
+}
+
+.info-bloque {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
+  width: 220px;
+}
+
+/* BARRA DE PROGRESO */
+.barra-container {
+  padding: 0 20px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
+
+.progress-container {
+  width: 100%;
+  background-color: #CAF0F8;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 30px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #0077B6;
+  color: #fff;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  transition: width 0.5s;
+  font-size: 1.1em;
+}
+
+/*  CRÉDITOS Y GRÁFICO  */
+.resumen-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 20px;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.creditos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr)); 
+  gap: 16px;
+  flex: 1;
+}
+
+.cuadro-credito {
+  background-color: #CAF0F8;
+  border-left: 6px solid #00B4D8;
+  padding: 12px;
+  border-radius: 8px;
+  color: black;
+  font-weight: bold;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.cuadro-credito h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: lighter;
+}
+
+.cuadro-credito p {
+  margin: 4px 0 0;
+  font-size: 16px;
+}
+
+.grafico-d3 {
+  width: 400px;
+  height: 300px;
+}
+
+.titulo-grafico {
+  text-align: left;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.leyenda-d3 {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 16px;
+  color: #333;
+}
+
+/*  REQUISITOS */
+.requisitos-container {
+  margin-top: 32px;
+}
+
+.requisitos-lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 16px;
+  justify-content: center; 
+}
+
+.requisitos-lista li {
+  display: flex;
+  align-items: start;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  background: #ffffff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: background 0.3s ease;
+  min-width: 450px;
+}
+
+.requisitos-lista li:hover {
+  background: #e8faff;
+}
+
+.check-icon {
+  color: #0077B6;
+  font-weight: bold;
+  font-size: 1.4rem;
+  margin-right: 12px;
+  line-height: 1;
+}
+
+.benefit-text {
+  flex: 1;
+  color: #333;
+}
+
+/*  MATERIAS FALTANTES  */
+.faltantes-container {
+  margin-top: 32px;
 }
 
 table.faltantes {
@@ -15,8 +197,7 @@ table.faltantes {
   border-collapse: collapse;
   margin-top: 20px;
   background-color: white;
-  box-shadow: none;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 table.faltantes th,
@@ -26,152 +207,49 @@ table.faltantes td {
   vertical-align: middle;
   background-color: white;
 }
+
 table.faltantes td:first-child::before {
   content: "●";
   color: #0077B6; 
-  font-size: 12px;
+  font-size: 10px;
   display: inline-block;
   margin-right: 8px;
   transform: translateY(-1px);
 }
 
 table.faltantes tr {
-  border-bottom: 1px solid #ccc; /* Línea horizontal gris clara */
+  border-bottom: 1px solid #ccc;
 }
 
 table.faltantes tr:last-child {
-  border-bottom: none; /* Elimina línea extra al final */
+  border-bottom: none;
 }
 
+/*  TABLA DE HISTORIAL DE CURSOS  */
+.tabla-materias {
+  margin-top: 40px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
 th {
-    background-color: #0077B6;
-    color: white;
-    padding: 10px;
+  background-color: #0077B6;
+  color: white;
+  padding: 10px;
 }
 
 td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    text-align: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
 }
 
 tr:nth-child(even) {
-    background-color: #f9fbff;
+  background-color: #f9fbff;
 }
-
-.progress-container {
-    width: 100%;
-    background-color: #CAF0F8;
-    border-radius: 20px;
-    overflow: hidden;
-    height: 30px;
-    margin-bottom: 20px;
-}
-
-.progress-bar {
-    height: 100%;
-    background-color: #0077B6;
-    color: #fff;
-    text-align: center;
-    line-height: 30px;
-    font-weight: bold;
-    transition: width 0.5s;
-    font-size: 1.1em;
-}
-
-.progreso-carrera-section {
-    margin-top: 40px;
-    margin-bottom: 40px;
-}
-
-.resumen-grid {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-top: 20px;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-  
-  .creditos-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(180px, 1fr)); 
-    gap: 16px;
-    flex: 1;
-  }
-  
-  .cuadro-credito {
-    background-color: #caf0f8;
-    border-left: 6px solid #00B4D8;
-    padding: 12px;
-    border-radius: 8px;
-    color: black;
-    font-weight: bold;
-    text-align: left;
-  }
-  
-  .cuadro-credito h3 {
-    margin: 0;
-    font-size: 18px;
-  }
-  
-  .cuadro-credito p {
-    margin: 4px 0 0;
-    font-size: 16px;
-  }
-  
-  .grafico-d3 {
-    width: 400px;
-    height: 300px;
-  }
-  .titulo-grafico {
-    text-align: left;
-    margin-bottom: 10px;
-    font-size: 12px;
-    color:rgba(0, 0, 0, 0.2);
-  }
-  
-  .leyenda-d3 {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 14px;
-    color: #333;
-  }
-  
-  .requisitos-container {
-    margin-top: 32px;
-  }
-  
-  .badges {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  
-  .badge {
-    background-color: #e0f7fa;
-    color: #0077B6;
-    padding: 4px 12px;
-    border-radius: 9999px;
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  .faltantes-container {
-    margin-top: 32px;
-  }
-  
-  .tabla-materias {
-    margin-top: 40px;
-  }
-
-  .error {
-    color: red;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  

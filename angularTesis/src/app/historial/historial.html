@@ -3,15 +3,21 @@
     <ng-container *ngIf="historial.materias?.length">
       <h1> Progreso académico </h1>
       <!-- Barra de progreso -->
-      <div class="progress-container">
-        <div class="progress-bar" [style.width.%]="historial.porcentaje">
-          {{ historial.porcentaje?.toFixed(2) || '0.00' }}%
+      <div class="resumen-info">
+        <div class="info-bloque">
+          <div class="valor">{{ historial.promedio }}</div>
+          <div class="titulo">Promedio</div>
         </div>
-      </div>
-      <h3>Promedio</h3>
-        <p>{{ historial.promedio }}</p>
-      <h3>Semestre</h3>
-      <p>{{ historial.semestre }}</p>
+        <div class="info-bloque">
+          <div class="valor">{{ historial.semestre }}</div>
+          <div class="titulo">Semestre</div>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="historial.porcentaje">
+            {{ historial.porcentaje?.toFixed(2) || '0.00' }}%
+          </div>
+        </div>
+      </div>      
       <h3>Créditos faltantes</h3>
       <!-- Créditos y gráfico -->
       <div class="resumen-grid">
@@ -36,23 +42,22 @@
   
         <div class="grafico-d3" id="donutChartContainer">
           <h3 class="titulo-grafico">Cantidad de Créditos</h3>
-          
           <div id="graficoSVG"></div>
           <div id="leyendaGrafico" class="leyenda-d3"></div>
         </div>
-        
       </div>
   
       <!-- Requisitos -->
       <div class="resumen-grid">
-        <div *ngIf="historial.lineasRequisitosGrado?.length" class="requisitos-container">
+        <div class="requisitos-container" *ngIf="requisitosProcesados.length">
           <h3>Requisitos de grado</h3>
-          <div class="badges">
-            <span *ngFor="let linea of historial.lineasRequisitosGrado" class="badge">
-              {{ linea }}
-            </span>
-          </div>
-        </div>
+          <ul class="requisitos-lista">
+            <li *ngFor="let requisito of requisitosProcesados">
+              <span class="check-icon" *ngIf="requisito.cumplido">✔</span>
+              <span class="benefit-text">{{ requisito.nombre }}</span>
+            </li>
+          </ul>
+        </div>              
       </div>
   
       <!-- Materias que faltan -->
@@ -100,7 +105,40 @@
             </tr>
           </tbody>
         </table>
-      </div>
+        <div *ngFor="let tabla of tablasExtra">
+          <div *ngIf="tabla.lista?.length">
+            <h3>{{ tabla.titulo }}</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Ciclo</th>
+                  <th>Materia</th>
+                  <th>N° Cat</th>
+                  <th>Curso</th>
+                  <th>Título</th>
+                  <th>Calif</th>
+                  <th>Cred</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of tabla.lista">
+                  <td>{{ m.cicloLectivo }}</td>
+                  <td>{{ m.materia }}</td>
+                  <td>{{ m.numeroCat }}</td>
+                  <td>{{ m.curso }}</td>
+                  <td>{{ m.titulo }}</td>
+                  <td [ngClass]="{'sin-calificacion': m.calif === 'SIN CALIFICACIÓN'}">
+                    {{ m.calif === 'SIN CALIFICACIÓN' ? '⚠️' : m.calif }}
+                  </td>
+                  <td>{{ m.cred }}</td>
+                  <td>{{ m.tipo }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>              
+    </div> 
     </ng-container>
 
   
