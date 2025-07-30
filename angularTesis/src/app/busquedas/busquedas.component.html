@@ -1,0 +1,18 @@
+<section class="busquedas-container">
+  <h1 class="titulo-principal">Consulta tus dudas sobre el reglamento estudiantil</h1>
+  <p class="descripcion-seccion">
+    Ingresa una pregunta relacionada con el reglamento estudiantil y obtén una respuesta inmediata con nuestra IA local.
+  </p>
+
+  <div class="formulario">
+    <textarea [(ngModel)]="pregunta" placeholder="Ej: ¿Cuál es la calificación mínima aprobatoria?"></textarea>
+    <button (click)="consultarIA()">Consultar</button>
+  </div>
+
+  <div *ngIf="cargando" class="mensaje-cargando">Consultando, un momento por favor...</div>
+
+  <div *ngIf="respuesta && !cargando" class="respuesta-box">
+    <h3 class="titulo-respuesta">Respuesta:</h3>
+    <p>{{ respuesta }}</p>
+  </div>
+</section>
