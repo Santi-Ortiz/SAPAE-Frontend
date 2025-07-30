@@ -44,42 +44,75 @@ export class Historial implements OnInit, AfterViewInit {
 
   crearDonut() {
     if (!this.historial) return;
-
+  
     const data = [
-      { label: 'Cursados', value: this.historial.materiasCursadas || 0 },
-      { label: 'En curso', value: this.historial.materiasCursando || 0 },
-      { label: 'Faltantes', value: this.historial.materiasFaltantes || 0 }
+      { label: 'Créditos cursados', value: this.historial.materiasCursadas || 0 },
+      { label: 'Créditos en curso', value: this.historial.materiasCursando || 0 },
+      { label: 'Créditos faltantes', value: this.historial.materiasFaltantes || 0 }
     ];
-
-    d3.select('#donutChartContainer svg')?.remove();
-
-    const width = 300, height = 300, radius = Math.min(width, height) / 2;
-
+  
+    const total = data.reduce((sum, d) => sum + d.value, 0);
+  
+    d3.select('#graficoSVG').selectAll("*").remove();
+  
+    const width = 200, height = 300, radius = Math.min(width, height) / 2;
+  
     const color = d3.scaleOrdinal<string>()
       .domain(data.map(d => d.label))
-      .range(["#0077B6", "#90e0ef", "#caf0f8"]);
-
-    const svg = d3.select('#donutChartContainer')
+      .range(["#0077B6", "#00b4d8", "#90e0ef"]);
+  
+    const svg = d3.select('#graficoSVG')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
-
-    const arc = d3.arc<d3.PieArcDatum<{ label: string, value: number }>>()
-      .innerRadius(70)
+  
+    const arc = d3.arc<d3.PieArcDatum<typeof data[0]>>()
+      .innerRadius(80)
       .outerRadius(radius);
-
-    const pie = d3.pie<{ label: string, value: number }>()
-      .value(d => d.value);
-
-    svg.selectAll('path')
+  
+    const pie = d3.pie<typeof data[0]>()
+      .value(d => d.value)
+      .sort(null);
+  
+    // Texto central (total)
+    const centerText = svg.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
+      .style("font-size", "28px")
+      .style("font-weight", "bold")
+      .text(total);
+  
+    // Arcos
+    const arcs = svg.selectAll('path')
       .data(pie(data))
       .enter()
       .append('path')
-      .attr('d', d => arc(d)!)
-      .attr('fill', d => color(d.data.label));
+      .attr('d', arc as any)
+      .attr('fill', d => color(d.data.label))
+      .on("mouseover", function (event, d) {
+        centerText.text(d.data.value);
+      })
+      .on("mouseout", function () {
+        centerText.text(total);
+      });
+  
+    // Leyenda
+    const leyenda = d3.select("#leyendaGrafico");
+    leyenda.selectAll("*").remove(); // Limpia la leyenda
+  
+    data.forEach(d => {
+      const item = leyenda.append("div").style("display", "flex").style("align-items", "center");
+      item.append("div")
+        .style("width", "12px")
+        .style("height", "12px")
+        .style("background-color", color(d.label))
+        .style("margin-right", "8px");
+      item.append("span").text(d.label);
+    });
   }
+  
 
   get requisitosProcesados() {
     return this.historial.lineasRequisitosGrado

@@ -87,9 +87,8 @@ h3 {
 .resumen-grid {
   display: flex;
   justify-content: space-between;
+  gap: 20px;
   align-items: flex-start;
-  margin-top: 20px;
-  gap: 2rem;
   flex-wrap: wrap;
 }
 
@@ -103,45 +102,80 @@ h3 {
 .cuadro-credito {
   background-color: #CAF0F8;
   border-left: 6px solid #00B4D8;
-  padding: 12px;
+  padding: 14px;
   border-radius: 8px;
   color: black;
   font-weight: bold;
   text-align: left;
+  height: 110px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .cuadro-credito h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: lighter;
 }
 
 .cuadro-credito p {
   margin: 4px 0 0;
-  font-size: 16px;
+  font-size: 20px;
+  margin-top: 25px;
 }
 
+/* GRÁFICO */
 .grafico-d3 {
-  width: 400px;
-  height: 300px;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1.1;
+}
+
+.grafico-contenido {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.grafico-svg-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .titulo-grafico {
-  text-align: left;
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: rgba(0, 0, 0, 0.2);
+  margin: 0 0 4px 0; 
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  text-align: center;
 }
 
+#graficoSVG {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Leyenda */
 .leyenda-d3 {
-  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 16px;
-  color: #333;
+  gap: 8px;
+  padding-left: 10px;
+  align-items: flex-start;
 }
+
 
 /*  REQUISITOS */
 .requisitos-container {
