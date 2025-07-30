@@ -1,3 +1,56 @@
+<div>
+  <div>
+    <h1>Simulación de Escenarios Académicos</h1>
+    <p>Proyecta tu próximo semestre con base en tus avances, pendientes y preferencias. Esta simulación te sugiere las materias ideales según tu situación académica, ayudándote a planificar mejor tu carga y avanzar de forma óptima. Ahorra tiempo, evita errores de inscripción y planifica tu semestre con datos reales.</p>
+  </div>
+  <div>
+    <h2>Preferencias Académicas</h2>
+    <p>Selecciona las configuraciones que permitirán establecer los parámetros dentro de la simulación.</p>
+    <div>
+      <p>Semestre a proyectar</p>
+      <input type="number" id="semestreInput" placeholder="Ingrese el semestre" [(ngModel)]="semestreInput" />
+    </div>
+    <div>
+      <p>Tipo de Matrícula</p>
+      <select name="tipoMatricula" id="tipoMatricula">
+        <option value="Media Matricula">Media Matrícula</option>
+        <option value="Matricula completa">Matrícula completa</option>
+        <option value="Matricula completa + 1 créditos">Matrícula completa + 1 créditos</option>
+        <option value="Matricula completa + 2 créditos">Matrícula completa + 2 créditos</option>
+        <option value="Matricula completa + 3 créditos">Matrícula completa + 3 créditos</option>
+        <option value="Matricula completa + 4 créditos">Matrícula completa + 4 créditos</option>
+      </select>
+    </div>
+    <div>
+      <p>Créditos a Inscribir</p>
+      <input type="number" id="creditosInput" placeholder="Ingrese la cantidad de créditos" [(ngModel)] ="creditosInput"/>
+    </div>
+    <div>
+      <p>Materias a Inscribir</p>
+      <input type="number" id="materiasInput"  placeholder="Ingrese la cantidad de materias" [(ngModel)] ="materiasInput"/>
+    </div>
+  </div>
+
+  <div>
+    <h2>Priorización de Materias</h2>
+    <p>Selecciona las materias prioritarias para futuros semestres, con el objetivo que la simulación se genere a partir de tus preferencias. Selecciona máximo 3 campos para mejorar la predicción. </p>
+    <label for="checkbox">
+      <input type="checkbox" /> Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas) <br>
+      <input type="checkbox" /> Núcleo de Ingeniería Aplicada (Específicas de la carrera) <br>
+      <input type="checkbox" /> Núcleo Socio-humanística (ej. Teologías, Éticas) <br>
+      <input type="checkbox" /> Electivas <br>
+      <input type="checkbox" /> Complementarias <br>
+      <input type="checkbox" /> Énfasis
+    </label>
+  
+  </div>
+
+
+  
+</div>
+
+
+
 <button (click)="generarSimulacion()">Generar Simulación</button>
 
 <div *ngIf="resultadoSimulacion">
