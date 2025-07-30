@@ -1,6 +1,6 @@
 .busquedas-container {
   padding: 60px 30px;
-  background-color: #f9fcff;
+  background-color: white;
   max-width: 800px;
   margin: 0 auto;
   border-radius: 12px;
@@ -78,4 +78,76 @@ button:hover {
 .titulo-respuesta {
   color: #0077B6;
   margin-bottom: 10px;
+}
+
+/* Spinner */
+.spinner {
+  border: 6px solid #caf0f8;
+  border-top: 6px solid #00B4D8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: girar 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes girar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Aviso informativo */
+.aviso-busquedas {
+  display: flex;
+  background-color: #00B4D8;
+  color: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 40px;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.aviso-texto {
+  flex: 1;
+}
+
+.aviso-texto h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.aviso-texto p {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.aviso-texto ul {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.aviso-texto li {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.aviso-imagen {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 250px;
+}
+
+.aviso-imagen img {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }

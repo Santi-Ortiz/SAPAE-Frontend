@@ -9,10 +9,31 @@
     <button (click)="consultarIA()">Consultar</button>
   </div>
 
-  <div *ngIf="cargando" class="mensaje-cargando">Consultando, un momento por favor...</div>
+  <!-- Spinner mientras carga -->
+  <div *ngIf="cargando" class="mensaje-cargando">
+    <div class="spinner"></div>
+    <p>Consultando, un momento por favor...</p>
+  </div>
 
+  <!-- Resultado -->
   <div *ngIf="respuesta && !cargando" class="respuesta-box">
     <h3 class="titulo-respuesta">Respuesta:</h3>
     <p>{{ respuesta }}</p>
+  </div>
+
+  <!-- Aviso informativo (siempre visible) -->
+  <div class="aviso-busquedas">
+    <div class="aviso-texto">
+      <h2>Recuerda que ...</h2>
+      <p>Solo podrás realizar búsquedas relacionadas con:</p>
+      <ul>
+        <li>Información de la carrera</li>
+        <li>Información de la universidad</li>
+        <li>Reglamento de la universidad</li>
+      </ul>
+    </div>
+    <div class="aviso-imagen">
+      <img src="assets/images/recordatorio.png" alt="Recordatorio SAPAE" />
+    </div>
   </div>
 </section>
