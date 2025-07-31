@@ -48,8 +48,8 @@ export class Historial implements OnInit, AfterViewInit {
   crearDonut() {
     //if (!this.historial) return;
     const data = [
-      { label: 'Créditos cursados', /*value: this.historial.materiasCursadas*/ value: this.historial.creditosCursados || 0 },
-      { label: 'Créditos en curso', /*value: this.historial.materiasCursando*/ value: this.historial.creditosCursando || 0 },
+      { label: 'Créditos cursados', /*value: this.historial.materiasCursadas*/ value: this.historial.creditosCursando || 0 },
+      { label: 'Créditos en curso', /*value: this.historial.materiasCursando*/ value: this.historial.creditosCursados || 0 },
       { label: 'Créditos faltantes', /*value: this.historial.materiasFaltantes*/ value: this.historial.creditosFaltantes || 0 }
     ];
   
