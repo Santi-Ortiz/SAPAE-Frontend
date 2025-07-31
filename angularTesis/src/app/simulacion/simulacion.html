@@ -1,23 +1,69 @@
-<button (click)="generarSimulacion()">Generar Simulación</button>
+<div class="simulacion-container">
+  <section class="titulo-simulacion">
+    <h1>Simulación de Escenarios Académicos</h1>
+    <p>Proyecta tu próximo semestre con base en tus avances, pendientes y preferencias. Esta simulación te sugiere las materias ideales según tu situación académica, ayudándote a planificar mejor tu carga y avanzar de forma óptima. Ahorra tiempo, evita errores de inscripción y planifica tu semestre con datos reales.</p>
+  </section>
+
+  <section class="preferencias-academicas">
+    <h2>Preferencias Académicas</h2>
+    <form class="form-vertical">
+      <div class="form-group">
+        <label for="semestreInput">Número de Semestre a Proyectar</label>
+        <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput" />
+      </div>
+
+      <div class="form-group">
+        <label for="tipoMatricula">Tipo de Matrícula</label>
+        <select id="tipoMatricula" name="tipoMatricula" [(ngModel)]="matriculaInput">
+          <option value="Media Matrícula">Media Matrícula</option>
+          <option value="Matrícula completa">Matrícula completa</option>
+          <option value="Matrícula completa + 1 crédito">Matrícula completa + 1 crédito</option>
+          <option value="Matrícula completa + 2 créditos">Matrícula completa + 2 créditos</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="creditosInput">Cantidad de Créditos a Inscribir</label>
+        <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput" />
+      </div>
+
+      <div class="form-group">
+        <label for="materiasInput">Cantidad de Materias a Inscribir</label>
+        <input type="number" id="materiasInput" name="materiasInput" [(ngModel)]="materiasInput" />
+      </div>
+    </form>
+  </section>
+
+
+  <section class="priorizacion-materias">
+    <h2>Priorización de Materias</h2>
+    <p>Selecciona las materias prioritarias para futuros semestres. Máximo 3 campos para mejorar la predicción.</p>
+    <div class="checkbox-group">
+      <label><input type="checkbox" /> Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas)</label>
+      <label><input type="checkbox" /> Núcleo de Ingeniería Aplicada (Específicas de la carrera)</label>
+      <label><input type="checkbox" /> Núcleo Socio-humanística (ej. Teologías, Éticas)</label>
+      <label><input type="checkbox" /> Electivas</label>
+      <label><input type="checkbox" /> Complementarias</label>
+      <label><input type="checkbox" /> Énfasis</label>
+    </div>
+  </section>
+
+  <button class="simulacion-button" (click)="generarSimulacion()">Generar Simulación</button>
+</div>
+
 
 <div *ngIf="resultadoSimulacion">
   <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
     <h2>Semestre {{ semestre.key }}</h2>
-
-    <ng-container *ngIf="semestre.value.materias">
-      <ul>
-        <li *ngFor="let materia of semestre.value.materias">
-          <strong>{{ materia.nombre }}</strong> (Código: {{ materia.codigo }})<br>
-          Créditos: {{ materia.creditos }}<br>
-          Requisitos:
-          <ng-container>
-            <ul>
-              <li *ngFor="let req of materia.requisitos">{{ req }}</li>
-            </ul>
-          </ng-container>
-        </li>
-      </ul>
-    </ng-container>
-
+    <ul *ngIf="semestre.value.materias">
+      <li *ngFor="let materia of semestre.value.materias">
+        <strong>{{ materia.nombre }}</strong> (Código: {{ materia.codigo }})<br />
+        Créditos: {{ materia.creditos }}<br />
+        Requisitos:
+        <ul>
+          <li *ngFor="let req of materia.requisitos">{{ req }}</li>
+        </ul>
+      </li>
+    </ul>
   </div>
 </div>
