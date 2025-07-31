@@ -2,11 +2,14 @@ import { MateriaDTO } from './materia-dto';
 import { MateriajsonDTO } from './materiajson-dto';
 
 export class ProgresoDTO {
+  promedio?: number;
   materias: MateriaDTO[] = []; 
   materiasCursadas?: number;
-  materiasCursando?: number;
   materiasFaltantes?: number;
-  promedio?: number;
+  materiasCursando?: number;
+  creditosCursando?: number;
+  creditosCursados?: number;
+  creditosFaltantes?: number;
   porcentaje?: number;
   semestre?: number;
   faltanElectiva?: number;

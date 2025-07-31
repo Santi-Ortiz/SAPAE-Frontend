@@ -19,6 +19,7 @@ export class Historial implements OnInit, AfterViewInit {
 
   ngOnInit() {
     const data = this.historialService.getHistorial();
+    console.log('Datos recibidos del backend:', data);
     if (data) {
       this.historial = data;
       this.tablasExtra = [
@@ -34,21 +35,22 @@ export class Historial implements OnInit, AfterViewInit {
         { titulo: 'SIG validado como IA', lista: this.historial.cursosSIGtoIA },
         { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas }
       ];
+      this.crearDonut(); 
+      setTimeout(() => this.crearDonut(), 0);
     }
     
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.crearDonut()); // Espera que el DOM esté listo
+    
   }
 
   crearDonut() {
-    if (!this.historial) return;
-  
+    //if (!this.historial) return;
     const data = [
-      { label: 'Créditos cursados', value: this.historial.materiasCursadas || 0 },
-      { label: 'Créditos en curso', value: this.historial.materiasCursando || 0 },
-      { label: 'Créditos faltantes', value: this.historial.materiasFaltantes || 0 }
+      { label: 'Créditos cursados', /*value: this.historial.materiasCursadas*/ value: this.historial.creditosCursados || 0 },
+      { label: 'Créditos en curso', /*value: this.historial.materiasCursando*/ value: this.historial.creditosCursando || 0 },
+      { label: 'Créditos faltantes', /*value: this.historial.materiasFaltantes*/ value: this.historial.creditosFaltantes || 0 }
     ];
   
     const total = data.reduce((sum, d) => sum + d.value, 0);

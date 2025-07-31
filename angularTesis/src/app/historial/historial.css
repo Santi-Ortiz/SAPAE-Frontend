@@ -244,7 +244,7 @@ table.faltantes td {
 
 table.faltantes td:first-child::before {
   content: "●";
-  color: #0077B6; 
+  color: #00B4D8; 
   font-size: 10px;
   display: inline-block;
   margin-right: 8px;
