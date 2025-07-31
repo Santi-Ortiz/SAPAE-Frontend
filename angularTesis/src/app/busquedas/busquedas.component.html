@@ -1,0 +1,39 @@
+<section class="busquedas-container">
+  <h1 class="titulo-principal">Consulta tus dudas sobre el reglamento estudiantil</h1>
+  <p class="descripcion-seccion">
+    Ingresa una pregunta relacionada con el reglamento estudiantil y obtén una respuesta inmediata con nuestra IA local.
+  </p>
+
+  <div class="formulario">
+    <textarea [(ngModel)]="pregunta" placeholder="Ej: ¿Cuál es la calificación mínima aprobatoria?"></textarea>
+    <button (click)="consultarIA()">Consultar</button>
+  </div>
+
+  <!-- Spinner mientras carga -->
+  <div *ngIf="cargando" class="mensaje-cargando">
+    <div class="spinner"></div>
+    <p>Consultando, un momento por favor...</p>
+  </div>
+
+  <!-- Resultado -->
+  <div *ngIf="respuesta && !cargando" class="respuesta-box">
+    <h3 class="titulo-respuesta">Respuesta:</h3>
+    <p>{{ respuesta }}</p>
+  </div>
+
+  <!-- Aviso informativo (siempre visible) -->
+  <div class="aviso-busquedas">
+    <div class="aviso-texto">
+      <h2>Recuerda que ...</h2>
+      <p>Solo podrás realizar búsquedas relacionadas con:</p>
+      <ul>
+        <li>Información de la carrera</li>
+        <li>Información de la universidad</li>
+        <li>Reglamento de la universidad</li>
+      </ul>
+    </div>
+    <div class="aviso-imagen">
+      <img src="assets/images/recordatorio.png" alt="Recordatorio SAPAE" />
+    </div>
+  </div>
+</section>
