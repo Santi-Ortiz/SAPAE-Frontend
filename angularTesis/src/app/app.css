@@ -35,7 +35,7 @@
   color:#BFE9FF;
   width: 100%;
   transition: background-color 0.2s ease;
-  margin: 0; /* 🔧 evita espacio entre elementos */
+  margin: 0; 
   border-left: 5px solid transparent;
 }
 
@@ -50,7 +50,6 @@
   color: #0077B6
 }
 
-.nav-link.selected,
 .nav-link.activo {
   background-color: #BFE9FF;
   color: #0077B6;
@@ -59,12 +58,12 @@
 
 .logout-button {
   background-color: #0077B6;
-  border: none;
   color: #BFE9FF;
-  cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 16px;
   transition: background-color 0.2s ease;
   width: 100%;
+  margin-top: 480px; 
+  margin-left: 8px;
 }
 
 .logout-button:hover {
@@ -74,6 +73,9 @@
 
 /* Main content */
 .main-content {
+  width: calc(100% - 220px);
+  height: 100vh;
+  overflow-y: auto;
   flex: 1;
   background-color: white;
 }
