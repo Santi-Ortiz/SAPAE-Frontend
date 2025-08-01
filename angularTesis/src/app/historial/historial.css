@@ -278,6 +278,12 @@ th {
   padding: 10px;
 }
 
+th.extra {
+  background-color: #00B4D8;
+  color: white;
+  padding: 10px;
+}
+
 td {
   padding: 10px;
   border-bottom: 1px solid #eee;
@@ -286,4 +292,26 @@ td {
 
 tr:nth-child(even) {
   background-color: #f9fbff;
+}
+
+.centrar-boton {
+  display: flex;
+  justify-content: center; 
+  margin-top: 16px;
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 14px;
+  background-color: #0077B6;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #00B4D8;
+  transform: scale(1.03);
 }

@@ -15,7 +15,8 @@ import { HistorialService } from '../shared/historial.service';
 export class Historial implements OnInit, AfterViewInit {
   public historial: ProgresoDTO = new ProgresoDTO();
   public tablasExtra: { titulo: string; lista: any[] }[] = [];
-  constructor(private historialService: HistorialService) {}
+  constructor(private historialService: HistorialService) {};
+  mostrarTodasMaterias = false;
 
   ngOnInit() {
     const data = this.historialService.getHistorial();
@@ -46,11 +47,10 @@ export class Historial implements OnInit, AfterViewInit {
   }
 
   crearDonut() {
-    //if (!this.historial) return;
     const data = [
-      { label: 'Créditos cursados', /*value: this.historial.materiasCursadas*/ value: this.historial.creditosCursando || 0 },
-      { label: 'Créditos en curso', /*value: this.historial.materiasCursando*/ value: this.historial.creditosCursados || 0 },
-      { label: 'Créditos faltantes', /*value: this.historial.materiasFaltantes*/ value: this.historial.creditosFaltantes || 0 }
+      { label: 'Créditos cursados', value: this.historial.creditosCursando || 0 },
+      { label: 'Créditos en curso', value: this.historial.creditosCursados || 0 },
+      { label: 'Créditos faltantes', value: this.historial.creditosFaltantes || 0 }
     ];
   
     const total = data.reduce((sum, d) => sum + d.value, 0);
@@ -71,38 +71,45 @@ export class Historial implements OnInit, AfterViewInit {
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
   
     const arc = d3.arc<d3.PieArcDatum<typeof data[0]>>()
-      .innerRadius(80)
+      .innerRadius(50)
       .outerRadius(radius);
   
     const pie = d3.pie<typeof data[0]>()
       .value(d => d.value)
       .sort(null);
   
-    // Texto central (total)
-    const centerText = svg.append("text")
+    // Texto central fijo (total)
+    svg.append("text")
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
       .style("font-size", "28px")
       .style("font-weight", "bold")
       .text(total);
   
-    // Arcos
     const arcs = svg.selectAll('path')
       .data(pie(data))
       .enter()
       .append('path')
       .attr('d', arc as any)
-      .attr('fill', d => color(d.data.label))
-      .on("mouseover", function (event, d) {
-        centerText.text(d.data.value);
-      })
-      .on("mouseout", function () {
-        centerText.text(total);
-      });
+      .attr('fill', d => color(d.data.label));
+  
+    // Valores dentro de los arcos
+    svg.selectAll("text.label")
+      .data(pie(data))
+      .enter()
+      .append("text")
+      .attr("class", "label")
+      .attr("transform", d => `translate(${arc.centroid(d)})`)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .style("font-size", "18px")
+      .style("font-weight", "bold")
+      .style("fill", "#fff")
+      .text(d => d.data.value);
   
     // Leyenda
     const leyenda = d3.select("#leyendaGrafico");
-    leyenda.selectAll("*").remove(); // Limpia la leyenda
+    leyenda.selectAll("*").remove();
   
     data.forEach(d => {
       const item = leyenda.append("div").style("display", "flex").style("align-items", "center");
@@ -114,6 +121,7 @@ export class Historial implements OnInit, AfterViewInit {
       item.append("span").text(d.label);
     });
   }
+  
   
 
   get requisitosProcesados() {
@@ -135,6 +143,12 @@ export class Historial implements OnInit, AfterViewInit {
         };
       }) || [];
   }  
+
+  get materiasVisibles() {
+    return this.mostrarTodasMaterias
+      ? this.historial.materias
+      : this.historial.materias.slice(0, 5);
+  }
   
   
 }

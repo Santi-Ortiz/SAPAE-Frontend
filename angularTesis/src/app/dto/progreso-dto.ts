@@ -31,4 +31,5 @@ export class ProgresoDTO {
   cursosCVtoIA: MateriaDTO[] = [];
   cursosSIGtoIA: MateriaDTO[] = [];
   cursosElectivaBasicas: MateriaDTO[] = [];
+  mostrarTodasMaterias?: boolean;
 }
