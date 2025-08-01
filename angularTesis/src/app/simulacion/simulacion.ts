@@ -23,7 +23,7 @@ export class SimulacionComponent implements OnInit {
   public simulacionDTO: SimulacionDTO = new SimulacionDTO();
   public resultadoSimulacion: { [semestre: string]: { materias: MateriajsonDTO[] } } = {};
   public semestreInput?: number;
-  public matriculaInput?: number;
+  public tipoMatricula?: string;
   public creditosInput?: number;
   public materiasInput?: number;
 
@@ -66,6 +66,31 @@ export class SimulacionComponent implements OnInit {
         console.error('Error al generar la simulación:', error);
       }
     });
+  }
+
+  get maxCreditos(): number {
+    switch (this.tipoMatricula) {
+      case 'Media Matrícula':
+        return 10;
+      case 'Matrícula completa':
+        return 20;
+      case 'Matrícula completa + 1 créditos':
+        return 21;
+      case 'Matrícula completa + 2 créditos':
+        return 22;
+      case 'Matrícula completa + 3 créditos':
+        return 23;
+      case 'Matrícula completa + 4 créditos':
+        return 24;
+      default:
+        return 20;
+    }
+  }
+
+  ajustarCreditos() {
+    if (this.creditosInput && this.creditosInput > this.maxCreditos) {
+      this.creditosInput = this.maxCreditos;
+    }
   }
 
 }
