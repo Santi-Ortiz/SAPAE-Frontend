@@ -14,17 +14,20 @@
 
       <div class="form-group">
         <label for="tipoMatricula">Tipo de Matrícula</label>
-        <select id="tipoMatricula" name="tipoMatricula" [(ngModel)]="matriculaInput">
+        <select id="tipoMatricula" name="tipoMatricula" [(ngModel)]="tipoMatricula" (change)="ajustarCreditos()">
           <option value="Media Matrícula">Media Matrícula</option>
           <option value="Matrícula completa">Matrícula completa</option>
-          <option value="Matrícula completa + 1 crédito">Matrícula completa + 1 crédito</option>
+          <option value="Matrícula completa + 1 créditos">Matrícula completa + 1 créditos</option>
           <option value="Matrícula completa + 2 créditos">Matrícula completa + 2 créditos</option>
+          <option value="Matrícula completa + 3 créditos">Matrícula completa + 3 créditos</option>
+          <option value="Matrícula completa + 4 créditos">Matrícula completa + 4 créditos</option>
         </select>
       </div>
 
       <div class="form-group">
         <label for="creditosInput">Cantidad de Créditos a Inscribir</label>
-        <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput" />
+        <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput" [attr.max]="maxCreditos" (input)="ajustarCreditos()" />
+        <small style="color: gray;">Máximo según tipo de matrícula: {{ maxCreditos }}</small>
       </div>
 
       <div class="form-group">
@@ -34,6 +37,7 @@
     </form>
   </section>
 
+  <hr class="section-divider"/>
 
   <section class="priorizacion-materias">
     <h2>Priorización de Materias</h2>
