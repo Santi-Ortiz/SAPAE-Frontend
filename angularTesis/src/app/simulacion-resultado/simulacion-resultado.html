@@ -1,14 +1,86 @@
-<div>
-    <h1>Simulación de Escenarios</h1>
-    <section>
+<body>
+    <h1>Simulación de Escenarios Académicos</h1>
+    <section class="simulacion-intro">
         <h2>Resultados de la Simulación</h2>
+        <p>Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.</p>
+    </section>
+    <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
+        <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
+            <h2>Semestre {{ semestre.key }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre Materia</th>
+                        <th>Créditos</th>
+                        <th>Semestre</th>
+                        <th>Tipo</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let materia of semestre.value.materias">
+                        <td>{{ materia.codigo }}</td>
+                        <td>{{ materia.nombre }}</td>
+                        <td>{{ materia.creditos }}</td>
+                        <td>{{ materia.semestre }}</td>
+                        <td>{{ materia.tipo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="resumen-semestre">
+                <h3>Resumen para semestre {{ semestre.key }}</h3>
+                <p>Total de Créditos: {{ calcularResumen(semestre.value.materias).totalCreditos }}</p>
+                <p>Total de Materias: {{ calcularResumen(semestre.value.materias).totalMaterias }}</p>
+                <p>Horas de Estudio por Día: 5 </p>
+                <p>Créditos Pendientes: 4</p>
+            </div>
+
+            <div>
+                <h3>Porcentaje por Tipo de Materia</h3>
+            </div>
+
+            
+            <hr class="divider">
+            
+        </div>
     </section>
 
+    <section class="resumen-general">
+        <h2>Resumen General de Simulaciones</h2>
+        <p>Este resumen reúne las estadísticas más importantes de tu simulación académica. Úsalo para visualizar tu carga promedio, estimar tu ritmo de avance y planificar mejor tus próximos semestres.</p>
 
-</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Estadística</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Materias en promedio por semestre</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>Créditos en promedio por semestre</td>
+                    <td>12</td>
+                </tr>
+                <tr>
+                    <td>Créditos faltantes hasta última simulación</td>
+                    <td>12</td>
+                </tr>
+                <tr>
+                    <td>Semestre con mayor carga</td>
+                    <td>7</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</body>
 
 
-<div *ngIf="resultadoSimulacion">
+<!--<div *ngIf="resultadoSimulacion">
   <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
     <h2>Semestre {{ semestre.key }}</h2>
     <ul *ngIf="semestre.value.materias">
@@ -22,4 +94,4 @@
       </li>
     </ul>
   </div>
-</div>
+</div> -->

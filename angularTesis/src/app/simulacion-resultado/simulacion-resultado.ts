@@ -21,4 +21,12 @@ export class SimulacionResultado implements OnInit {
     
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
   }
+
+  public calcularResumen(materias: MateriajsonDTO[]): { totalCreditos: number, totalMaterias: number } {
+    const totalCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
+    return {
+      totalCreditos,
+      totalMaterias: materias.length
+  };
+}
 }
