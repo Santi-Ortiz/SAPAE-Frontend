@@ -5,7 +5,7 @@
         <p>Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.</p>
     </section>
     <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
-        <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
+        <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre">
             <h2>Semestre {{ semestre.key }}</h2>
             <table>
                 <thead>
@@ -29,22 +29,31 @@
             </table>
 
             <div class="resumen-semestre">
-                <h3>Resumen para semestre {{ semestre.key }}</h3>
+                <h2>Resumen para semestre {{ semestre.key }}</h2>
                 <p>Total de Créditos: {{ calcularResumen(semestre.value.materias).totalCreditos }}</p>
                 <p>Total de Materias: {{ calcularResumen(semestre.value.materias).totalMaterias }}</p>
                 <p>Horas de Estudio por Día: 5 </p>
                 <p>Créditos Pendientes: 4</p>
             </div>
 
-            <div>
-                <h3>Porcentaje por Tipo de Materia</h3>
+            <div class="grafica-tipo-materia">
+                <h2>Porcentaje por Tipo de Materia</h2>
             </div>
 
-            
-            <hr class="divider">
-            
+            <!--<div class="grafico-d3" id="donutChartContainer">
+                <div class="grafico-contenido">
+                    <div class="grafico-svg-wrapper">
+                        <h3 class="titulo-grafico">Cantidad de Créditos</h3>
+                        <div id="graficoSVG"></div>
+                    </div>
+                    <div id="leyendaGrafico" class="leyenda-d3"></div>
+                </div>
+            </div> -->  
         </div>
     </section>
+
+    
+    <hr class="divider">
 
     <section class="resumen-general">
         <h2>Resumen General de Simulaciones</h2>
@@ -77,6 +86,8 @@
             </tbody>
         </table>
     </section>
+
+    <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
 </body>
 
 
