@@ -1,0 +1,25 @@
+<div>
+    <h1>Simulación de Escenarios</h1>
+    <section>
+        <h2>Resultados de la Simulación</h2>
+    </section>
+
+
+</div>
+
+
+<div *ngIf="resultadoSimulacion">
+  <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
+    <h2>Semestre {{ semestre.key }}</h2>
+    <ul *ngIf="semestre.value.materias">
+      <li *ngFor="let materia of semestre.value.materias">
+        <strong>{{ materia.nombre }}</strong> (Código: {{ materia.codigo }})<br />
+        Créditos: {{ materia.creditos }}<br />
+        Requisitos:
+        <ul>
+          <li *ngFor="let req of materia.requisitos">{{ req }}</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>

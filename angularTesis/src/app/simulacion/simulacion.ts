@@ -9,6 +9,7 @@ import { ProyeccionService } from '../shared/proyeccion.service';
 import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { MateriajsonDTO } from '../dto/materiajson-dto';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-simulacion',
@@ -27,7 +28,7 @@ export class SimulacionComponent implements OnInit {
   public creditosInput?: number;
   public materiasInput?: number;
 
-  constructor(private simulacionService: SimulacionService, private historialService: HistorialService, private proyeccionService: ProyeccionService) {}
+  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) {}
 
   ngOnInit(): void {
 
@@ -60,12 +61,16 @@ export class SimulacionComponent implements OnInit {
     this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
       next: (resultado: any) => {
         this.resultadoSimulacion = resultado;
+        this.simulacionService.setSimulacion(resultado);
+
         console.log('Simulacion generada: ', this.resultadoSimulacion);
+        this.router.navigate(['/simulacion/mostrar'])
       },
       error: (error) => {
         console.error('Error al generar la simulación:', error);
       }
     });
+
   }
 
   get maxCreditos(): number {
