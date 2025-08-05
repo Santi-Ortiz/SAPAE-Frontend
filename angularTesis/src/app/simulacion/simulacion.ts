@@ -9,6 +9,7 @@ import { ProyeccionService } from '../shared/proyeccion.service';
 import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { MateriajsonDTO } from '../dto/materiajson-dto';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-simulacion',
@@ -26,19 +27,31 @@ export class SimulacionComponent implements OnInit {
   public tipoMatricula?: string;
   public creditosInput?: number;
   public materiasInput?: number;
+  
+  public priorizacionMaterias = {
+    nucleoCienciasBasicas: false,
+    nucleoIngenieriaAplicada: false,
+    nucleoSocioHumanistica: false,
+    electivas: false,
+    complementarias: false,
+    enfasis: false
+  };
+  
+  public readonly maxSelecciones = 3;
+  public mostrarMensajeError = false;
 
-  constructor(private simulacionService: SimulacionService, private historialService: HistorialService, private proyeccionService: ProyeccionService) {}
+  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) { }
 
   ngOnInit(): void {
 
     // Se asigna historial (progreso) a partir de la carga del informe de avance 
     this.historialService.historial$.subscribe(historial => {
       if (historial) {
-          this.progresoActual = this.historialService.getHistorial()!;
-          if (this.progresoActual) {
-            this.simulacionDTO!.progreso = this.progresoActual;
-            console.log('Simulacion DTO con progreso: ', this.simulacionDTO!.progreso);
-          }
+        this.progresoActual = this.historialService.getHistorial()!;
+        if (this.progresoActual) {
+          this.simulacionDTO!.progreso = this.progresoActual;
+          console.log('Simulacion DTO con progreso: ', this.simulacionDTO!.progreso);
+        }
       }
     });
   }
@@ -50,22 +63,32 @@ export class SimulacionComponent implements OnInit {
     }
     const proyeccionDTO = {
       id: 1,
-      semestre: this.semestreInput,
+      semestre: (this.semestreInput + this.progresoActual.semestre!),
       creditos: this.creditosInput,
       materias: this.materiasInput
     }
 
+    const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
+
     this.simulacionDTO!.proyeccion = proyeccionDTO;
+    this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
+    
+    console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
+    console.log("Priorizaciones seleccionadas: ", priorizacionesSeleccionadas);
 
     this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
       next: (resultado: any) => {
         this.resultadoSimulacion = resultado;
+        this.simulacionService.setSimulacion(resultado);
+
         console.log('Simulacion generada: ', this.resultadoSimulacion);
+        this.router.navigate(['/simulacion/mostrar'])
       },
       error: (error) => {
         console.error('Error al generar la simulación:', error);
       }
     });
+
   }
 
   get maxCreditos(): number {
@@ -91,6 +114,39 @@ export class SimulacionComponent implements OnInit {
     if (this.creditosInput && this.creditosInput > this.maxCreditos) {
       this.creditosInput = this.maxCreditos;
     }
+  }
+
+  get seleccionesActuales(): number {
+    return Object.values(this.priorizacionMaterias).filter(Boolean).length;
+  }
+
+  onCheckboxChange(campo: keyof typeof this.priorizacionMaterias, event: any) {
+    const isChecked = event.target.checked;
+    
+    if (isChecked && this.seleccionesActuales >= this.maxSelecciones + 1) {
+      event.target.checked = false;
+      this.mostrarMensajeError = true;
+      return;
+    }
+    
+    this.priorizacionMaterias[campo] = isChecked;
+    
+    this.actualizarMensajeError();
+  }
+
+  private actualizarMensajeError() {
+    this.mostrarMensajeError = this.seleccionesActuales >= this.maxSelecciones + 1;
+  }
+
+  private obtenerPriorizacionesSeleccionadas(): boolean[] {
+    return [
+      this.priorizacionMaterias.nucleoCienciasBasicas,
+      this.priorizacionMaterias.nucleoIngenieriaAplicada,
+      this.priorizacionMaterias.nucleoSocioHumanistica,
+      this.priorizacionMaterias.electivas,
+      this.priorizacionMaterias.complementarias,
+      this.priorizacionMaterias.enfasis
+    ];
   }
 
 }

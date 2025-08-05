@@ -9,11 +9,13 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { authInterceptor } from './interceptor/auth-interceptor';
 import { App } from './app';
+import { SimulacionResultado } from './simulacion-resultado/simulacion-resultado';
 
 export const routes: Routes = [
   { path: 'pensum/view', component: PensumView },
   { path: 'historial', component: Historial },
   { path: 'simulacion', component: SimulacionComponent },
+  { path: 'simulacion/mostrar', component: SimulacionResultado },
   { path: 'busquedas', component: BusquedasComponent},
   { path: 'main', component: Main },
   { path: '', redirectTo: 'main', pathMatch: 'full' },
