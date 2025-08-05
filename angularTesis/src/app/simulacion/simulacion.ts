@@ -28,18 +28,18 @@ export class SimulacionComponent implements OnInit {
   public creditosInput?: number;
   public materiasInput?: number;
 
-  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) {}
+  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) { }
 
   ngOnInit(): void {
 
     // Se asigna historial (progreso) a partir de la carga del informe de avance 
     this.historialService.historial$.subscribe(historial => {
       if (historial) {
-          this.progresoActual = this.historialService.getHistorial()!;
-          if (this.progresoActual) {
-            this.simulacionDTO!.progreso = this.progresoActual;
-            console.log('Simulacion DTO con progreso: ', this.simulacionDTO!.progreso);
-          }
+        this.progresoActual = this.historialService.getHistorial()!;
+        if (this.progresoActual) {
+          this.simulacionDTO!.progreso = this.progresoActual;
+          console.log('Simulacion DTO con progreso: ', this.simulacionDTO!.progreso);
+        }
       }
     });
   }
@@ -51,12 +51,13 @@ export class SimulacionComponent implements OnInit {
     }
     const proyeccionDTO = {
       id: 1,
-      semestre: this.semestreInput,
+      semestre: (this.semestreInput + this.progresoActual.semestre!),
       creditos: this.creditosInput,
       materias: this.materiasInput
     }
 
     this.simulacionDTO!.proyeccion = proyeccionDTO;
+    console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
 
     this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
       next: (resultado: any) => {

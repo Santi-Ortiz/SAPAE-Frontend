@@ -1,14 +1,16 @@
 <div class="simulacion-container">
   <section class="titulo-simulacion">
     <h1>Simulación de Escenarios Académicos</h1>
-    <p>Proyecta tu próximo semestre con base en tus avances, pendientes y preferencias. Esta simulación te sugiere las materias ideales según tu situación académica, ayudándote a planificar mejor tu carga y avanzar de forma óptima. Ahorra tiempo, evita errores de inscripción y planifica tu semestre con datos reales.</p>
+    <p>Proyecta tu próximo semestre con base en tus avances, pendientes y preferencias. Esta simulación te sugiere las
+      materias ideales según tu situación académica, ayudándote a planificar mejor tu carga y avanzar de forma óptima.
+      Ahorra tiempo, evita errores de inscripción y planifica tu semestre con datos reales.</p>
   </section>
 
   <section class="preferencias-academicas">
     <h2>Preferencias Académicas</h2>
     <form class="form-vertical">
       <div class="form-group">
-        <label for="semestreInput">Número de Semestre a Proyectar</label>
+        <label for="semestreInput">Cantidad de Semestres a Proyectar</label>
         <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput" />
       </div>
 
@@ -26,7 +28,8 @@
 
       <div class="form-group">
         <label for="creditosInput">Cantidad de Créditos a Inscribir</label>
-        <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput" [attr.max]="maxCreditos" (input)="ajustarCreditos()" />
+        <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput"
+          [attr.max]="maxCreditos" (input)="ajustarCreditos()" />
         <small style="color: gray;">Máximo según tipo de matrícula: {{ maxCreditos }}</small>
       </div>
 
@@ -37,7 +40,7 @@
     </form>
   </section>
 
-  <hr class="section-divider"/>
+  <hr class="section-divider" />
 
   <section class="priorizacion-materias">
     <h2>Priorización de Materias</h2>
