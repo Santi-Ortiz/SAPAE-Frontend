@@ -44,14 +44,57 @@
 
   <section class="priorizacion-materias">
     <h2>Priorización de Materias</h2>
-    <p>Selecciona las materias prioritarias para futuros semestres. Máximo 3 campos para mejorar la predicción.</p>
+    <p>Selecciona las materias prioritarias para futuros semestres. Máximo {{ maxSelecciones }} campos para mejorar la predicción.</p>
+    <p><small style="color: gray;">Campos seleccionados: {{ seleccionesActuales }}/{{ maxSelecciones }}</small></p>
+    
+    <!-- Mensaje de error -->
+    <p *ngIf="mostrarMensajeError" class="mensaje-error">
+      ⚠️ No puedes seleccionar más de {{ maxSelecciones }} campos de priorización.
+    </p>
+    
     <div class="checkbox-group">
-      <label><input type="checkbox" /> Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas)</label>
-      <label><input type="checkbox" /> Núcleo de Ingeniería Aplicada (Específicas de la carrera)</label>
-      <label><input type="checkbox" /> Núcleo Socio-humanística (ej. Teologías, Éticas)</label>
-      <label><input type="checkbox" /> Electivas</label>
-      <label><input type="checkbox" /> Complementarias</label>
-      <label><input type="checkbox" /> Énfasis</label>
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="priorizacionMaterias.nucleoCienciasBasicas"
+          (change)="onCheckboxChange('nucleoCienciasBasicas', $event)" 
+        /> Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas)
+      </label>
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="priorizacionMaterias.nucleoIngenieriaAplicada"
+          (change)="onCheckboxChange('nucleoIngenieriaAplicada', $event)" 
+        /> Núcleo de Ingeniería Aplicada (Específicas de la carrera)
+      </label>
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="priorizacionMaterias.nucleoSocioHumanistica"
+          (change)="onCheckboxChange('nucleoSocioHumanistica', $event)" 
+        /> Núcleo Socio-humanística (ej. Teologías, Éticas)
+      </label>
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="priorizacionMaterias.electivas"
+          (change)="onCheckboxChange('electivas', $event)" 
+        /> Electivas
+      </label>
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="priorizacionMaterias.complementarias"
+          (change)="onCheckboxChange('complementarias', $event)" 
+        /> Complementarias
+      </label>
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="priorizacionMaterias.enfasis"
+          (change)="onCheckboxChange('enfasis', $event)" 
+        /> Énfasis
+      </label>
     </div>
   </section>
 

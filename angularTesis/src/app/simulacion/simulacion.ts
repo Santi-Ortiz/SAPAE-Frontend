@@ -27,6 +27,18 @@ export class SimulacionComponent implements OnInit {
   public tipoMatricula?: string;
   public creditosInput?: number;
   public materiasInput?: number;
+  
+  public priorizacionMaterias = {
+    nucleoCienciasBasicas: false,
+    nucleoIngenieriaAplicada: false,
+    nucleoSocioHumanistica: false,
+    electivas: false,
+    complementarias: false,
+    enfasis: false
+  };
+  
+  public readonly maxSelecciones = 3;
+  public mostrarMensajeError = false;
 
   constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) { }
 
@@ -56,8 +68,13 @@ export class SimulacionComponent implements OnInit {
       materias: this.materiasInput
     }
 
+    const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
+
     this.simulacionDTO!.proyeccion = proyeccionDTO;
+    this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
+    
     console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
+    console.log("Priorizaciones seleccionadas: ", priorizacionesSeleccionadas);
 
     this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
       next: (resultado: any) => {
@@ -97,6 +114,39 @@ export class SimulacionComponent implements OnInit {
     if (this.creditosInput && this.creditosInput > this.maxCreditos) {
       this.creditosInput = this.maxCreditos;
     }
+  }
+
+  get seleccionesActuales(): number {
+    return Object.values(this.priorizacionMaterias).filter(Boolean).length;
+  }
+
+  onCheckboxChange(campo: keyof typeof this.priorizacionMaterias, event: any) {
+    const isChecked = event.target.checked;
+    
+    if (isChecked && this.seleccionesActuales >= this.maxSelecciones + 1) {
+      event.target.checked = false;
+      this.mostrarMensajeError = true;
+      return;
+    }
+    
+    this.priorizacionMaterias[campo] = isChecked;
+    
+    this.actualizarMensajeError();
+  }
+
+  private actualizarMensajeError() {
+    this.mostrarMensajeError = this.seleccionesActuales >= this.maxSelecciones + 1;
+  }
+
+  private obtenerPriorizacionesSeleccionadas(): boolean[] {
+    return [
+      this.priorizacionMaterias.nucleoCienciasBasicas,
+      this.priorizacionMaterias.nucleoIngenieriaAplicada,
+      this.priorizacionMaterias.nucleoSocioHumanistica,
+      this.priorizacionMaterias.electivas,
+      this.priorizacionMaterias.complementarias,
+      this.priorizacionMaterias.enfasis
+    ];
   }
 
 }
