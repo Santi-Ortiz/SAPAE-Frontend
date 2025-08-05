@@ -6,22 +6,26 @@ import {
   OnInit,
   HostListener
 } from '@angular/core';
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { NgIf, NgFor, AsyncPipe, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PensumDTO } from '../../dto/pensum-dto';
+import { ProgresoDTO } from '../../dto/progreso-dto';
 import { catchError, of } from 'rxjs';
 import { PensumService } from '../../shared/pensum.service';
+import { HistorialService } from '../../shared/historial.service';
 import { NgZone, ChangeDetectorRef } from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'app-pensum-view',
   standalone: true,
-  imports: [RouterModule, NgIf, NgFor, AsyncPipe],
+  imports: [RouterModule, NgIf, NgFor, AsyncPipe, NgClass],
   templateUrl: './pensum-view.html',
   styleUrl: './pensum-view.css',
 })
 export class PensumView implements OnInit, AfterViewInit {
+  progreso!: ProgresoDTO;
+  materiasCursadasCodigos: Set<string> = new Set();
   allPensum: PensumDTO[] = [];
   errorMessage = '';
   conexionesActivas: string[] = [];
@@ -37,9 +41,11 @@ export class PensumView implements OnInit, AfterViewInit {
 
   constructor(
     private pensumService: PensumService,
+    private historialService: HistorialService, 
     private zone: NgZone,
     private cdr: ChangeDetectorRef
   ) {}
+
 
   ngOnInit(): void {
     this.pensumService.obtenerPensum().pipe(
@@ -49,18 +55,34 @@ export class PensumView implements OnInit, AfterViewInit {
       })
     ).subscribe(materias => {
       this.allPensum = materias;
-
+  
+      // Obtener progreso desde historialService
+      const progreso = this.historialService.getHistorial();
+      if (progreso && progreso.listaMateriasFaltantes) {
+        const faltantesCodigos = new Set(progreso.listaMateriasFaltantes.map(m => m.codigo));
+      
+        this.materiasCursadasCodigos = new Set(
+          this.allPensum
+            .filter(m => !faltantesCodigos.has(m.codigo))
+            .map(m => m.codigo)
+        );
+      }           
+  
       this.zone.onStable.pipe().subscribe(() => {
         this.dibujarConexiones();
       });
-
+  
       this.cdr.detectChanges();
     });
   }
-
+  
+  
   ngAfterViewInit(): void {
-    setTimeout(() => this.dibujarConexiones(), 0);
+    requestAnimationFrame(() => {
+      this.dibujarConexiones();
+    });
   }
+  
 
   @HostListener('window:resize')
   onResize() {
@@ -82,15 +104,16 @@ export class PensumView implements OnInit, AfterViewInit {
   }
 
   seleccionarMateria(codigo: string) {
-    this.conexionesActivas = [];
+    if (this.materiasCursadasCodigos.has(codigo)) return; // bloquear interacción
   
+    this.conexionesActivas = [];
     let tieneRequisitos = false;
   
     this.allPensum.forEach(materia => {
       try {
         const requisitos: string[] = JSON.parse(materia.requisitosJson || '[]');
         if (requisitos.includes(codigo)) {
-          this.conexionesActivas.push(materia.codigo); // guardar dependientes
+          this.conexionesActivas.push(materia.codigo);
           tieneRequisitos = true;
         }
       } catch (e) {}
@@ -108,7 +131,6 @@ export class PensumView implements OnInit, AfterViewInit {
         const rect = origenBox.getBoundingClientRect();
         const contenedorRect = this.contenedorRef?.nativeElement.getBoundingClientRect();
   
-        // Mostrar mensaje a la derecha
         this.mensajeX = rect.right - (contenedorRect?.left || 0) + 10;
         this.mensajeY = rect.top - (contenedorRect?.top || 0);
         this.mensajeSinRequisitos = 'Esta materia no es requisito para otra.';
@@ -116,7 +138,7 @@ export class PensumView implements OnInit, AfterViewInit {
   
         setTimeout(() => {
           this.mostrarMensaje = false;
-        }, 3000); // oculta en 3s
+        }, 3000);
       } else {
         this.mostrarMensaje = false;
       }
@@ -124,7 +146,6 @@ export class PensumView implements OnInit, AfterViewInit {
   
     this.dibujarConexiones(codigo);
   }
-  
 
   private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
     const { scrollWidth: width, scrollHeight: height } = contenedor;
@@ -136,34 +157,39 @@ export class PensumView implements OnInit, AfterViewInit {
   private crearMarcadores(d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) {
     const defs = d3svg.append('defs');
   
-    // Flecha azul clara
-    defs.append('marker')
-      .attr('id', 'flecha-clara')
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 7)
-      .attr('refX', 10)
-      .attr('refY', 3.5)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'userSpaceOnUse')
-      .append('polygon')
-      .attr('points', '0 0, 10 3.5, 0 7')
-      .attr('fill', '#90E0EF');
+    const colores = {
+      clara: '#90E0EF',
+      oscura: '#0077B6'
+    };
   
-    // Flecha azul oscura (para resaltado)
-    defs.append('marker')
-      .attr('id', 'flecha-oscura')
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 7)
-      .attr('refX', 10)
-      .attr('refY', 3.5)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'userSpaceOnUse')
-      .append('polygon')
-      .attr('points', '0 0, 10 3.5, 0 7')
-      .attr('fill', '#0077B6');
+    const direcciones = ['derecha', 'izquierda', 'arriba', 'abajo'];
+  
+    ['clara', 'oscura'].forEach(tipo => {
+      direcciones.forEach(direccion => {
+        const marker = defs.append('marker')
+          .attr('id', `flecha-${tipo}-${direccion}`)
+          .attr('markerWidth', 12)
+          .attr('markerHeight', 12)
+          .attr('markerUnits', 'userSpaceOnUse');
+  
+        // Orientación correcta para cada dirección
+        if (direccion === 'arriba') {
+          marker.attr('orient', 90);
+        } else if (direccion === 'abajo') {
+          marker.attr('refX', 6)
+          .attr('refY', 10).attr('orient', -90);
+        } else {
+          marker.attr('refX', 10)
+          .attr('refY', 6).attr('orient', 'auto');
+        }
+  
+        marker.append('polygon')
+          .attr('points', '2,2 10,6 2,10')
+          .attr('fill', colores[tipo as 'clara' | 'oscura']);
+      });
+    });
   }
   
-
   private obtenerRelaciones(cajas: HTMLElement[]) {
     const salidas = new Map<string, HTMLElement[]>();
     const llegadas = new Map<string, HTMLElement[]>();
@@ -186,13 +212,14 @@ export class PensumView implements OnInit, AfterViewInit {
     llegadas: Map<string, HTMLElement[]>,
     contenedorRect: DOMRect
   ) {
-    const offsetX = 40;
+    const offsetX = 20;
+    const offsetY = 10;
   
     cajas.forEach(destino => {
       const requisitos: string[] = JSON.parse(destino.getAttribute('data-requisitos') || '[]');
       const destinoRect = destino.getBoundingClientRect();
       const totalLlegadas = llegadas.get(destino.id)?.length || 1;
-      let destinoIndex = 0;
+      let llegadaIndex = 0;
   
       requisitos.forEach(origenId => {
         const origen = document.getElementById(origenId);
@@ -202,30 +229,61 @@ export class PensumView implements OnInit, AfterViewInit {
         const totalSalidas = salidas.get(origenId)?.length || 1;
         const salidaIndex = salidas.get(origenId)?.indexOf(destino) || 0;
   
-        // Coordenadas relativas al contenedor
+        // Coordenadas del punto de salida (lado derecho del origen)
         const xOrigen = origenRect.right - contenedorRect.left;
         const yOrigen = origenRect.top - contenedorRect.top + ((salidaIndex + 1) / (totalSalidas + 1)) * origenRect.height;
   
-        const xDestino = destinoRect.left - contenedorRect.left;
-        const yDestino = destinoRect.top - contenedorRect.top + ((destinoIndex + 1) / (totalLlegadas + 1)) * destinoRect.height;
-        destinoIndex++;
+        const distanciaHorizontal = destinoRect.left - origenRect.right;
+        const entradaPorIzquierda = distanciaHorizontal < 80 || requisitos.length ==1;
+
+        let xDestino: number, yDestino: number, direccion: string;
+
+        if (entradaPorIzquierda) {
+          direccion = 'izquierda';
+          xDestino = destinoRect.left - contenedorRect.left;
+          yDestino = destinoRect.top - contenedorRect.top +
+            ((llegadaIndex + 1) / (totalLlegadas + 1)) * destinoRect.height;
+        } else {
+          const distanciaArriba = Math.abs(origenRect.top - destinoRect.top);
+          const distanciaAbajo = Math.abs(origenRect.bottom - destinoRect.bottom);
+          const entrarPorArriba = distanciaArriba < distanciaAbajo;
+
+          direccion = entrarPorArriba ? 'arriba' : 'abajo';
+          xDestino = destinoRect.left - contenedorRect.left + destinoRect.width / 2;
+          yDestino = entrarPorArriba
+            ? destinoRect.top - contenedorRect.top
+            : destinoRect.bottom - contenedorRect.top;
+
+        }
+
+      llegadaIndex++;
+  
+        llegadaIndex++;
   
         const esActiva = this.conexionesActivas.includes(destino.id);
         const colorLinea = esActiva ? '#0077B6' : '#90E0EF';
-        const marcador = esActiva ? 'flecha-oscura' : 'flecha-clara';
-
+        const tipo = esActiva ? 'oscura' : 'clara';
+        const marcador = `flecha-${tipo}-${direccion}`;
+  
+        // Ruta escalonada: derecha → curva → arriba/abajo
+        const puntosRuta: [number, number][] = [
+          [xOrigen, yOrigen],
+          [xOrigen + offsetX, yOrigen],
+          [xOrigen + offsetX, yDestino],
+          [xDestino, yDestino]
+        ];
+  
+        const lineGenerator = d3.line()
+          .x(d => d[0])
+          .y(d => d[1])
+          .curve(d3.curveStep);
+  
         const path = d3svg.append('path')
-          .attr('d', `
-            M${xOrigen},${yOrigen}
-            C${xOrigen + offsetX},${yOrigen}
-            ${xDestino - offsetX},${yDestino}
-            ${xDestino},${yDestino}
-          `)
+          .attr('d', lineGenerator(puntosRuta))
           .attr('fill', 'none')
           .attr('stroke', colorLinea)
           .attr('stroke-width', esActiva ? 3 : 2)
           .attr('marker-end', `url(#${marcador})`);
-
   
         if (esActiva) {
           path.classed('resaltada', true);

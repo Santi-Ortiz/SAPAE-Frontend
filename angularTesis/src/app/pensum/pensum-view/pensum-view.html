@@ -1,7 +1,7 @@
 <div #contenedor class="pensum-container">
   <div class="pensum-column">
-    <h1 class="titulo-pensum">Avance en el plan de estudios</h1>
-    <p class="description">
+    <h1>Avance en el plan de estudios</h1>
+    <p>
       Visualiza tu plan de estudios y el avance de las materias que has cursado. Las asignaturas se activan según tus prerequisitos y, al hacer clic en una, verás qué otras dependen de ella.
     </p>
 
@@ -15,6 +15,7 @@
             [attr.data-codigo]="materia.codigo"
             [attr.data-nombre]="materia.nombre"
             [attr.data-creditos]="materia.creditos"
+            [ngClass]="{ 'bloqueada': materiasCursadasCodigos.has(materia.codigo) }"
             (click)="seleccionarMateria(materia.codigo)">
             <strong>{{ materia.nombre }}</strong><br>
             <span class="codigo">{{ materia.codigo }}</span> • 

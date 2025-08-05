@@ -20,16 +20,16 @@ export class ProgresoDTO {
   listaMateriasFaltantes?: MateriajsonDTO[]= [];
   archivoSeleccionado?: File;
   error?: string;
-  cursosElectivas: MateriaDTO[] = [];
-  cursosEnfasis: MateriaDTO[] = [];
-  cursosComplementariaLenguas: MateriaDTO[] = [];
-  cursosComplementariaInformacion: MateriaDTO[] = [];
-  cursosIA: MateriaDTO[] = [];
-  cursosDesarrolloComputacion: MateriaDTO[] = [];
-  cursosDesarrolloGestion: MateriaDTO[] = [];
-  cursosComputacionVisual: MateriaDTO[] = [];
-  cursosCVtoIA: MateriaDTO[] = [];
-  cursosSIGtoIA: MateriaDTO[] = [];
-  cursosElectivaBasicas: MateriaDTO[] = [];
+  cursosIA: MateriajsonDTO[] = [];
+  cursosEnfasis: MateriajsonDTO[] = [];
+  cursosElectivas: MateriajsonDTO[] = [];
+  cursosDesarrolloComputacion: MateriajsonDTO[] = [];
+  cursosDesarrolloGestion: MateriajsonDTO[] = [];
+  cursosComputacionVisual: MateriajsonDTO[] = [];
+  cursosSIGtoIA: MateriajsonDTO[] = [];
+  cursosCVtoIA: MateriajsonDTO[] = [];
+  cursosComplementariaInformacion: MateriajsonDTO[] = [];
+  cursosComplementariaLenguas: MateriajsonDTO[] = [];
+  cursosElectivaBasicas: MateriajsonDTO[] = [];
   mostrarTodasMaterias?: boolean;
 }
