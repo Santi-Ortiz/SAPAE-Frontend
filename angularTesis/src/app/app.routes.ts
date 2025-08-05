@@ -4,6 +4,7 @@ import { Historial } from './historial/historial';
 import { SimulacionComponent } from './simulacion/simulacion';
 import { Main } from './main/main';
 import { BusquedasComponent } from './busquedas/busquedas.component';
+import { RecomendacionesComponent } from './recomendaciones/recomendaciones.component';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'historial', component: Historial },
   { path: 'simulacion', component: SimulacionComponent },
   { path: 'busquedas', component: BusquedasComponent},
+  { path: 'recomendaciones', component: RecomendacionesComponent},
   { path: 'main', component: Main },
   { path: '', redirectTo: 'main', pathMatch: 'full' },
 ];

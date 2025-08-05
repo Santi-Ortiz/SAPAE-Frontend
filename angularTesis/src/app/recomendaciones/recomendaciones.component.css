@@ -1,0 +1,97 @@
+.recomendaciones-container {
+  padding: 60px 30px;
+  background-color: white;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 12px;
+}
+
+.titulo-principal {
+  text-align: center;
+  font-size: 36px;
+  color: #00B4D8;
+  margin-bottom: 10px;
+}
+
+.descripcion-seccion {
+  font-size: 18px;
+  text-align: center;
+  color: #444;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+textarea {
+  width: 100%;
+  max-width: 600px;
+  height: 120px;
+  padding: 14px;
+  border: 2px solid #00B4D8;
+  border-radius: 10px;
+  font-size: 16px;
+  resize: vertical;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: white;
+  color: #333;
+}
+
+button {
+  background-color: #0077B6;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00B4D8;
+}
+
+.mensaje-cargando {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #0077B6;
+  font-style: italic;
+  text-align: center;
+}
+
+.respuesta-box {
+  background-color: #e3f2fd;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 30px;
+  text-align: center;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.titulo-respuesta {
+  color: #0077B6;
+  margin-bottom: 10px;
+}
+
+/* Spinner */
+.spinner {
+  border: 6px solid #caf0f8;
+  border-top: 6px solid #00B4D8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: girar 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes girar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
