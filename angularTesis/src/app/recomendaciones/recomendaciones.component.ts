@@ -13,8 +13,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 export class RecomendacionesComponent {
 
   pregunta: string = '';
-  respuesta: string = '';
+  materias: any[] = [];
+  explicacion: string = '';
   cargando: boolean = false;
+  error: string = '';
 
   constructor(private http: HttpClient) {}
 
@@ -22,19 +24,26 @@ export class RecomendacionesComponent {
     if (!this.pregunta.trim()) return;
 
     this.cargando = true;
-    this.respuesta = '';
+    this.materias = [];
+    this.explicacion = '';
+    this.error = '';
 
-    const body = { question: this.pregunta };
+    const body = { intereses: this.pregunta };
 
-    this.http.post('http://localhost:8080/api/rag/recomendar', body, { responseType: 'text' }).subscribe(
+    this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe(
       (res) => {
-        this.respuesta = res;
+        if (res && res.materias && Array.isArray(res.materias)) {
+          this.materias = res.materias;
+          this.explicacion = res.explicacion || '';
+        } else {
+          this.error = 'La respuesta del servicio no es válida.';
+        }
         this.cargando = false;
       },
       (error) => {
-        this.respuesta = 'Error al consultar el servicio de recomendaciones.';
+        console.error("Error HTTP:", error);
+        this.error = 'Error al consultar el servicio de recomendaciones.';
         this.cargando = false;
-        console.error(error);
       }
     );
   }

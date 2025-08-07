@@ -95,3 +95,46 @@ button:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Tabla de materias */
+.tabla-materias {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-materias th,
+.tabla-materias td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+
+.tabla-materias th {
+  background-color: #0077B6;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.tabla-materias tr:nth-child(even) {
+  background-color: #f6fafe;
+}
+
+/* Explicación */
+.explicacion-texto {
+  margin-top: 20px;
+  font-size: 16px;
+  text-align: justify;
+  color: #333;
+  background-color: #e9f6fc;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #00B4D8;
+  line-height: 1.6;
+}
