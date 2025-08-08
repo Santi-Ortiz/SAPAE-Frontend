@@ -1,0 +1,59 @@
+<section class="recomendaciones-container">
+  <h1 class="titulo-principal">Recomendación de Materias</h1>
+  <p class="descripcion-seccion">
+    Teniendo en cuenta tus gustos, preferencias y requerimientos específicos, 
+    el sistema te ofrecerá una recomendación personalizada de materias.
+  </p>
+
+  <div class="formulario">
+    <textarea [(ngModel)]="pregunta" placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+    <button (click)="consultarIA()">Generar Recomendación</button>
+  </div>
+
+  <!-- Spinner -->
+  <div *ngIf="cargando" class="mensaje-cargando">
+    <div class="spinner"></div>
+    <p>Consultando, un momento por favor...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !cargando" class="respuesta-box">
+    <h3 class="titulo-respuesta">Error:</h3>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Resultado -->
+  <div *ngIf="materias.length > 0 && !cargando" class="respuesta-box">
+    <h3 class="titulo-respuesta">Materias recomendadas:</h3>
+
+    <table class="tabla-materias">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Grado</th>
+          <th>ID</th>
+          <th>Créditos</th>
+          <th>N° Catálogo</th>
+          <th>N° Oferta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let materia of materias">
+          <td>{{ materia.nombre }}</td>
+          <td>{{ materia.grado }}</td>
+          <td>{{ materia.id }}</td>
+          <td>{{ materia.creditos }}</td>
+          <td>{{ materia.numero_catalogo }}</td>
+          <td>{{ materia.numero_oferta }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p *ngIf="explicacion" class="explicacion-texto"><strong>Explicación:</strong> {{ explicacion }}</p>
+  </div>
+
+  <!-- Caso sin resultados -->
+  <div *ngIf="!cargando && !error && materias.length === 0 && explicacion" class="respuesta-box">
+    <h3 class="titulo-respuesta">No se encontraron materias que coincidan con tu consulta.</h3>
+  </div>
+</section>
