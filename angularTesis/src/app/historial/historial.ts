@@ -1,14 +1,14 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { Progreso } from '../models/progreso.model';
 import { RouterModule } from '@angular/router';
-import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
+import { NgIf, NgFor, NgClass, } from '@angular/common';
 import * as d3 from 'd3';
 import { HistorialService } from '../services/historial.service';
 
 @Component({
   selector: 'app-historial',
   standalone: true,
-  imports: [RouterModule, NgIf, NgFor, NgClass, AsyncPipe],
+  imports: [RouterModule, NgIf, NgFor, NgClass,],
   templateUrl: './historial.html',
   styleUrl: './historial.css'
 })

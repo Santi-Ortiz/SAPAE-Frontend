@@ -6,7 +6,7 @@ import {
   OnInit,
   HostListener
 } from '@angular/core';
-import { NgIf, NgFor, AsyncPipe, NgClass } from '@angular/common';
+import { NgIf, NgFor, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PensumDTO } from '../../dtos/pensum-dto';
 import { Progreso } from '../../models/progreso.model';
@@ -19,7 +19,7 @@ import * as d3 from 'd3';
 @Component({
   selector: 'app-pensum-view',
   standalone: true,
-  imports: [RouterModule, NgIf, NgFor, AsyncPipe, NgClass],
+  imports: [RouterModule, NgIf, NgFor, NgClass],
   templateUrl: './pensum-view.html',
   styleUrl: './pensum-view.css',
 })
