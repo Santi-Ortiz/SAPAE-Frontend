@@ -1,4 +1,10 @@
 /* General layout */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .app-container {
     display: flex;
     min-height: 100vh;
