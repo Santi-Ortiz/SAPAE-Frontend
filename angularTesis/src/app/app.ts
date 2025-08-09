@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
+import { NgIf, NgFor, NgClass, } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -11,9 +11,6 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     RouterModule,
     NgIf,
-    NgFor,
-    NgClass,
-    AsyncPipe,
     RouterOutlet,
     FormsModule,
     HttpClientModule

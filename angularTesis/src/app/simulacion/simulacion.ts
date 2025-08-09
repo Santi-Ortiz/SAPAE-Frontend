@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { SimulacionDTO } from '../dto/simulacion-dto';
-import { Simulacion } from '../dto/simulacion';
-import { SimulacionService } from '../shared/simulacion.service';
-import { ProgresoDTO } from '../dto/progreso-dto';
-import { ProyeccionDTO } from '../dto/proyeccion-dto';
-import { HistorialService } from '../shared/historial.service';
-import { ProyeccionService } from '../shared/proyeccion.service';
+import { SimulacionDTO } from '../dtos/simulacion-dto';
+import { Simulacion } from '../models/simulacion.model'
+import { SimulacionService } from '../services/simulacion.service';
+import { Progreso } from '../models/progreso.model';
+import { Proyeccion } from '../models/proyeccion.model';
+import { HistorialService } from '../services/historial.service';
+import { ProyeccionService } from '../services/proyeccion.service';
 import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
-import { MateriajsonDTO } from '../dto/materiajson-dto';
+import { Materia } from '../models/materia.model';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -20,14 +20,14 @@ import { Router } from '@angular/router';
 })
 export class SimulacionComponent implements OnInit {
 
-  public progresoActual: ProgresoDTO = new ProgresoDTO();
+  public progresoActual: Progreso = new Progreso();
   public simulacionDTO: SimulacionDTO = new SimulacionDTO();
-  public resultadoSimulacion: { [semestre: string]: { materias: MateriajsonDTO[] } } = {};
+  public resultadoSimulacion: { [semestre: string]: { materias: Materia[] } } = {};
   public semestreInput?: number;
   public tipoMatricula?: string;
   public creditosInput?: number;
   public materiasInput?: number;
-  
+
   public priorizacionMaterias = {
     nucleoCienciasBasicas: false,
     nucleoIngenieriaAplicada: false,
@@ -36,7 +36,7 @@ export class SimulacionComponent implements OnInit {
     complementarias: false,
     enfasis: false
   };
-  
+
   public readonly maxSelecciones = 3;
   public mostrarMensajeError = false;
 
@@ -72,7 +72,7 @@ export class SimulacionComponent implements OnInit {
 
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
-    
+
     console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
     console.log("Priorizaciones seleccionadas: ", priorizacionesSeleccionadas);
 
@@ -122,15 +122,15 @@ export class SimulacionComponent implements OnInit {
 
   onCheckboxChange(campo: keyof typeof this.priorizacionMaterias, event: any) {
     const isChecked = event.target.checked;
-    
+
     if (isChecked && this.seleccionesActuales >= this.maxSelecciones + 1) {
       event.target.checked = false;
       this.mostrarMensajeError = true;
       return;
     }
-    
+
     this.priorizacionMaterias[campo] = isChecked;
-    
+
     this.actualizarMensajeError();
   }
 

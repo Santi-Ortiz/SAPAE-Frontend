@@ -1,21 +1,21 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
-import { ProgresoDTO } from '../dto/progreso-dto';
+import { Progreso } from '../models/progreso.model';
 import { RouterModule } from '@angular/router';
-import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
+import { NgIf, NgFor, NgClass, } from '@angular/common';
 import * as d3 from 'd3';
-import { HistorialService } from '../shared/historial.service';
+import { HistorialService } from '../services/historial.service';
 
 @Component({
   selector: 'app-historial',
   standalone: true,
-  imports: [RouterModule, NgIf, NgFor, NgClass, AsyncPipe],
+  imports: [RouterModule, NgIf, NgFor, NgClass,],
   templateUrl: './historial.html',
   styleUrl: './historial.css'
 })
 export class Historial implements OnInit, AfterViewInit {
-  public historial: ProgresoDTO = new ProgresoDTO();
+  public historial: Progreso = new Progreso();
   public tablasExtra: { titulo: string; lista: any[] }[] = [];
-  constructor(private historialService: HistorialService) {};
+  constructor(private historialService: HistorialService) { };
   mostrarTodasMaterias = false;
 
   ngOnInit() {
@@ -36,14 +36,14 @@ export class Historial implements OnInit, AfterViewInit {
         { titulo: 'SIG validado como IA', lista: this.historial.cursosSIGtoIA },
         { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas }
       ];
-      this.crearDonut(); 
+      this.crearDonut();
       setTimeout(() => this.crearDonut(), 0);
     }
-    
+
   }
 
   ngAfterViewInit() {
-    
+
   }
 
   crearDonut() {
@@ -52,32 +52,32 @@ export class Historial implements OnInit, AfterViewInit {
       { label: 'Créditos en curso', value: this.historial.creditosCursados || 0 },
       { label: 'Créditos faltantes', value: this.historial.creditosFaltantes || 0 }
     ];
-  
+
     const total = data.reduce((sum, d) => sum + d.value, 0);
-  
+
     d3.select('#graficoSVG').selectAll("*").remove();
-  
+
     const width = 200, height = 300, radius = Math.min(width, height) / 2;
-  
+
     const color = d3.scaleOrdinal<string>()
       .domain(data.map(d => d.label))
       .range(["#0077B6", "#00b4d8", "#90e0ef"]);
-  
+
     const svg = d3.select('#graficoSVG')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
-  
+
     const arc = d3.arc<d3.PieArcDatum<typeof data[0]>>()
       .innerRadius(50)
       .outerRadius(radius);
-  
+
     const pie = d3.pie<typeof data[0]>()
       .value(d => d.value)
       .sort(null);
-  
+
     // Texto central fijo (total)
     svg.append("text")
       .attr("text-anchor", "middle")
@@ -85,14 +85,14 @@ export class Historial implements OnInit, AfterViewInit {
       .style("font-size", "28px")
       .style("font-weight", "bold")
       .text(total);
-  
+
     const arcs = svg.selectAll('path')
       .data(pie(data))
       .enter()
       .append('path')
       .attr('d', arc as any)
       .attr('fill', d => color(d.data.label));
-  
+
     // Valores dentro de los arcos
     svg.selectAll("text.label")
       .data(pie(data))
@@ -106,11 +106,11 @@ export class Historial implements OnInit, AfterViewInit {
       .style("font-weight", "bold")
       .style("fill", "#fff")
       .text(d => d.data.value);
-  
+
     // Leyenda
     const leyenda = d3.select("#leyendaGrafico");
     leyenda.selectAll("*").remove();
-  
+
     data.forEach(d => {
       const item = leyenda.append("div").style("display", "flex").style("align-items", "center");
       item.append("div")
@@ -121,14 +121,14 @@ export class Historial implements OnInit, AfterViewInit {
       item.append("span").text(d.label);
     });
   }
-  
-  
+
+
 
   get requisitosProcesados() {
     return this.historial.lineasRequisitosGrado
       ?.filter(linea =>
         !linea.includes('Condición general no satisfecha: Requisitos de grado') &&
-        !linea.includes('Condición general satisfecha: Requisitos de grado')&&
+        !linea.includes('Condición general satisfecha: Requisitos de grado') &&
         !linea.includes('Satisfecho: Requisitos de grado')
       )
       .map(linea => {
@@ -136,19 +136,19 @@ export class Historial implements OnInit, AfterViewInit {
         const nombre = partes[0]?.trim() || '';
         const estado = partes[1]?.trim().toLowerCase() || '';
         const cumplido = estado.includes('satisfecho') && !estado.includes('no');
-  
+
         return {
           nombre,
           cumplido
         };
       }) || [];
-  }  
+  }
 
   get materiasVisibles() {
     return this.mostrarTodasMaterias
       ? this.historial.materias
       : this.historial.materias.slice(0, 5);
   }
-  
-  
+
+
 }

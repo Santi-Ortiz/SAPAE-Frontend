@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { JwtAuthenticationResponse } from '../dto/jwt-authentication-response';
-import { LoginDTO } from '../dto/login-dto';
+import { JwtAuthenticationResponse } from '../dtos/jwt-authentication-response';
+import { LoginDTO } from '../dtos/login-dto';
 import { environment } from '../../environments/environment';
 import { lastValueFrom } from 'rxjs';
 
@@ -12,7 +12,7 @@ const EMAIL = "user-email";
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(loginDTO: LoginDTO): Promise<void> {
     return lastValueFrom(

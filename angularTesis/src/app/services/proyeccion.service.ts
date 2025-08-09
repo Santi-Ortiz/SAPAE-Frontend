@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ProyeccionDTO } from '../dto/proyeccion-dto';
+import { Proyeccion } from '../models/proyeccion.model';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -7,15 +7,15 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class ProyeccionService {
 
-  private proyeccion = new BehaviorSubject<ProyeccionDTO>(new ProyeccionDTO(0, 0, 0, 0));
+  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0, 0));
 
   constructor() { }
 
-  setProyeccion(proyeccion: ProyeccionDTO) {
+  setProyeccion(proyeccion: Proyeccion) {
     this.proyeccion.next(proyeccion);
   }
 
-  getProyeccion(): ProyeccionDTO {
+  getProyeccion(): Proyeccion {
     return this.proyeccion.value;
   }
 }
