@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ProgresoDTO } from '../dto/progreso-dto';
+import { Progreso } from '../models/progreso.model';
 
 const STORAGE_KEY = 'historialData';
 
@@ -8,28 +8,28 @@ const STORAGE_KEY = 'historialData';
   providedIn: 'root'
 })
 export class HistorialService {
-  private historial: BehaviorSubject<ProgresoDTO>;
+  private historial: BehaviorSubject<Progreso>;
 
   historial$ = this.historialSubject().asObservable();
 
   constructor() {
     const data = this.loadFromStorage();
-    this.historial = new BehaviorSubject<ProgresoDTO>(data);
+    this.historial = new BehaviorSubject<Progreso>(data);
   }
 
   // inicializar el BehaviorSubject
-  private historialSubject(): BehaviorSubject<ProgresoDTO> {
+  private historialSubject(): BehaviorSubject<Progreso> {
     const data = this.loadFromStorage();
-    return new BehaviorSubject<ProgresoDTO>(data);
+    return new BehaviorSubject<Progreso>(data);
   }
 
   // Método para guardar en localStorage
-  private saveToStorage(progreso: ProgresoDTO): void {
+  private saveToStorage(progreso: Progreso): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progreso));
   }
 
   // Método para leer desde localStorage
-  private loadFromStorage(): ProgresoDTO {
+  private loadFromStorage(): Progreso {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       try {
@@ -38,15 +38,15 @@ export class HistorialService {
         console.error('Error al parsear historial desde localStorage', e);
       }
     }
-    return new ProgresoDTO();
+    return new Progreso();
   }
 
-  setHistorial(progreso: ProgresoDTO): void {
+  setHistorial(progreso: Progreso): void {
     this.saveToStorage(progreso);
     this.historial.next(progreso);
   }
 
-  getHistorial(): ProgresoDTO | null {
+  getHistorial(): Progreso | null {
     return this.historial.value;
   }
 }

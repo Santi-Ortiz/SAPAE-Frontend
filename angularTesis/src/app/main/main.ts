@@ -1,8 +1,8 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { LecturaService } from '../shared/lectura.service';
-import { HistorialService } from '../shared/historial.service';
-import { ProgresoDTO } from '../dto/progreso-dto';
+import { LecturaService } from '../services/lectura.service';
+import { HistorialService } from '../services/historial.service';
+import { Progreso } from '../models/progreso.model';
 import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 
 @Component({
@@ -14,14 +14,14 @@ import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 })
 export class Main {
 
-  historial: ProgresoDTO = new ProgresoDTO();
+  historial: Progreso = new Progreso();
 
   constructor(
     private lecturaService: LecturaService,
     private historialService: HistorialService,
     private router: Router
-  ) {}
-  
+  ) { }
+
   @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
 
   features = [

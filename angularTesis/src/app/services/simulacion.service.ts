@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SimulacionDTO } from '../dto/simulacion-dto';
-import { Simulacion } from '../dto/simulacion';
+import { SimulacionDTO } from '../dtos/simulacion-dto';
+import { Simulacion } from '../models/simulacion.model';
 import { environment } from '../../environments/environment.development';
-import { MateriajsonDTO } from '../dto/materiajson-dto';
+import { Materia } from '../models/materia.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class SimulacionService {
     return this.resultadoSimulacion!;
   }
 
-  setSimulacion(data: { [semestre: string]: { materias: MateriajsonDTO[] } }): void {
+  setSimulacion(data: { [semestre: string]: { materias: Materia[] } }): void {
     this.resultadoSimulacion = data;
   }
 }

@@ -1,4 +1,5 @@
-export class MateriajsonDTO {
+// ---- Nombre anterior: MateriaJsonDTO ----
+export class Materia {
     constructor(
         public codigo: string,
         public nombre: string,
@@ -6,5 +7,5 @@ export class MateriajsonDTO {
         public semestre?: number,
         public requisitos?: string[],
         public tipo?: string
-    ) {}
+    ) { }
 }

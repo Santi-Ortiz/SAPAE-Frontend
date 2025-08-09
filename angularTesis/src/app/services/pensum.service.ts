@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
-import { PensumDTO } from '../dto/pensum-dto';
+import { PensumDTO } from '../dtos/pensum-dto';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class PensumService {
     })
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   obtenerPensum(): Observable<PensumDTO[]> {
     return this.http.get<PensumDTO[]>(`${environment.SERVER_URL}/api/pensum`);
