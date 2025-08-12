@@ -15,6 +15,7 @@ import { NgIf, NgFor } from '@angular/common';
 export class Main {
 
   historial: Progreso = new Progreso();
+  mostrarMenu = false;
 
   constructor(
     private lecturaService: LecturaService,
@@ -46,6 +47,10 @@ export class Main {
       image: 'assets/images/plan-de-carrera.jpg'
     }
   ];
+
+  toggleMenu() {
+    this.mostrarMenu = !this.mostrarMenu;
+  }
 
   scrollLeft() {
     this.scrollContainer.nativeElement.scrollBy({
@@ -95,5 +100,9 @@ export class Main {
         this.historial.error = 'Error al procesar el archivo.';
       }
     });
+  }
+
+  cerrarSesion(){
+    this.router.navigate(['/login']);
   }
 }

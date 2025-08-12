@@ -11,6 +11,64 @@ section {
   margin: auto;
 }
 
+/* BARRA */
+.barra {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #0077B6;
+  color:#CAF0F8;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Icono usuario */
+.user-menu {
+  position: relative;
+  margin-right: 20px; 
+}
+
+.user-menu i {
+  font-size: 40px;
+  color:#CAF0F8;
+  cursor: pointer;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background:#0077B6;
+  list-style: none;
+  padding: 10px 0;
+  margin: 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-radius: 5px;
+}
+
+.dropdown li {
+  padding: 8px 40px;
+}
+
+.dropdown li a {
+  text-decoration: none;
+  color:white;
+}
+
+.user-menu:hover .dropdown {
+  display: block;
+}
+
+.dropdown:hover {
+  background:#00B4D8;
+  transform: scale(1.03);
+}
+
 /* INICIO */
 .inicio {
   display: flex;
@@ -21,6 +79,9 @@ section {
   gap: 40px;
   flex-wrap: wrap;
   border-bottom: 6px solid #00B4D8;
+  margin-top: 0; 
+  min-height: 300px;
+  padding-top: 130px;
 }
 
 .inicio-content {
@@ -51,7 +112,7 @@ section {
 
 .inicio-image img {
   max-width: 100%;
-  height: auto;
+  height: 300px;
   border-radius: 16px;
   object-fit: cover;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
