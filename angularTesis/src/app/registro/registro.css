@@ -1,0 +1,142 @@
+.contenedor-autenticacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 800px;
+  background-color: #c6effb;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.tarjeta-autenticacion {
+  background: white;
+  padding: 32px; 
+  border-radius: 10px;
+  width: 500px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.titulo {
+  color: #00b4d8;
+  font-size: 32px; 
+  font-weight: bold;
+}
+
+form {
+  margin-top: 16px; 
+  text-align: left;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin: 10px 0 5px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: #f8fbff;
+  font-size: 14px;
+}
+
+.grupo-input {
+  display: flex;
+  align-items: center;
+  background: #f8fbff;
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+
+.icono {
+  color: #0077b6;
+  font-size: 18px;
+  margin-right: 6px;
+}
+
+.icono-ojo {
+  color: #0077b6;
+  font-size: 18px;
+  margin-left: 6px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.icono-ojo:hover {
+  color: #0096c7;
+}
+
+.mensaje-error {
+  display: block;
+  color: black;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.campo-requerido {
+  font-size: 12px; 
+  color: black;
+  font-weight: bold;
+}
+
+.boton-principal {
+  background: #0077b6;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.boton-principal:hover {
+  background: #00b4d8;
+}
+
+.boton-secundario {
+  background: #90e0ef;
+  color: #0077b6;
+  border: none;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-top: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.boton-secundario:hover {
+  background: #00b4d8;
+}
+
+.boton-secundario-link {
+  background: none;
+  border: none;
+  color: #0077b6;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.boton-secundario-link:hover {
+  text-decoration: underline;
+}
+
+.cambio-autenticacion {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.mensaje-error{
+  color: #0077b6;
+  font-weight: bold;
+}

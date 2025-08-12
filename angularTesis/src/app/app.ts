@@ -24,16 +24,17 @@ export class App {
   hideMenu = false;
 
   constructor(private router: Router) {
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        this.hideMenu = event.urlAfterRedirects === '/main';
-      });
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        const rutasOcultas = ['/main', '/login', '/registro'];
+        this.hideMenu = rutasOcultas.includes(event.urlAfterRedirects);
+      }
+    });
   }
 
   logout(): void {
     localStorage.clear();
-    this.router.navigate(['/main']);
+    this.router.navigate(['/login']);
   }
 }
 

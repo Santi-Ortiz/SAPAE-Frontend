@@ -1,4 +1,6 @@
 import { provideRouter, Routes } from '@angular/router';
+import { Registro } from './registro/registro';
+import { Login } from './login/login';
 import { PensumView } from './pensum/pensum-view/pensum-view';
 import { Historial } from './historial/historial';
 import { SimulacionComponent } from './simulacion/simulacion';
@@ -13,6 +15,8 @@ import { App } from './app';
 import { SimulacionResultado } from './simulacion-resultado/simulacion-resultado';
 
 export const routes: Routes = [
+  { path: 'registro', component: Registro },
+  { path: 'login', component: Login },
   { path: 'pensum/view', component: PensumView },
   { path: 'historial', component: Historial },
   { path: 'simulacion', component: SimulacionComponent },
@@ -20,7 +24,7 @@ export const routes: Routes = [
   { path: 'busquedas', component: BusquedasComponent},
   { path: 'recomendaciones', component: RecomendacionesComponent},
   { path: 'main', component: Main },
-  { path: '', redirectTo: 'main', pathMatch: 'full' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];
 
 

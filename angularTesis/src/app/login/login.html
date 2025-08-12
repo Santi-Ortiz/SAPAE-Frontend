@@ -1,0 +1,68 @@
+<div class="contenedor-autenticacion">
+    <div class="tarjeta-autenticacion">
+      <h2 class="titulo">Inicio de Sesión</h2>
+      <h3 class="subtitulo">¡Hola!</h3>
+      <p class="mensaje-bienvenida">Bienvenido de vuelta a SAPAE</p>
+  
+      <form>
+        <div class="form-group">
+          <label for="correo">Correo institucional*</label>
+          <div class="grupo-input">
+            <i class="fa-solid fa-envelope icono"></i>
+            <input
+              type="email"
+              id="correo"
+              name="correo"
+              [(ngModel)]="correo"
+              (input)="validarCorreo()"
+              placeholder="usuario@javeriana.edu.co"
+            />
+          </div>
+          <small *ngIf="mensajeCorreo" class="mensaje-error">{{ mensajeCorreo }}</small>
+        </div>
+
+        <div class="form-group">
+          <label for="clave">Contraseña*</label>
+          <div class="grupo-input">
+            <i class="fa-solid fa-lock icono"></i>
+            <input
+              [type]="mostrarLaContrasena ? 'text' : 'password'"
+              id="clave"
+              name="clave"
+              [(ngModel)]="clave"
+              (input)="validarClave()"
+              placeholder="********"
+            />
+            <i
+              class="fa-solid icono icono-ojo"
+              [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
+              (click)="mostrarContrasena()"
+              title="Mostrar/Ocultar contraseña"
+            ></i>
+          </div>
+          <small *ngIf="mensajeClave" class="mensaje-error">{{ mensajeClave }}</small>
+        </div>
+  
+        <div class="opciones-extra">
+          <span class="campo-requerido">*Campos requeridos</span>
+          <a href="#">¿Olvidó su contraseña?</a>
+        </div>
+  
+        <button type="button" class="boton-principal" (click)="iniciarSesion()">
+          Iniciar Sesión
+        </button>
+  
+        <p class="cambio-autenticacion">
+          ¿No tiene una cuenta?
+          <button
+            type="button"
+            class="boton-secundario-link"
+            (click)="irARegistro()"
+          >
+            Regístrese
+          </button>
+        </p>
+      </form>
+    </div>
+  </div>
+  
