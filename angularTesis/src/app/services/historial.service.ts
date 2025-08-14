@@ -33,7 +33,11 @@ export class HistorialService {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       try {
-        return JSON.parse(raw);
+        const parsedData = JSON.parse(raw);
+        const progreso = new Progreso();
+        // Copiar todas las propiedades del objeto parseado al nuevo objeto Progreso
+        Object.assign(progreso, parsedData);
+        return progreso;
       } catch (e) {
         console.error('Error al parsear historial desde localStorage', e);
       }
@@ -41,9 +45,17 @@ export class HistorialService {
     return new Progreso();
   }
 
-  setHistorial(progreso: Progreso): void {
-    this.saveToStorage(progreso);
-    this.historial.next(progreso);
+  setHistorial(progreso: Progreso | any): void {
+    // Asegurar que el objeto es una instancia de Progreso
+    let progresoInstance: Progreso;
+    if (progreso instanceof Progreso) {
+      progresoInstance = progreso;
+    } else {
+      progresoInstance = new Progreso();
+      Object.assign(progresoInstance, progreso);
+    }
+    this.saveToStorage(progresoInstance);
+    this.historial.next(progresoInstance);
   }
 
   getHistorial(): Progreso | null {

@@ -21,16 +21,34 @@ export class Progreso {
   listaMateriasFaltantes?: Materia[] = [];
   archivoSeleccionado?: File;
   error?: string;
-  cursosIA: Materia[] = [];
-  cursosEnfasis: Materia[] = [];
-  cursosElectivas: Materia[] = [];
-  cursosDesarrolloComputacion: Materia[] = [];
-  cursosDesarrolloGestion: Materia[] = [];
-  cursosComputacionVisual: Materia[] = [];
-  cursosSIGtoIA: Materia[] = [];
-  cursosCVtoIA: Materia[] = [];
-  cursosComplementariaInformacion: Materia[] = [];
-  cursosComplementariaLenguas: Materia[] = [];
-  cursosElectivaBasicas: Materia[] = [];
+  cursosElectivas: MateriaDTO[] = [];
+  cursosEnfasis: MateriaDTO[] = [];
+  cursosComplementariaLenguas: MateriaDTO[] = [];
+  cursosComplementariaInformacion: MateriaDTO[] = [];
+  cursosIA: MateriaDTO[] = [];
+  cursosDesarrolloComputacion: MateriaDTO[] = [];
+  cursosDesarrolloGestion: MateriaDTO[] = [];
+  cursosComputacionVisual: MateriaDTO[] = [];
+  cursosCVtoIA: MateriaDTO[] = [];
+  cursosSIGtoIA: MateriaDTO[] = [];
+  cursosElectivaBasicas: MateriaDTO[] = [];
+  cursosSeguridad: MateriaDTO[] = [];
   mostrarTodasMaterias?: boolean;
+
+  constructor() {
+    this.materias = this.materias || [];
+    this.listaMateriasFaltantes = this.listaMateriasFaltantes || [];
+    this.cursosElectivas = this.cursosElectivas || [];
+    this.cursosEnfasis = this.cursosEnfasis || [];
+    this.cursosComplementariaLenguas = this.cursosComplementariaLenguas || [];
+    this.cursosComplementariaInformacion = this.cursosComplementariaInformacion || [];
+    this.cursosIA = this.cursosIA || [];
+    this.cursosDesarrolloComputacion = this.cursosDesarrolloComputacion || [];
+    this.cursosDesarrolloGestion = this.cursosDesarrolloGestion || [];
+    this.cursosComputacionVisual = this.cursosComputacionVisual || [];
+    this.cursosCVtoIA = this.cursosCVtoIA || [];
+    this.cursosSIGtoIA = this.cursosSIGtoIA || [];
+    this.cursosElectivaBasicas = this.cursosElectivaBasicas || [];
+    this.cursosSeguridad = this.cursosSeguridad || [];
+  }
 }

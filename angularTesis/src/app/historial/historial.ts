@@ -34,7 +34,8 @@ export class Historial implements OnInit, AfterViewInit {
         { titulo: 'Énfasis Visual', lista: this.historial.cursosComputacionVisual },
         { titulo: 'CV validado como IA', lista: this.historial.cursosCVtoIA },
         { titulo: 'SIG validado como IA', lista: this.historial.cursosSIGtoIA },
-        { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas }
+        { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas },
+        { titulo: 'Seguridad', lista: this.historial.cursosSeguridad }
       ];
       this.crearDonut();
       setTimeout(() => this.crearDonut(), 0);
@@ -105,7 +106,7 @@ export class Historial implements OnInit, AfterViewInit {
       .style("font-size", "18px")
       .style("font-weight", "bold")
       .style("fill", "#fff")
-      .text(d => d.data.value);
+      .text(d => d.data.value > 0 ? d.data.value : "");
 
     // Leyenda
     const leyenda = d3.select("#leyendaGrafico");
