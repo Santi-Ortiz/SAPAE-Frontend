@@ -44,7 +44,7 @@
 
   <section class="priorizacion-materias">
     <h2>Priorización de Materias</h2>
-    <p>Selecciona las materias prioritarias para futuros semestres. Máximo {{ maxSelecciones }} campos para mejorar la predicción.</p>
+    <p>Selecciona las materias prioritarias para futuros semestres. Elije máximo {{ maxSelecciones }} campos para mejorar la predicción en la simulación.</p>
     <p><small style="color: gray;">Campos seleccionados: {{ seleccionesActuales }}/{{ maxSelecciones }}</small></p>
     
     <!-- Mensaje de error -->
@@ -53,48 +53,77 @@
     </p>
     
     <div class="checkbox-group">
-      <label>
+      <div>
         <input 
           type="checkbox" 
+          id="prioridad-nucleo-basicas"
           [checked]="priorizacionMaterias.nucleoCienciasBasicas"
           (change)="onCheckboxChange('nucleoCienciasBasicas', $event)" 
-        /> Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas)
-      </label>
-      <label>
+        /> 
+        <label for="prioridad-nucleo-basicas">
+          Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas)
+        </label>
+      </div>
+
+      <div>
         <input 
           type="checkbox" 
+          id="prioridad-nucleo-aplicada"
           [checked]="priorizacionMaterias.nucleoIngenieriaAplicada"
           (change)="onCheckboxChange('nucleoIngenieriaAplicada', $event)" 
-        /> Núcleo de Ingeniería Aplicada (Específicas de la carrera)
-      </label>
-      <label>
+        /> 
+        <label for="prioridad-nucleo-aplicada">
+          Núcleo de Ingeniería Aplicada (Específicas de la carrera)
+        </label>
+      </div>
+
+      <div>
         <input 
           type="checkbox" 
+          id="prioridad-socio-humanistica"
           [checked]="priorizacionMaterias.nucleoSocioHumanistica"
           (change)="onCheckboxChange('nucleoSocioHumanistica', $event)" 
-        /> Núcleo Socio-humanística (ej. Teologías, Éticas)
-      </label>
-      <label>
+        /> 
+        <label for="prioridad-socio-humanistica">
+          Núcleo Socio-humanística (ej. Teologías, Éticas)
+        </label>
+      </div>
+
+      <div>
         <input 
           type="checkbox" 
+          id="prioridad-electivas"
           [checked]="priorizacionMaterias.electivas"
           (change)="onCheckboxChange('electivas', $event)" 
-        /> Electivas
-      </label>
-      <label>
+        /> 
+        <label for="prioridad-electivas">
+          Electivas
+        </label>
+      </div>
+
+      <div>
         <input 
           type="checkbox" 
+          id="prioridad-complementarias"
           [checked]="priorizacionMaterias.complementarias"
           (change)="onCheckboxChange('complementarias', $event)" 
-        /> Complementarias
-      </label>
-      <label>
+        /> 
+        <label for="prioridad-complementarias">
+          Complementarias
+        </label>
+      </div>
+
+      <div>
         <input 
           type="checkbox" 
+          id="prioridad-enfasis"
           [checked]="priorizacionMaterias.enfasis"
           (change)="onCheckboxChange('enfasis', $event)" 
-        /> Énfasis
-      </label>
+        /> 
+        <label for="prioridad-enfasis">
+          Énfasis
+        </label>
+      </div>
     </div>
   </section>
 
