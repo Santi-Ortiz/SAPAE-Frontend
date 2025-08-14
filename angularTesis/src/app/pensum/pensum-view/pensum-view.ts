@@ -92,6 +92,11 @@ export class PensumView implements OnInit, AfterViewInit {
     return (m as any).codigo ?? (m as any).curso;
   }  
 
+  getRequisitosJson(codigoDestino: string): string { 
+    const req = this.requisitosMap.get(String(codigoDestino)) || []; 
+    return JSON.stringify(req);
+  }
+
   agruparPorSemestre(materias: MateriaDTO[]) {
     const ordenSemestres = ["PrimPe", "SegPe", "TerPe"]; 
     const semestreMap = new Map<number, MateriaDTO[]>();
