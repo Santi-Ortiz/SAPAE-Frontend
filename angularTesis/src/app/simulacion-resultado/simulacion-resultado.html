@@ -7,7 +7,8 @@
     <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
         <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre">
             <h2>Semestre {{ semestre.key }}</h2>
-            <table>
+
+            <table class="materias-table">
                 <thead>
                     <tr>
                         <th>Código</th>
@@ -23,32 +24,55 @@
                         <td>{{ materia.nombre }}</td>
                         <td>{{ materia.creditos }}</td>
                         <td>{{ materia.semestre }}</td>
-                        <td>{{ materia.tipo }}</td>
+                        <td>{{ obtenerNombre(materia.tipo!) }}</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div class="resumen-semestre">
-                <h2>Resumen para semestre {{ semestre.key }}</h2>
-                <p>Total de Créditos: {{ calcularResumen(semestre.value.materias).totalCreditos }}</p>
-                <p>Total de Materias: {{ calcularResumen(semestre.value.materias).totalMaterias }}</p>
-                <p>Horas de Estudio por Día: 5 </p>
-                <p>Créditos Pendientes: 4</p>
-            </div>
-
-            <div class="grafica-tipo-materia">
-                <h2>Porcentaje por Tipo de Materia</h2>
-            </div>
-
-            <!--<div class="grafico-d3" id="donutChartContainer">
-                <div class="grafico-contenido">
-                    <div class="grafico-svg-wrapper">
-                        <h3 class="titulo-grafico">Cantidad de Créditos</h3>
-                        <div id="graficoSVG"></div>
+            <div class="resumen-container">
+                <h2>Resumen para Semestre {{ semestre.key }}</h2>
+                
+                <div class="semestre-card">
+                    
+                    <div class="card-header">
+                    <h3>Semestre {{ semestre.key }}</h3>
                     </div>
-                    <div id="leyendaGrafico" class="leyenda-d3"></div>
+
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            
+                            <div class="stat-item">
+                                <i class="fas fa-book-open"></i>
+                                <span><strong>Materias a cursar:</strong></span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalMaterias }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-star"></i>
+                                <span><strong>Total de créditos:</strong></span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
+                            </div>
+
+                            <div class="stat-item">
+                                <i class="fa-solid fa-clock"></i>
+                                <span><strong>Horas de Estudio por Día:</strong></span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span><strong>Créditos Pendientes:</strong></span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div> -->  
+            </div>
+
+            <div class="chart-section">
+                <h2>Porcentaje por Tipo de Materia</h2>
+                <div [id]="'pie-chart-semestre-' + semestre.key" class="pie-chart-container"></div>
+            </div>
+
         </div>
     </section>
 

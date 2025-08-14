@@ -1,12 +1,12 @@
 /*--- ESTILOS GENERALES ---*/
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    text-align: center;
-    justify-content: center;
-    align-items: center;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 th {
@@ -28,142 +28,222 @@ tr:nth-child(even) {
 /* --- ENCABEZADO DE SIMULACIÓN */
 
 .simulacion-intro {
-    margin: 20px auto;
-    width: 80%;
+  margin: 20px auto;
+  width: 80%;
 }
 
 .simulacion-intro p {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #9095A0;
-    font-size: 16px;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #9095A0;
+  font-size: 16px;
 }
 
 /*--- RESULTADOS DE SIMULACIÓN ---*/
 
 .simulacion-resultados {
-    align-items: left;
-    justify-content: left;
+  align-items: left;
+  justify-content: left;
 }
 
 .simulacion-resultados table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .simulacion-resultados h2 {
-    color: #0077b6;
+  color: #0077b6;
 }
 
 
 /*--- RESULTADO DE SIMULACIÓN POR SEMESTRE---*/
 
 .resultado-semestre {
-    width: 80%;
-    background: white;
-    border-radius: 8px;
-    padding: 5px;
-    margin: 30px;
-    margin-left: 115px ;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1.1;
-}
-
-
-/*--- DIVISOR ENTRE SECCIONES DE RESULTADOS Y RESUMEN GENERAL---*/
-
-.divider {
-    border: none;
-    height: 2.5px;
-    background-color: #d1d1d1;
-    margin: 40px auto;
-    width: 80%;
-}
-
-/*--- RESUMEN GENERAL---*/
-
-.resumen-general {
-    margin: 30px auto;
-    width: 80%;
-}
-
-.resumen-general table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.resumen-general p {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #9095A0;
-    font-size: 16px;
-}
-
-
-/*--- GRÁFICA POR SEMESTRE---*/
-
-.grafica-tipo-materia h2 {
-    color: #0077b6;
-}
-
-.grafico-d3 {
-  width: 100%;
+  width: 80%;
   background: white;
   border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  padding: 5px;
+  margin: 30px;
+  margin-left: 115px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: center;
   flex: 1.1;
 }
 
-.grafico-contenido {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
+/*--- DIVISOR ENTRE SECCIONES DE RESULTADOS Y RESUMEN GENERAL---*/
+
+.divider {
+  border: none;
+  height: 2.5px;
+  background-color: #d1d1d1;
+  margin: 40px auto;
+  width: 80%;
 }
 
-.grafico-svg-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/*--- RESUMEN GENERAL---*/
+
+.resumen-general {
+  margin: 30px auto;
+  width: 80%;
 }
 
-.titulo-grafico {
-  margin: 0 0 4px 0; 
-  font-size: 14px;
+.resumen-general table {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.resumen-general p {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #9095A0;
+  font-size: 16px;
+}
+
+/*--- RESUMEN POR SEMESTRE ---*/
+
+.resumen-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 30px;
+  border-top: 1px solid #e9ecef;
+}
+
+.resumen-container h2 {
+  text-align: center;
+  color: #0077b6;
+  margin: 30px;
+}
+
+.semestre-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #0077b6, #0096c7);
+  color: white;
+  padding: 15px 20px;
+}
+
+.card-header h3 {
+  margin: 0;
   font-weight: 600;
-  color: black;
+}
+
+.card-body {
+  padding: 25px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #0077b6;
+}
+
+.stat-item i {
+  color: #0077b6;
+  font-size: 1.6em;
+  margin-right: 15px;
+}
+
+.stat-item span {
+  color: #495057;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #005a8e;
+  margin-left: auto;
+  padding-left: 10px;
+}
+
+.card-footer {
+  padding: 20px;
+  background-color: #fafcff;
+}
+
+.card-footer h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #005a8e;
+  border-bottom: 2px solid #0077b6;
+  padding-bottom: 5px;
+  display: inline-block;
+}
+
+.card-footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card-footer li {
+  background-color: #e9f6ff;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  color: #004a75;
+  font-size: 0.95em;
+}
+
+/*--- GRÁFICA POR SEMESTRE---*/
+
+.chart-section h2 {
+  color: #0077b6;
+}
+
+.chart-section {
+  padding: 25px;
+  margin-top: 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #e9ecef;
   text-align: center;
 }
 
-#graficoSVG {
-  margin: 0;
-  padding: 0;
+.chart-section h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #005a8e;
+  font-weight: 600;
+}
+
+.pie-chart-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 15px;
 }
 
-/* Leyenda */
-.leyenda-d3 {
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-left: 10px;
-  align-items: flex-start;
+.pie-chart-container text.percentage {
+  pointer-events: none; 
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.legend-group .legend-item {
+  cursor: default; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 
