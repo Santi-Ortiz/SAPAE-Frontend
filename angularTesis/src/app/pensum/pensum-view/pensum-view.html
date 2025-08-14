@@ -2,35 +2,56 @@
   <div class="pensum-column">
     <h1>Avance en el plan de estudios</h1>
     <p>
-      Visualiza tu plan de estudios y el avance de las materias que has cursado. Las asignaturas se activan según tus prerequisitos y, al hacer clic en una, verás qué otras dependen de ella.
+      Visualiza tu plan de estudios y el avance de las materias que has cursado.
+      Las asignaturas se activan según tus prerequisitos y, al hacer clic en una,
+      verás qué otras dependen de ella.
     </p>
 
     <div class="semestres">
-      <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(allPensum)">
+      <!-- Materias cursadas (ORÍGENES) -->
+      <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(soloMaterias)">
         <h3>Semestre {{ grupo.semestre }}</h3>
-        <div class="caja"
-            *ngFor="let materia of grupo.materias"
-            [id]="materia.codigo"
-            [attr.data-requisitos]="materia.requisitosJson"
-            [attr.data-codigo]="materia.codigo"
-            [attr.data-nombre]="materia.nombre"
-            [attr.data-creditos]="materia.creditos"
-            [ngClass]="{ 'bloqueada': materiasCursadasCodigos.has(materia.codigo) }"
-            (click)="seleccionarMateria(materia.codigo)">
-            <strong>{{ materia.nombre }}</strong><br>
-            <span class="codigo">{{ materia.codigo }}</span> • 
-            <span class="creditos">{{ materia.creditos }} créditos</span>
+
+        <div
+          class="caja"
+          *ngFor="let materia of grupo.materias"
+          [attr.id]="getCodigo(materia)"                
+          [attr.data-semestre]="grupo.semestre"
+          [attr.data-requisitos]="'[]'"                 
+          [ngClass]="{ 'bloqueada': esMateriaBloqueada(materia, grupo.semestre) }"
+          (click)="!esMateriaBloqueada(materia, grupo.semestre) && seleccionarMateria(getCodigo(materia))"
+        >
+          <strong>{{ materia.titulo }}</strong><br>
+          <span class="codigo">{{ getCodigo(materia) }}</span> •
+          <span class="creditos">{{ materia.cred }} créditos</span>
         </div>
       </div>
-    </div>
+
+      <!-- Materias faltantes (DESTINOS) -->
+      <div class="semestre-columna" *ngFor="let grupo of materiasFaltantes">
+        <h3>Semestre {{ grupo.semestre }}</h3>
+
+        <div
+          class="caja"
+          *ngFor="let materia of grupo.materias"
+          [attr.id]="getCodigo(materia)"                       
+          [attr.data-semestre]="grupo.semestre"
+          [attr.data-requisitos]="getRequisitosJson(materia.codigo)"  
+        >
+          <strong>{{ materia.nombre }}</strong><br>
+          <span class="codigo">{{ getCodigo(materia) }}</span> •
+          <span class="creditos">{{ materia.creditos }} créditos</span>
+        </div>
+      </div>
+    </div>       
   </div>
 
   <svg #svgRef class="svg-lines"></svg>
 
   <div *ngIf="mostrarMensaje"
-     class="mensaje-pop"
-     [style.left.px]="mensajeX"
-     [style.top.px]="mensajeY">
-      {{ mensajeSinRequisitos }}
+       class="mensaje-pop"
+       [style.left.px]="mensajeX"
+       [style.top.px]="mensajeY">
+    {{ mensajeSinRequisitos }}
   </div>
 </div>
