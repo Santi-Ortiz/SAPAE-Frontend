@@ -138,3 +138,86 @@ button:hover {
   border-left: 4px solid #00B4D8;
   line-height: 1.6;
 }
+
+/* --- NUEVO: stepper de créditos --- */
+.creditos-control {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.creditos-control label {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stepper input[type="number"] {
+  width: 84px;
+  height: 42px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  background-color: #fff;
+}
+
+.stepper input[type="number"]:focus {
+  border-color: #0077B6;
+  box-shadow: 0 0 0 3px rgba(0,119,182,0.15);
+}
+
+.stepper .buttons {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-step {
+  width: 42px;
+  height: 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #0077B6;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  transition: background 0.15s ease, transform 0.05s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-step:active { transform: translateY(1px); }
+
+.btn-step:hover { background: #005f8d; }
+
+.btn-down {
+  background: #e9eef3;
+  color: #243342;
+}
+
+.btn-down:hover {
+  background: #dbe6ef;
+}
+
+.btn-step:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive pequeño */
+@media (max-width: 480px) {
+  .stepper input[type="number"] { width: 72px; }
+  .btn-step { width: 36px; }
+}

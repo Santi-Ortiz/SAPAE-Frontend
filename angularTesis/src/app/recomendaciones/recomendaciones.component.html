@@ -1,13 +1,27 @@
 <section class="recomendaciones-container">
   <h1 class="titulo-principal">Recomendación de Materias</h1>
   <p class="descripcion-seccion">
-    Teniendo en cuenta tus gustos, preferencias y requerimientos específicos, 
+    Teniendo en cuenta tus gustos, preferencias y requerimientos específicos,
     el sistema te ofrecerá una recomendación personalizada de materias.
   </p>
 
   <div class="formulario">
-    <textarea [(ngModel)]="pregunta" placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
-    <button (click)="consultarIA()">Generar Recomendación</button>
+    <textarea [(ngModel)]="pregunta" name="pregunta"
+      placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+
+    <!-- 👇 Nuevo control de créditos -->
+    <div class="creditos-control">
+      <label for="creditos">Número de Créditos de la Materia</label>
+      <div class="stepper">
+        <input id="creditos" name="creditos" type="number" min="1" max="10" [(ngModel)]="creditos">
+        <div class="buttons">
+          <button type="button" class="btn-step btn-up" (click)="incCreditos()" [disabled]="cargando" aria-label="Aumentar créditos">+</button>
+          <button type="button" class="btn-step btn-down" (click)="decCreditos()" [disabled]="cargando" aria-label="Disminuir créditos">−</button>
+        </div>
+      </div>
+    </div>
+
+    <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>
   </div>
 
   <!-- Spinner -->
