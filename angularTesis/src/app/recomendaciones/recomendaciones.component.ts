@@ -13,23 +13,13 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 export class RecomendacionesComponent {
 
   pregunta: string = '';
-  creditos: number = 2;              // 👈 nuevo
+  creditos: number = 0;              // 👈 valor inicial "Cualquiera"
   materias: any[] = [];
   explicacion: string = '';
   cargando: boolean = false;
   error: string = '';
 
   constructor(private http: HttpClient) {}
-
-  incCreditos() {
-    const v = Number(this.creditos) || 0;
-    this.creditos = Math.min(10, v + 1);
-  }
-
-  decCreditos() {
-    const v = Number(this.creditos) || 1;
-    this.creditos = Math.max(1, v - 1);
-  }
 
   consultarIA() {
     if (!this.pregunta.trim()) return;
@@ -39,7 +29,7 @@ export class RecomendacionesComponent {
     this.explicacion = '';
     this.error = '';
 
-    // 👇 ahora enviamos intereses + creditos
+    // 👇 enviamos intereses + créditos
     const body = { intereses: this.pregunta, creditos: this.creditos };
 
     this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe(

@@ -9,16 +9,17 @@
     <textarea [(ngModel)]="pregunta" name="pregunta"
       placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
 
-    <!-- 👇 Nuevo control de créditos -->
+    <!-- 👇 Control de créditos con opción 'Cualquiera' -->
     <div class="creditos-control">
       <label for="creditos">Número de Créditos de la Materia</label>
-      <div class="stepper">
-        <input id="creditos" name="creditos" type="number" min="1" max="10" [(ngModel)]="creditos">
-        <div class="buttons">
-          <button type="button" class="btn-step btn-up" (click)="incCreditos()" [disabled]="cargando" aria-label="Aumentar créditos">+</button>
-          <button type="button" class="btn-step btn-down" (click)="decCreditos()" [disabled]="cargando" aria-label="Disminuir créditos">−</button>
-        </div>
-      </div>
+      <select id="creditos" name="creditos" [(ngModel)]="creditos" [disabled]="cargando">
+        <option [ngValue]="0">Cualquiera</option>
+        <option [ngValue]="1">1</option>
+        <option [ngValue]="2">2</option>
+        <option [ngValue]="3">3</option>
+        <option [ngValue]="4">4</option>
+        <option [ngValue]="5">5</option>
+      </select>
     </div>
 
     <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>
