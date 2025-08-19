@@ -13,13 +13,32 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 export class RecomendacionesComponent {
 
   pregunta: string = '';
-  creditos: number = 0;              // 👈 valor inicial "Cualquiera"
+  creditos: number | 'cualquiera' = 'cualquiera'; // permite cualquiera o número
+  tipo: string = 'cualquiera'; // 'cualquiera' | 'énfasis' | 'electivas' | 'complementarias'
+
   materias: any[] = [];
   explicacion: string = '';
   cargando: boolean = false;
   error: string = '';
 
   constructor(private http: HttpClient) {}
+
+  incCreditos() {
+    if (this.creditos === 'cualquiera') { this.creditos = 1; return; }
+    const v = Number(this.creditos) || 0;
+    this.creditos = Math.min(10, v + 1);
+  }
+
+  decCreditos() {
+    if (this.creditos === 'cualquiera') { return; }
+    const v = Number(this.creditos) || 1;
+    const next = Math.max(1, v - 1);
+    this.creditos = next === 1 ? 1 : next;
+  }
+
+  setCualquieraCreditos() {
+    this.creditos = 'cualquiera';
+  }
 
   consultarIA() {
     if (!this.pregunta.trim()) return;
@@ -29,8 +48,11 @@ export class RecomendacionesComponent {
     this.explicacion = '';
     this.error = '';
 
-    // 👇 enviamos intereses + créditos
-    const body = { intereses: this.pregunta, creditos: this.creditos };
+    const body: any = {
+      intereses: this.pregunta,
+      tipo: this.tipo
+    };
+    body.creditos = this.creditos === 'cualquiera' ? 'cualquiera' : Number(this.creditos);
 
     this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe(
       (res) => {

@@ -9,17 +9,29 @@
     <textarea [(ngModel)]="pregunta" name="pregunta"
       placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
 
-    <!-- 👇 Control de créditos con opción 'Cualquiera' -->
-    <div class="creditos-control">
-      <label for="creditos">Número de Créditos de la Materia</label>
-      <select id="creditos" name="creditos" [(ngModel)]="creditos" [disabled]="cargando">
-        <option [ngValue]="0">Cualquiera</option>
-        <option [ngValue]="1">1</option>
-        <option [ngValue]="2">2</option>
-        <option [ngValue]="3">3</option>
-        <option [ngValue]="4">4</option>
-        <option [ngValue]="5">5</option>
+    <!-- Tipo de materia -->
+    <div class="tipo-materia">
+      <label for="tipo">Tipo de materia</label>
+      <select id="tipo" name="tipo" [(ngModel)]="tipo">
+        <option value="cualquiera">Cualquiera</option>
+        <option value="énfasis">Énfasis</option>
+        <option value="electivas">Electivas</option>
+        <option value="complementarias">Complementarias</option>
       </select>
+    </div>
+
+    <!-- Créditos -->
+    <div class="creditos-control">
+      <label>Número de Créditos de la Materia</label>
+      <div class="stepper">
+        <input *ngIf="creditos !== 'cualquiera'" type="number" min="1" max="10" [(ngModel)]="creditos">
+        <div class="buttons">
+          <button type="button" class="btn-step btn-up" (click)="incCreditos()" [disabled]="cargando" aria-label="Aumentar créditos">+</button>
+          <button type="button" class="btn-step btn-down" (click)="decCreditos()" [disabled]="cargando || creditos === 'cualquiera'" aria-label="Disminuir créditos">−</button>
+          <button type="button" class="btn-any" (click)="setCualquieraCreditos()" [disabled]="cargando">Cualquiera</button>
+        </div>
+      </div>
+      <div class="hint" *ngIf="creditos === 'cualquiera'">Sin restricción de créditos.</div>
     </div>
 
     <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>

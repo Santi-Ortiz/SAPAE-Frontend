@@ -169,3 +169,53 @@ button:hover {
   border-color: #023E8A;
   box-shadow: 0 0 6px rgba(2, 62, 138, 0.4);
 }
+
+.tipo-materia {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+
+.tipo-materia label {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.tipo-materia select {
+  width: 100%;
+  max-width: 260px;
+  padding: 10px 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.tipo-materia select:focus {
+  border-color: #0077B6;
+  box-shadow: 0 0 0 3px rgba(0,119,182,0.15);
+}
+
+/* Botón "Cualquiera" en créditos */
+.btn-any {
+  height: 42px;
+  border: none;
+  border-radius: 8px;
+  padding: 0 12px;
+  cursor: pointer;
+  background: #00B4D8;
+  color: #fff;
+  font-weight: 700;
+  transition: background 0.15s ease;
+}
+
+.btn-any:hover { background: #009ec1; }
+
+.hint {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #4a6072;
+}
