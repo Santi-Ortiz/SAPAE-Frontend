@@ -22,16 +22,44 @@
 
     <!-- Créditos -->
     <div class="creditos-control">
-      <label>Número de Créditos de la Materia</label>
-      <div class="stepper">
-        <input *ngIf="creditos !== 'cualquiera'" type="number" min="1" max="10" [(ngModel)]="creditos">
-        <div class="buttons">
-          <button type="button" class="btn-step btn-up" (click)="incCreditos()" [disabled]="cargando" aria-label="Aumentar créditos">+</button>
-          <button type="button" class="btn-step btn-down" (click)="decCreditos()" [disabled]="cargando || creditos === 'cualquiera'" aria-label="Disminuir créditos">−</button>
-          <button type="button" class="btn-any" (click)="setCualquieraCreditos()" [disabled]="cargando">Cualquiera</button>
+      <label for="creditos">Créditos de la materia</label>
+
+      <div class="creditos-chip pretty">
+        <button
+          type="button"
+          class="chip-btn chip-btn--minus"
+          (click)="decCreditos()"
+          [disabled]="cargando || creditos === 'cualquiera'"
+          aria-label="Disminuir créditos"
+        >−</button>
+
+        <div class="chip-value" title="Créditos seleccionados" aria-live="polite">
+          {{ creditos === 'cualquiera' ? 'Cualquiera' : creditos }}
         </div>
+
+        <button
+          type="button"
+          class="chip-btn chip-btn--plus"
+          (click)="incCreditos()"
+          [disabled]="cargando"
+          aria-label="Aumentar créditos"
+        >+</button>
+
+        <button
+          type="button"
+          class="chip-any"
+          (click)="setCualquieraCreditos()"
+          [disabled]="cargando"
+          [attr.aria-pressed]="(creditos === 'cualquiera') ? 'true' : 'false'"
+        >
+          Cualquiera
+        </button>
       </div>
-      <div class="hint" *ngIf="creditos === 'cualquiera'">Sin restricción de créditos.</div>
+
+      <!-- Mensaje de sin restricción -->
+      <div class="hint" *ngIf="creditos === 'cualquiera'">
+        Sin restricción de créditos.
+      </div>
     </div>
 
     <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>

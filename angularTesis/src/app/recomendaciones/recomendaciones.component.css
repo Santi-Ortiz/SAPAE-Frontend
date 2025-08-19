@@ -139,35 +139,112 @@ button:hover {
   line-height: 1.6;
 }
 
-/* --- Control de créditos --- */
+/* --- Créditos: chip/stepper moderno --- */
 .creditos-control {
-  margin: 15px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 8px;
 }
 
 .creditos-control label {
-  font-weight: bold;
-  color: #0077B6;
-  margin-bottom: 5px;
+  font-weight: 700;
+  color: #0f3b57;
+  letter-spacing: .2px;
 }
 
-.creditos-control select {
-  padding: 8px 12px;
-  border: 2px solid #0077B6;
-  border-radius: 8px;
-  font-size: 15px;
-  color: #333;
-  background-color: #fff;
-  transition: all 0.3s ease;
+.creditos-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+  border: 1px solid #d6e6f3;
+  border-radius: 999px;
+  padding: 10px 12px;
+}
+.creditos-chip.pretty {
+  box-shadow:
+    0 8px 24px rgba(0,119,182,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* Botones + y − */
+.chip-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: #0077B6;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
   cursor: pointer;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  transition: transform .06s ease, box-shadow .15s ease, background .15s ease;
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.25);
+}
+.chip-btn:hover { background: #006aa3; }
+.chip-btn:active { transform: translateY(1px) scale(.98); }
+.chip-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,119,182,.18);
+}
+.chip-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-.creditos-control select:focus {
+/* Valor central */
+.chip-value {
+  min-width: 120px;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #e9f6fd;
+  color: #0b3550;
+  font-weight: 800;
+  letter-spacing: .3px;
+  border: 1px solid #cfe9f7;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+/* Botón "Cualquiera" estilo toggle */
+.chip-any {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #00B4D8;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, transform .06s ease, box-shadow .15s ease, border-color .15s ease;
+  position: relative;
+}
+.chip-any:hover { background: #00a3c4; }
+.chip-any:active { transform: translateY(1px) scale(.98); }
+.chip-any:focus-visible {
   outline: none;
-  border-color: #023E8A;
-  box-shadow: 0 0 6px rgba(2, 62, 138, 0.4);
+  box-shadow: 0 0 0 3px rgba(0,180,216,.20);
+}
+/* cuando está “activo” (aria-pressed="true") se marca con borde y check */
+.chip-any[aria-pressed="true"] {
+  background: #00B4D8;
+  border-color: #8de1f1;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.05);
+}
+.chip-any[aria-pressed="true"]::before {
+  content: "✓";
+  font-weight: 900;
+  margin-right: 8px;
+}
+
+/* Hint */
+.hint {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #4a6072;
 }
 
 .tipo-materia {
@@ -175,6 +252,8 @@ button:hover {
   grid-template-columns: 1fr;
   gap: 8px;
   margin: 12px 0 8px;
+  width: 100%;
+  max-width: 260px;
 }
 
 .tipo-materia label {
@@ -182,40 +261,34 @@ button:hover {
   color: #1a1a1a;
 }
 
+/* Select estilizado */
 .tipo-materia select {
   width: 100%;
-  max-width: 260px;
-  padding: 10px 12px;
-  border: 1px solid #d6d6d6;
+  padding: 12px 14px;
+  border: 1px solid #d6e6f3;
   border-radius: 10px;
-  background: #fff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
   font-size: 16px;
+  color: #0b3550;
+  font-weight: 600;
   outline: none;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+
+  /* sombra sutil para parecer control moderno */
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.08);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none; /* elimina flecha nativa */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%230077B6' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+.tipo-materia select:hover {
+  border-color: #00B4D8;
 }
 
 .tipo-materia select:focus {
   border-color: #0077B6;
   box-shadow: 0 0 0 3px rgba(0,119,182,0.15);
-}
-
-/* Botón "Cualquiera" en créditos */
-.btn-any {
-  height: 42px;
-  border: none;
-  border-radius: 8px;
-  padding: 0 12px;
-  cursor: pointer;
-  background: #00B4D8;
-  color: #fff;
-  font-weight: 700;
-  transition: background 0.15s ease;
-}
-
-.btn-any:hover { background: #009ec1; }
-
-.hint {
-  margin-top: 6px;
-  font-size: 13px;
-  color: #4a6072;
 }
