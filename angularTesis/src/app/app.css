@@ -1,5 +1,8 @@
 /* app.component.css */
-
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -8,12 +11,15 @@
 
 /* Sidebar */
 .sidebar {
+  position: fixed;
   width: 250px;
+  height: 100vh;  
   background-color: #0077B6;
   color: #BFE9FF;
   display: flex;
   flex-direction: column;
-  padding-left: 0; 
+  padding-left: 0;
+  padding-right: 0; 
 }
 
 .logo-section {
@@ -33,10 +39,11 @@
   align-items: center;
   text-decoration: none;
   color:#BFE9FF;
+  padding: 12px 16px;
+  box-sizing: border-box;
   width: 100%;
   transition: background-color 0.2s ease;
   margin: 0; 
-  border-left: 5px solid transparent;
 }
 
 .nav-link i {
@@ -62,8 +69,11 @@
   font-size: 16px;
   transition: background-color 0.2s ease;
   width: 100%;
-  margin-top: 480px; 
-  margin-left: 8px;
+  border: none;
+  padding: 12px;        
+  text-align: center;
+  margin-top: auto; 
+  margin-bottom: 26px;
 }
 
 .logout-button:hover {
@@ -73,8 +83,8 @@
 
 /* Main content */
 .main-content {
+  margin-left: 250px; 
   width: calc(100% - 220px);
-  height: 100vh;
   overflow-y: auto;
   flex: 1;
   background-color: white;

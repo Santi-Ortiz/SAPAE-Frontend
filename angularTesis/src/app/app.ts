@@ -24,12 +24,15 @@ export class App {
   hideMenu = false;
 
   constructor(private router: Router) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        // Subir siempre en cada pantalla
+        window.scrollTo(0, 0);
+
         const rutasOcultas = ['/main', '/login', '/registro'];
         this.hideMenu = rutasOcultas.includes(event.urlAfterRedirects);
-      }
-    });
+      });
   }
 
   logout(): void {
