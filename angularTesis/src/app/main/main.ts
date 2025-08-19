@@ -97,7 +97,7 @@ export class Main {
         this.router.navigate(['/historial']); // Redirige con los datos
       },
       error: () => {
-        this.historial.error = 'Error al procesar el archivo.';
+        this.historial.error = 'El archivo no corresponde a un informe de avance.';
       }
     });
   }
