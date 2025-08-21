@@ -27,6 +27,7 @@ import * as d3 from 'd3';
 export class PensumView implements OnInit, AfterViewInit {
   progreso!: Progreso;
   materiasCursadasCodigos: Set<string> = new Set();
+  materiasCursadas: MateriaDTO[] = [];
   materiasFaltantes: { semestre: number; materias: PensumDTO[] }[] = [];
   allPensum: PensumDTO[] = [];
   ultimoSemestreCursado: number = 0;
@@ -54,7 +55,7 @@ export class PensumView implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.progreso = this.historialService.getHistorial()!; 
-  
+    
     this.pensumService.obtenerPensum().pipe(
       catchError(err => {
         console.error('Error cargando pensum', err);
@@ -84,6 +85,7 @@ export class PensumView implements OnInit, AfterViewInit {
         this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
 
       }
+
 
     });
   }
@@ -129,10 +131,11 @@ export class PensumView implements OnInit, AfterViewInit {
         semestreCounter++;
       }
     }
+
   
     materias.forEach(m => {
       const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
-      if (match) {
+      if (match && m.cred > 0) {
         const clave = `${match[1]}-${match[2]}`;
         const semestre = cicloToSemestre.get(clave) ?? 0;
         if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
@@ -204,11 +207,84 @@ export class PensumView implements OnInit, AfterViewInit {
       .sort(([a], [b]) => a - b)
       .map(([semestre, materias]) => ({ semestre, materias }));
   }
+
+  esMateriaBloqueada(materia: PensumDTO | MateriaDTO): boolean {
+    const codigo = this.getCodigo(materia);
+    //  Si ya fue cursada → bloquear SIEMPRE
+    if (this.materiasCursadasCodigos.has(codigo)) {
+      return true;
+    }
+    return false;
+  } 
+    
+  // Normaliza todos los códigos al mismo formato 
+  private norm(c: any): string {
+    const s = String(c ?? '').trim();
+    return /^\d+$/.test(s) ? s.padStart(6, '0') : s; 
+  }
+
+  seleccionarMateria(codigo: string) {
+    console.log(`MATERIA SELECCIONADA: ${codigo}`);
+    const codSel = this.norm(codigo);
+
+    if (this.materiasCursadasCodigos.has(codSel)) return;
+
+    this.conexionesActivas = [codSel];
+    let tieneConexiones = false;
+
+    this.allPensum.forEach(materia => {
+      try {
+        const codMat = this.norm(materia.codigo);
+        const parsed = JSON.parse(materia.requisitosJson || '[]');
+        const requisitos: string[] = (Array.isArray(parsed) ? parsed : [])
+          .map(r => this.norm(r));
+
+        // Caso 1: la seleccionada es requisito de otra (flecha de salida)
+        if (requisitos.includes(codSel)) {
+          this.conexionesActivas.push(codMat);
+          tieneConexiones = true;
+        }
+
+        // Caso 2: otra es requisito de la seleccionada (flechas de entrada)
+        if (codMat === codSel && requisitos.length) {
+          this.conexionesActivas.push(...requisitos);
+          tieneConexiones = true;
+        }
+      } catch {}
+    });
+
+    // Quitar duplicados y asegurar todo normalizado
+    this.conexionesActivas = Array.from(new Set(this.conexionesActivas.map(c => this.norm(c))));
+
+    // Quitar resaltados previos
+    document.querySelectorAll('.caja').forEach(c => c.classList.remove('resaltada'));
+
+    // Resaltar origen con el MISMO id del HTML
+    const origenBox = document.getElementById(codSel);
+    if (origenBox) {
+      origenBox.classList.add('resaltada');
+
+      if (!tieneConexiones) {
+        const rect = origenBox.getBoundingClientRect();
+        const contRect = this.contenedorRef?.nativeElement.getBoundingClientRect();
+        this.mensajeX = rect.right - (contRect?.left || 0) + 10;
+        this.mensajeY = rect.top - (contRect?.top || 0);
+        this.mensajeSinRequisitos = 'Esta materia no tiene conexiones.';
+        this.mostrarMensaje = true;
+        setTimeout(() => (this.mostrarMensaje = false), 3000);
+      } else {
+        this.mostrarMensaje = false;
+      }
+    }
+
+    this.dibujarConexiones();
+  }
   
-  ngAfterViewInit(): void {
-    requestAnimationFrame(() => {
+  
+  ngAfterViewInit() {
+    this.zone.onStable.subscribe(() => {
       this.dibujarConexiones();
-    });   
+    });
   }
 
 
@@ -221,6 +297,7 @@ export class PensumView implements OnInit, AfterViewInit {
   onScroll() {
     this.dibujarConexiones();
   }
+  
 
   private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
     const { scrollWidth: width, scrollHeight: height } = contenedor;
@@ -228,227 +305,195 @@ export class PensumView implements OnInit, AfterViewInit {
     svg.setAttribute('height', `${height}`);
     svg.innerHTML = ''; // limpiar SVG
   }
-
-  private crearMarcadores(d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) {
-    const defs = d3svg.append('defs');
-
-    const colores = {
-      clara: '#90E0EF',
-      oscura: '#0077B6'
-    };
-
-    const direcciones = ['derecha', 'izquierda', 'arriba', 'abajo'];
-
-    ['clara', 'oscura'].forEach(tipo => {
-      direcciones.forEach(direccion => {
-        const marker = defs.append('marker')
-          .attr('id', `flecha-${tipo}-${direccion}`)
-          .attr('markerWidth', 12)
-          .attr('markerHeight', 12)
-          .attr('markerUnits', 'userSpaceOnUse');
-
-        // Orientación correcta para cada dirección
-        if (direccion === 'arriba') {
-          marker.attr('orient', 90);
-        } else if (direccion === 'abajo') {
-          marker.attr('refX', 6)
-            .attr('refY', 10).attr('orient', -90);
-        } else {
-          marker.attr('refX', 10)
-            .attr('refY', 6).attr('orient', 'auto');
-        }
-
-        marker.append('polygon')
-          .attr('points', '2,2 10,6 2,10')
-          .attr('fill', colores[tipo as 'clara' | 'oscura']);
-      });
-    });
-  }
-
+  
   private dibujarCurvas(
     d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-    salidas: Map<string, HTMLElement[]>,
+    cajas: HTMLElement[],
+    salidas: Map<string, string[]>,
+    llegadas: Map<string, string[]>,
     contenedor: HTMLElement
   ) {
-    const contenedorRect = contenedor.getBoundingClientRect();
-    const offsetLeft = contenedorRect.left + contenedor.scrollLeft;
-    const offsetTop = contenedorRect.top + contenedor.scrollTop;
   
-    const offsetX = 20;
-    const offsetY = 0;
+    // Marcadores de las flechas 
+    const defs = d3svg.append("defs");
+    ["clara", "oscura"].forEach(tipo => {
+      defs.append("marker")
+      .attr("id", `flecha-${tipo}-izquierda`)
+      .attr("viewBox", "0 -3 6 6")
+      .attr("refX", 6)
+      .attr("refY", 0)
+      .attr("markerWidth", 4)
+      .attr("markerHeight", 4)
+      .attr("orient", "0")
+      .append("path")
+      .attr("d", "M0,-3L6,0L0,3")
+      .attr("fill", tipo === "oscura" ? "#0077B6" : "#90E0EF");
+    });
   
-    salidas.forEach((destinos, idOrigen) => {
-      const origen = document.getElementById(idOrigen);
-      if (!origen) return;
+    const svg = d3svg.node();
+    if (!svg) return;
   
-      const origenRect = origen.getBoundingClientRect();
-      const totalSalidas = destinos.length;
+    // Dibujar flechas 
+    cajas.forEach(destino => {
+      const requisitos: string[] = llegadas.get(destino.id) || [];
+      const totalLlegadas = requisitos.length || 1;
+      let llegadaIndex = 0;
   
-      destinos.forEach((destino, i) => {
-        const destinoRect = destino.getBoundingClientRect();
+      requisitos.forEach(origenId => {
+        const origen = document.getElementById(origenId);
+        if (!origen) return;
   
-        const xOrigen = origenRect.right - offsetLeft;
+        const totalSalidas = salidas.get(origenId)?.length || 1;
+        const salidaIndex = salidas.get(origenId)?.indexOf(destino.id) || 0;
+  
+        const origenLeft = origen.offsetLeft;
+        const origenTop = origen.offsetTop;
+        const origenWidth = origen.offsetWidth;
+        const origenHeight = origen.offsetHeight;
+
+        const destinoLeft = destino.offsetLeft;
+        const destinoTop = destino.offsetTop;
+        const destinoHeight = destino.offsetHeight;
+
+        // Flecha desde borde derecho del origen hasta borde izquierdo del destino
+        const xOrigen = origenLeft + origenWidth;
         const yOrigen =
-          origenRect.top -
-          offsetTop +
-          ((i + 1) / (totalSalidas + 1)) * origenRect.height;
+          origenTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origenHeight;
+
+        const xDestino = destinoLeft;
+        const yDestino =
+          destinoTop + ((llegadaIndex + 1) / (totalLlegadas + 1)) * destinoHeight;
+
+        llegadaIndex++;
   
-        const xDestino = destinoRect.left - offsetLeft;
-        const yDestino = destinoRect.top - offsetTop + destinoRect.height / 2;
+        const esActiva =
+        this.conexionesActivas.includes(destino.id) ||
+        this.conexionesActivas.includes(origenId);
+
+        const colorLinea = esActiva ? "#0077B6" : "#90E0EF";
+        const tipo = esActiva ? "oscura" : "clara";
   
-        // Determinar dirección para el marcador
-        let direccion = "derecha";
-        if (xDestino < xOrigen && Math.abs(yDestino - yOrigen) < origenRect.height / 2) {
-          direccion = "izquierda";
-        } else if (yDestino < yOrigen && Math.abs(xDestino - xOrigen) < origenRect.width / 2) {
-          direccion = "arriba";
-        } else if (yDestino > yOrigen && Math.abs(xDestino - xOrigen) < origenRect.width / 2) {
-          direccion = "abajo";
-        }
-  
-        // Puntos de la curva
+        // margen horizontal base más pequeño
+        const margenBase = 15;  
+
+        // separa las líneas para que no se sobrepongan
+        const margenExtra = (salidaIndex - (totalSalidas - 1) / 2) * 12;
+
+        // coordenada intermedia en X (primer giro)
+        const puntoIntermedioX = xOrigen + margenBase + margenExtra;
+
         const puntosRuta: [number, number][] = [
           [xOrigen, yOrigen],
-          [xOrigen + offsetX, yOrigen],
-          [xOrigen + offsetX, yDestino + offsetY],
-          [xDestino, yDestino + offsetY],
+          [puntoIntermedioX, yOrigen],
+          [puntoIntermedioX, yDestino],
+          [xDestino, yDestino]
         ];
-  
+
+
         const lineGenerator = d3.line<[number, number]>()
-          .x((d) => d[0])
-          .y((d) => d[1])
+          .x(d => d[0])
+          .y(d => d[1])
           .curve(d3.curveStep);
   
-        d3svg.append("path")
+        const path = d3svg.append("path")
           .attr("d", lineGenerator(puntosRuta)!)
           .attr("fill", "none")
-          .attr("stroke", "#0077B6")
-          .attr("stroke-width", 2)
-          .attr("marker-end", `url(#flecha-oscura-${direccion})`);
+          .attr("stroke", colorLinea)
+          .attr("stroke-width", esActiva ? 3 : 2)
+          .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
+  
+          if (esActiva) {
+            path.classed("resaltada", true);
+            destino.classList.add("resaltada");
+            origen.classList.add("resaltada");
+          } 
       });
     });
   }
-
-  obtenerRelaciones(cajas: HTMLElement[]) {
-    const salidas = new Map<string, HTMLElement[]>();
-    const llegadas = new Map<string, HTMLElement[]>();
   
-    // Unificar materias cursadas y faltantes con su código y elemento
-    const todasLasMaterias: { codigo: string; elemento: HTMLElement }[] = [
-      ...this.soloMaterias
-        .map(m => {
-          const el = cajas.find(c => c.id === String(m.curso));
-          return el ? { codigo: String(m.curso), elemento: el } : null;
-        })
-        .filter((m): m is { codigo: string; elemento: HTMLElement } => m !== null),
-      ...this.allPensum
-        .map(m => {
-          const el = cajas.find(c => c.id === String(m.codigo));
-          return el ? { codigo: String(m.codigo), elemento: el } : null;
-        })
-        .filter((m): m is { codigo: string; elemento: HTMLElement } => m !== null)
-    ];
-  
-    for (const [codigoDestino, requisitos] of this.requisitosMap.entries()) {
-      const destinoMateria = todasLasMaterias.find(m => m.codigo === codigoDestino);
-      if (!destinoMateria) continue;
-  
-      requisitos.forEach(codigoOrigen => {
-        const origenMateria = todasLasMaterias.find(m => m.codigo === codigoOrigen);
-        if (!origenMateria) return;
-  
-        if (!salidas.has(codigoOrigen)) salidas.set(codigoOrigen, []);
-        salidas.get(codigoOrigen)!.push(destinoMateria.elemento);
-  
-        if (!llegadas.has(codigoDestino)) llegadas.set(codigoDestino, []);
-        llegadas.get(codigoDestino)!.push(origenMateria.elemento);
-      });
-    }
-  
-    console.log("Salidas Map:", salidas);
-    console.log("Llegadas Map:", llegadas);
-  
-    return { salidas, llegadas };
-  }
-  
-  esMateriaBloqueada(materia: PensumDTO | MateriaDTO, semestreGrupo?: number): boolean {
-    const semestreActual = this.progreso?.semestre ?? 0;
-    const codigo = this.getCodigo(materia);
-  
-    // Determinar semestre de la materia en pantalla
-    const semestreMateria =
-      (materia as any).semestre !== undefined
-        ? (materia as any).semestre
-        : (semestreGrupo ?? 0);
-  
-    // 1) Si NO es del último semestre cursado → bloquear
-    if (semestreMateria !== semestreActual) return true;
-
-    // 2) Si ya está cursada → bloquear
-    if (this.materiasCursadasCodigos.has(codigo)) return true;
-    
-    // 3) Si es requisito de alguna materia faltante → NO bloquear
-    const esRequisitoDeFaltante = this.materiasFaltantes.some(grupo =>
-      grupo.materias.some(faltante => {
-        try {
-          const requisitos: string[] = JSON.parse(faltante.requisitosJson || '[]');
-          return requisitos.includes(codigo);
-        } catch {
-          return false;
-        }
-      })
-    );
-    if (esRequisitoDeFaltante) return false;
-  
-    this.dibujarConexiones(codigo);
-    // 4) Si no cumple lo anterior → bloquear
-    return true;
-  }
-  
-  
-  seleccionarMateria(codigo: string) {
-    this.conexionesActivas = [];
-  
-    let tieneRequisitos = false;
-    this.allPensum.forEach(m => {
-      try {
-        const reqs: string[] = JSON.parse(m.requisitosJson || '[]');
-        if (reqs.includes(codigo)) {
-          this.conexionesActivas.push(m.codigo);
-          tieneRequisitos = true;
-        }
-      } catch {}
-    });
-  
-    document.querySelectorAll('.caja').forEach(c => c.classList.remove('resaltada'));
-    const origenBox = document.getElementById(codigo);
-    if (origenBox) origenBox.classList.add('resaltada');
-  
-    if (!tieneRequisitos) {
-      this.mostrarMensaje = true;
-      this.mensajeSinRequisitos = 'Esta materia no es requisito para otra.';
-      setTimeout(() => (this.mostrarMensaje = false), 3000);
-    } else {
-      this.mostrarMensaje = false;
-    }
-  
-    this.dibujarConexiones(codigo);
-  }
-  
-  
-  dibujarConexiones(origenSeleccionado: string = '') {
+  dibujarConexiones() {
     const svg = this.svgRef?.nativeElement;
     const contenedor = this.contenedorRef?.nativeElement;
     if (!svg || !contenedor) return;
-  
     this.configurarSVG(svg, contenedor);
     const d3svg = d3.select(svg);
-    this.crearMarcadores(d3svg);
   
-    const { salidas } = this.obtenerRelaciones(Array.from(document.querySelectorAll<HTMLElement>('.caja')));
+    const salidasGlobal = new Map<string, string[]>();
+    const llegadasGlobal = new Map<string, string[]>();
   
-    this.dibujarCurvas(d3svg, salidas, contenedor);
-  }
+    const semestreActual = this.progreso?.semestre ?? 0;
+    const materias = this.progreso?.materias;
   
+    // Agrupamos materias cursadas
+    const materiasPorSemestre = this.agruparPorSemestre(materias);
   
+    // Obtenemos las cursadas del último semestre
+    const materiasUltimoSemestre =
+    materiasPorSemestre.find(g => g.semestre === semestreActual)?.materias || [];
+  
+    // Set para búsqueda rápida
+    const codigosUltimoSemestre = new Set(
+      materiasUltimoSemestre.map(m => String(this.getCodigo(m)).padStart(6, "0").trim())
+    );
+  
+    // También armamos un Set con TODOS los códigos faltantes
+    const codigosFaltantes = new Set<string>();
+    this.materiasFaltantes.forEach(grupo =>
+      grupo.materias.forEach(f => {
+        codigosFaltantes.add(String(this.getCodigo(f)).padStart(6, "0").trim());
+      })
+    );
+  
+    // Recorrer faltantes
+    this.materiasFaltantes.forEach(grupo => {
+      grupo.materias.forEach(faltante => {
+        let requisitos: string[] = [];
+  
+        if ((faltante as PensumDTO).requisitos) {
+          requisitos = (faltante as PensumDTO).requisitos;
+        } else if ((faltante as any).requisitosJson) {
+          try {
+            requisitos = JSON.parse((faltante as any).requisitosJson);
+          } catch {
+            requisitos = [];
+          }
+        }
+  
+        const codigoFaltante = String(this.getCodigo(faltante)).padStart(6, "0").trim();
+
+        requisitos.forEach(requisitoCodigo => {
+          const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
+  
+          // Caso 1: requisito está en el último semestre cursado
+          if (codigosUltimoSemestre.has(reqCode)) {
+            if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
+            salidasGlobal.get(reqCode)!.push(codigoFaltante);
+  
+            if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
+            llegadasGlobal.get(codigoFaltante)!.push(reqCode);
+          }
+  
+          // Caso 2: requisito también es otra materia faltante
+          if (codigosFaltantes.has(reqCode)) {
+            if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
+            salidasGlobal.get(reqCode)!.push(codigoFaltante);
+  
+            if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
+            llegadasGlobal.get(codigoFaltante)!.push(reqCode);
+          }
+        });
+      });
+    });
+  
+    console.log("Llegadas:", llegadasGlobal);
+    console.log("Salidas:", salidasGlobal);
+    const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
+  
+    // Dibujar todas las curvas
+    this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor);
+    // Recalcular al hacer scroll o resize
+    window.addEventListener("scroll", () => this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor));
+    window.addEventListener("resize", () => this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor));
+
+  }    
 }

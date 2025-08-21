@@ -8,6 +8,7 @@
     </p>
 
     <div class="semestres">
+      
       <!-- Materias cursadas (ORÍGENES) -->
       <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(soloMaterias)">
         <h3>Semestre {{ grupo.semestre }}</h3>
@@ -15,14 +16,14 @@
         <div
           class="caja"
           *ngFor="let materia of grupo.materias"
-          [attr.id]="getCodigo(materia)"                
+          [attr.id]="getCodigo(materia).toString().padStart(6,'0')"               
           [attr.data-semestre]="grupo.semestre"
-          [attr.data-requisitos]="'[]'"                 
-          [ngClass]="{ 'bloqueada': esMateriaBloqueada(materia, grupo.semestre) }"
-          (click)="!esMateriaBloqueada(materia, grupo.semestre) && seleccionarMateria(getCodigo(materia))"
+          [attr.data-requisitos]="'[]'"     
+          (click)="seleccionarMateria(getCodigo(materia))"            
+          [ngClass]="{ 'bloqueada': esMateriaBloqueada(materia) }"
         >
-          <strong>{{ materia.titulo }}</strong><br>
-          <span class="codigo">{{ getCodigo(materia) }}</span> •
+          <strong>{{ materia.titulo }}</strong>
+          <span class="codigo">{{ getCodigo(materia) }}</span> 
           <span class="creditos">{{ materia.cred }} créditos</span>
         </div>
       </div>
@@ -34,24 +35,26 @@
         <div
           class="caja"
           *ngFor="let materia of grupo.materias"
-          [attr.id]="getCodigo(materia)"                       
+          [attr.id]="getCodigo(materia).toString().padStart(6,'0')"                     
           [attr.data-semestre]="grupo.semestre"
-          [attr.data-requisitos]="getRequisitosJson(materia.codigo)"  
+          (click)="seleccionarMateria(getCodigo(materia))"  
+          [attr.data-requisitos]="getRequisitosJson(materia.codigo)"
         >
-          <strong>{{ materia.nombre }}</strong><br>
-          <span class="codigo">{{ getCodigo(materia) }}</span> •
+          <strong>{{ materia.nombre }}</strong>
+          <span class="codigo">{{ getCodigo(materia) }}</span> 
           <span class="creditos">{{ materia.creditos }} créditos</span>
         </div>
       </div>
-    </div>       
+    </div>
+    <svg #svgRef class="svg-lines"></svg>
+    <div *ngIf="mostrarMensaje"
+        class="mensaje-pop"
+        [style.right.px]="mensajeX"
+        [style.top.px]="mensajeY">
+      {{ mensajeSinRequisitos }}
+    </div>    
   </div>
 
-  <svg #svgRef class="svg-lines"></svg>
-
-  <div *ngIf="mostrarMensaje"
-       class="mensaje-pop"
-       [style.left.px]="mensajeX"
-       [style.top.px]="mensajeY">
-    {{ mensajeSinRequisitos }}
-  </div>
 </div>
+
+
