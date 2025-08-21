@@ -1,7 +1,7 @@
 
     <!-- Contenido académico (solo si hay datos) -->
     <ng-container *ngIf="historial.materias?.length">
-      <h1> Progreso académico </h1>
+      <h1> Progreso Académico </h1>
       <!-- Barra de progreso -->
       <div class="resumen-info">
         <div class="info-bloque">
@@ -18,7 +18,7 @@
           </div>
         </div>
       </div>      
-      <h3>Créditos faltantes</h3>
+      <h3>Créditos Faltantes</h3>
       <!-- Créditos y gráfico -->
       <div class="resumen-grid">
         <div class="creditos-grid">
@@ -54,7 +54,7 @@
       <!-- Requisitos -->
       <div class="resumen-grid">
         <div class="requisitos-container" *ngIf="requisitosProcesados.length">
-          <h3>Requisitos de grado</h3>
+          <h3>Requisitos de Grado</h3>
           <ul class="requisitos-lista">
             <li *ngFor="let requisito of requisitosProcesados">
               <span class="check-icon">{{ requisito.cumplido ? '✔' : '✘' }}</span>
@@ -66,7 +66,7 @@
   
       <!-- Materias que faltan -->
       <div *ngIf="historial.listaMateriasFaltantes?.length" class="faltantes-container">
-        <h3>Materias que faltan</h3>
+        <h3>Materias Faltantes</h3>
         <table class="faltantes">
           <tbody>
             <tr *ngFor="let mat of historial.listaMateriasFaltantes">
@@ -80,7 +80,7 @@
   
       <!-- Historial de cursos -->
       <div *ngIf="historial.materias?.length" class="tabla-materias">
-        <h3>Historial de cursos</h3>
+        <h3>Historial de Cursos</h3>
         <table>
           <thead>
             <tr>

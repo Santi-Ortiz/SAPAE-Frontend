@@ -27,14 +27,14 @@
       </div>
 
       <div class="form-group">
-        <label for="creditosInput">Cantidad de Créditos a Inscribir</label>
+        <label for="creditosInput">Cantidad Máxima de Créditos a Inscribir</label>
         <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput"
           [attr.max]="maxCreditos" (input)="ajustarCreditos()" />
         <small style="color: gray;">Máximo según tipo de matrícula: {{ maxCreditos }}</small>
       </div>
 
       <div class="form-group">
-        <label for="materiasInput">Cantidad de Materias a Inscribir</label>
+        <label for="materiasInput">Cantidad Máxima de Materias a Inscribir</label>
         <input type="number" id="materiasInput" name="materiasInput" [(ngModel)]="materiasInput" />
       </div>
     </form>
