@@ -1,13 +1,68 @@
 <section class="recomendaciones-container">
   <h1 class="titulo-principal">Recomendación de Materias</h1>
   <p class="descripcion-seccion">
-    Teniendo en cuenta tus gustos, preferencias y requerimientos específicos, 
+    Teniendo en cuenta tus gustos, preferencias y requerimientos específicos,
     el sistema te ofrecerá una recomendación personalizada de materias.
   </p>
 
   <div class="formulario">
-    <textarea [(ngModel)]="pregunta" placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
-    <button (click)="consultarIA()">Generar Recomendación</button>
+    <textarea [(ngModel)]="pregunta" name="pregunta"
+      placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+
+    <!-- Tipo de materia -->
+    <div class="tipo-materia">
+      <label for="tipo">Tipo de materia</label>
+      <select id="tipo" name="tipo" [(ngModel)]="tipo">
+        <option value="cualquiera">Cualquiera</option>
+        <option value="énfasis">Énfasis</option>
+        <option value="electivas">Electivas</option>
+        <option value="complementarias">Complementarias</option>
+      </select>
+    </div>
+
+    <!-- Créditos -->
+    <div class="creditos-control">
+      <label for="creditos">Créditos de la materia</label>
+
+      <div class="creditos-chip pretty">
+        <button
+          type="button"
+          class="chip-btn chip-btn--minus"
+          (click)="decCreditos()"
+          [disabled]="cargando || creditos === 'cualquiera'"
+          aria-label="Disminuir créditos"
+        >−</button>
+
+        <div class="chip-value" title="Créditos seleccionados" aria-live="polite">
+          {{ creditos === 'cualquiera' ? 'Cualquiera' : creditos }}
+        </div>
+
+        <button
+          type="button"
+          class="chip-btn chip-btn--plus"
+          (click)="incCreditos()"
+          [disabled]="cargando"
+          aria-label="Aumentar créditos"
+        >+</button>
+
+        <button
+          type="button"
+          class="chip-any"
+          (click)="setCualquieraCreditos()"
+          [disabled]="cargando"
+          [attr.aria-pressed]="(creditos === 'cualquiera') ? 'true' : 'false'"
+        >
+          Cualquiera
+        </button>
+      </div>
+
+      <!-- Mensaje de sin restricción -->
+      <div class="hint" *ngIf="creditos === 'cualquiera'">
+        Sin restricción de créditos.
+      </div>
+    </div>
+
+    <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>
   </div>
 
   <!-- Spinner -->

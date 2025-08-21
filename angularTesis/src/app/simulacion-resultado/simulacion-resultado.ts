@@ -41,7 +41,7 @@ export class SimulacionResultado implements OnInit {
   public mapaNombresTipos: { [key: string]: string } = {
     'nucleoCienciasBasicas': 'Núcleo de Ciencias Básicas',
     'nucleoIngenieria': 'Núcleo de Ingeniería',
-    'nucleoSociohumanisticas': 'Núcleo de Sociohumanísticas',
+    'nucleoSociohumanisticas': 'Núcleo de Socio-humanísticas',
     'enfasis': 'Énfasis',
     'complementaria': 'Complementaria',
     'electiva': 'Electiva'
