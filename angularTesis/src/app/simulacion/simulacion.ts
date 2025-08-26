@@ -64,8 +64,8 @@ export class SimulacionComponent implements OnInit {
     const proyeccionDTO = {
       id: 1,
       semestre: (this.semestreInput + this.progresoActual.semestre!),
-      creditos: this.creditosInput,
-      materias: this.materiasInput
+      numMaxCreditos: this.creditosInput,
+      numMaxMaterias: this.materiasInput
     }
 
     const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();

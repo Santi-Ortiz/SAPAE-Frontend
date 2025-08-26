@@ -11,6 +11,7 @@ import { Materia } from '../models/materia.model';
 })
 export class SimulacionService {
   public resultadoSimulacion?: any;
+  private apiUrl = 'http://localhost:8080/api/simulaciones';
 
   constructor(private http: HttpClient) { }
 
@@ -25,4 +26,21 @@ export class SimulacionService {
   setSimulacion(data: { [semestre: string]: { materias: Materia[] } }): void {
     this.resultadoSimulacion = data;
   }
+
+  getSimulaciones() {
+    return this.http.get(this.apiUrl);
+  }
+
+  getSimulacionById(id: number) {
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
+  addSimulacion(simulacion: Simulacion) {
+    return this.http.post(this.apiUrl, simulacion);
+  }
+
+  deleteSimulacion(id: number) {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
 }
