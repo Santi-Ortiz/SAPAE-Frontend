@@ -170,4 +170,29 @@ export class SimulacionResultado implements OnInit {
   public volverFormSimulacion(): void {
     this.router.navigate(["/simulacion"]);
   }
+
+
+public visualizarSimulacion(): void {
+  // Tipar explícitamente para evitar el error de flatMap con "unknown"
+  const resultado = this.resultadoSimulacion as Record<string, { materias: Materia[] }>;
+
+  // ✓ Enviar las materias agrupadas conservando el key
+  const grupos: Record<string, Materia[]> = Object.keys(resultado)
+    .reduce((acc, key) => {
+      acc[key] = resultado[key].materias;
+      return acc;
+    }, {} as Record<string, Materia[]>);
+
+  // (Opcional) También el plano (si ya lo usas en otro lado)
+  const todasMaterias: Materia[] = Object.values(resultado).flatMap(s => s.materias);
+
+  // Guardar en el service
+  this.simulacionService.setMateriasSimuladasPorKey(grupos);
+  // (si ya usas este también) this.simulacionService.setMateriasSimuladas(todasMaterias);
+
+  // Ir al pensum de simulación
+  this.router.navigate(['/pensum/simulacion']);
+}
+
+  
 }

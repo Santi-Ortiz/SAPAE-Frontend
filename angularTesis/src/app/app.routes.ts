@@ -2,6 +2,7 @@ import { provideRouter, Routes } from '@angular/router';
 import { Registro } from './registro/registro';
 import { Login } from './login/login';
 import { PensumView } from './pensum/pensum-view/pensum-view';
+import { PensumSimulacion } from './pensum/pensum-simulacion/pensum-simulacion';
 import { Historial } from './historial/historial';
 import { SimulacionComponent } from './simulacion/simulacion';
 import { Main } from './main/main';
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'registro', component: Registro },
   { path: 'login', component: Login },
   { path: 'pensum/view', component: PensumView },
+  { path: 'pensum/simulacion', component: PensumSimulacion },
   { path: 'historial', component: Historial },
   { path: 'simulacion', component: SimulacionComponent },
   { path: 'simulacion/mostrar', component: SimulacionResultado },

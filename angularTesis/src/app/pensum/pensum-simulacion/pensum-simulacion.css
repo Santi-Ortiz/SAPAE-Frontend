@@ -1,0 +1,212 @@
+.pensum-container {
+    background-color: #ffffff;
+    overflow-x: auto;
+    position: relative;
+  }
+  
+  .pensum-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #00B4D8;
+    width: 100%;
+    font-size: 36px;
+  }
+  
+  p {
+    text-align: center;
+    margin-bottom: 10px;
+    color: black;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  .semestres {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    overflow-x: auto; 
+    overflow-y: visible;
+    padding-bottom: 10px;
+  }
+  
+  .semestre-columna {
+    width: 120px;
+    padding: 2px;
+  }
+  
+  .semestre-columna h3 {
+    text-align: center;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: bold;
+    background-color: white;
+    border: 2px solid #0077B6;
+    color: #0077B6;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  
+  .caja {
+    background-color: #ffffff;
+    border: 1px solid #0077B6;
+    border-radius: 6px;
+    padding: 5px;
+    margin-bottom: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: relative;
+    cursor: pointer;
+    z-index: 5;
+    min-height: 95px; 
+    display: flex;             
+    flex-direction: column;    
+    align-items: center;      
+    justify-content: center;   
+    text-align: center;
+  }
+  
+  .caja:hover {
+    background-color: #b3e3fe;
+  }
+  
+  .codigo, .creditos {
+    font-size: 12px;
+    color: black;
+  }
+  
+  .caja.resaltada {
+    border: 2px solid #0077B6 ;
+    background-color: #b3e3fe ;
+  }
+  
+  .caja.bloqueada {
+    border: 1px solid #00B4D8 ;
+    background-color: #CAF0F8 ; 
+    color: black;
+    pointer-events: none; 
+    cursor: default;
+    opacity: 0.95;
+  }
+  
+  .caja.perdida {
+    border: 1px solid #d80000 ;
+    background-color: #f8caca ; 
+    color: black;
+    pointer-events: none; 
+    cursor: default;
+    opacity: 0.95;
+  }
+  
+  .caja.actual {
+    border: 1px solid #00d80e ;
+    background-color: #caf8cb ; 
+    color: black;
+    pointer-events: none; 
+    cursor: default;
+    opacity: 0.95;
+  }
+  
+  .leyenda-colores {
+    display: flex;              
+    justify-content: center;    
+    align-items: center;       
+    gap: 60px;                  
+    flex-wrap: wrap;           
+  }
+  
+  .leyenda-colores .item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .leyenda-colores .color {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border-radius: 3px;
+  }
+  
+  .color.perdida {
+    border: 1px solid #d80000 ;
+    background-color: #f8caca  ;
+  }
+  .color.actual {
+    border: 1px solid #00d80e ;
+    background-color: #caf8cb;
+  }
+  .color.bloqueada {
+    border: 1px solid #00B4D8 ;
+    background-color: #CAF0F8;
+  }
+  .color.faltante {
+    background-color: #ffffff;
+    border: 1px solid #0077B6;
+  }
+  
+  svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  .svg-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  path.resaltada, line.resaltada {
+    stroke: #0077B6 !important;
+    stroke-width: 3 !important;
+  }
+  
+  .mensaje-pop {
+    position: absolute;
+    background-color: #ffdddd;
+    color: #a80000;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid #cc0000;
+    font-size: 13px;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-width: 200px;
+    animation: fadein 0.3s ease;
+  }
+  
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(-5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .volver-simulacion {
+    display: block;
+    margin: 10px auto;
+    padding: 8px 20px;
+    font-size: 16px;
+    background-color: #0077B6;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .volver-simulacion:hover {
+    background-color: #005f8a;
+  }
