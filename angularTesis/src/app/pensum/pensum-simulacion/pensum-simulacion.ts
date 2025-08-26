@@ -358,7 +358,6 @@ export class PensumSimulacion implements OnInit, AfterViewInit {
     this.configurarSVG(svg, contenedor);
     const d3svg = d3.select(svg);
   
-    // ✅ Solo recalcular conexiones si aún no están hechas
     this.llegadasGlobal.clear();
     this.salidasGlobal.clear();
   
@@ -385,7 +384,6 @@ export class PensumSimulacion implements OnInit, AfterViewInit {
     // Dibujar todas las curvas
     this.dibujarCurvas(d3svg, cajas, this.salidasGlobal, this.llegadasGlobal, contenedor);
   
-    // ✅ Solo agregamos listeners una vez
     if (!this.listenersAgregados) {
       this.listenersAgregados = true;
   
