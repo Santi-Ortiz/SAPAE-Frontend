@@ -184,6 +184,30 @@ button:hover {
   transform: scale(1.03);
 }
 
+/* Spinner */
+.spinner {
+  border: 6px solid #caf0f8;
+  border-top: 6px solid #00B4D8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: girar 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes girar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mensaje-cargando {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #0077B6;
+  font-style: italic;
+  text-align: center;
+}
+
 /* TUTORIAL */
 .tutorial-box {
   background-color: #00B4D8;

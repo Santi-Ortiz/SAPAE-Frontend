@@ -42,6 +42,12 @@
         <button (click)="onSubmit()">Cargar PDF</button>
       </div>
     </div>
+
+    <!-- Spinner -->
+    <div *ngIf="cargando" class="mensaje-cargando">
+      <div class="spinner"></div>
+      <p>Cargando archivo, un momento por favor...</p>
+    </div>
   
     <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
   
