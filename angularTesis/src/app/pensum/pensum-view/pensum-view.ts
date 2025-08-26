@@ -6,7 +6,7 @@ import {
   OnInit,
   HostListener
 } from '@angular/core';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import {  NgFor, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PensumDTO } from '../../dtos/pensum-dto';
 import { MateriaDTO } from '../../dtos/materia-dto';
@@ -20,7 +20,7 @@ import * as d3 from 'd3';
 @Component({
   selector: 'app-pensum-view',
   standalone: true,
-  imports: [RouterModule, NgIf, NgFor, NgClass],
+  imports: [RouterModule, NgFor, NgClass],
   templateUrl: './pensum-view.html',
   styleUrl: './pensum-view.css',
 })
@@ -101,8 +101,9 @@ export class PensumView implements OnInit, AfterViewInit {
 
   agruparPorSemestre(materias: MateriaDTO[]) {
     const ordenSemestres = ["PrimPe", "SegPe", "TerPe"]; 
-    const semestreMap = new Map<number, MateriaDTO[]>();
+    const semestreMap = new Map<number, (MateriaDTO & { cssClass: string })[]>();
   
+    // ordenar ciclos
     const ciclosOrdenados = Array.from(
       new Set(
         materias
@@ -131,7 +132,9 @@ export class PensumView implements OnInit, AfterViewInit {
         semestreCounter++;
       }
     }
-
+  
+    // último semestre cursado
+    const ultimoSemestre = Math.max(...Array.from(cicloToSemestre.values()));
   
     materias.forEach(m => {
       const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
@@ -139,7 +142,17 @@ export class PensumView implements OnInit, AfterViewInit {
         const clave = `${match[1]}-${match[2]}`;
         const semestre = cicloToSemestre.get(clave) ?? 0;
         if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
-        semestreMap.get(semestre)!.push(m);
+        
+        const califNum = Number(m.calif);
+  
+        // asignar clases según condición
+        let clase = "bloqueada"; // por defecto
+        if (!isNaN(califNum) && califNum < 3) {
+          clase = "perdida";
+        } else if (semestre === ultimoSemestre) {
+          clase = "actual";
+        }
+        semestreMap.get(semestre)!.push({ ...m, cssClass: clase });
       }
     });
   
@@ -147,7 +160,7 @@ export class PensumView implements OnInit, AfterViewInit {
       semestre,
       materias
     }));
-  }
+  }   
 
   agruparMateriasFaltantes(progreso: Progreso, pensum: PensumDTO[]) {
     if (!progreso || !pensum || pensum.length === 0) return [];
@@ -239,17 +252,12 @@ export class PensumView implements OnInit, AfterViewInit {
         const requisitos: string[] = (Array.isArray(parsed) ? parsed : [])
           .map(r => this.norm(r));
 
-        // Caso 1: la seleccionada es requisito de otra (flecha de salida)
+        // La seleccionada es requisito de otra (flecha de salida)
         if (requisitos.includes(codSel)) {
           this.conexionesActivas.push(codMat);
           tieneConexiones = true;
         }
 
-        // Caso 2: otra es requisito de la seleccionada (flechas de entrada)
-        if (codMat === codSel && requisitos.length) {
-          this.conexionesActivas.push(...requisitos);
-          tieneConexiones = true;
-        }
       } catch {}
     });
 
@@ -263,18 +271,6 @@ export class PensumView implements OnInit, AfterViewInit {
     const origenBox = document.getElementById(codSel);
     if (origenBox) {
       origenBox.classList.add('resaltada');
-
-      if (!tieneConexiones) {
-        const rect = origenBox.getBoundingClientRect();
-        const contRect = this.contenedorRef?.nativeElement.getBoundingClientRect();
-        this.mensajeX = rect.right - (contRect?.left || 0) + 10;
-        this.mensajeY = rect.top - (contRect?.top || 0);
-        this.mensajeSinRequisitos = 'Esta materia no tiene conexiones.';
-        this.mostrarMensaje = true;
-        setTimeout(() => (this.mostrarMensaje = false), 3000);
-      } else {
-        this.mostrarMensaje = false;
-      }
     }
 
     this.dibujarConexiones();
@@ -415,36 +411,14 @@ export class PensumView implements OnInit, AfterViewInit {
     const svg = this.svgRef?.nativeElement;
     const contenedor = this.contenedorRef?.nativeElement;
     if (!svg || !contenedor) return;
+  
     this.configurarSVG(svg, contenedor);
     const d3svg = d3.select(svg);
   
     const salidasGlobal = new Map<string, string[]>();
     const llegadasGlobal = new Map<string, string[]>();
   
-    const semestreActual = this.progreso?.semestre ?? 0;
-    const materias = this.progreso?.materias;
-  
-    // Agrupamos materias cursadas
-    const materiasPorSemestre = this.agruparPorSemestre(materias);
-  
-    // Obtenemos las cursadas del último semestre
-    const materiasUltimoSemestre =
-    materiasPorSemestre.find(g => g.semestre === semestreActual)?.materias || [];
-  
-    // Set para búsqueda rápida
-    const codigosUltimoSemestre = new Set(
-      materiasUltimoSemestre.map(m => String(this.getCodigo(m)).padStart(6, "0").trim())
-    );
-  
-    // También armamos un Set con TODOS los códigos faltantes
-    const codigosFaltantes = new Set<string>();
-    this.materiasFaltantes.forEach(grupo =>
-      grupo.materias.forEach(f => {
-        codigosFaltantes.add(String(this.getCodigo(f)).padStart(6, "0").trim());
-      })
-    );
-  
-    // Recorrer faltantes
+    // Materias faltantes
     this.materiasFaltantes.forEach(grupo => {
       grupo.materias.forEach(faltante => {
         let requisitos: string[] = [];
@@ -460,40 +434,35 @@ export class PensumView implements OnInit, AfterViewInit {
         }
   
         const codigoFaltante = String(this.getCodigo(faltante)).padStart(6, "0").trim();
-
+  
         requisitos.forEach(requisitoCodigo => {
           const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
   
-          // Caso 1: requisito está en el último semestre cursado
-          if (codigosUltimoSemestre.has(reqCode)) {
-            if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
-            salidasGlobal.get(reqCode)!.push(codigoFaltante);
+          // conexión requisito → faltante
+          if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
+          salidasGlobal.get(reqCode)!.push(codigoFaltante);
   
-            if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
-            llegadasGlobal.get(codigoFaltante)!.push(reqCode);
-          }
-  
-          // Caso 2: requisito también es otra materia faltante
-          if (codigosFaltantes.has(reqCode)) {
-            if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
-            salidasGlobal.get(reqCode)!.push(codigoFaltante);
-  
-            if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
-            llegadasGlobal.get(codigoFaltante)!.push(reqCode);
-          }
+          if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
+          llegadasGlobal.get(codigoFaltante)!.push(reqCode);
         });
       });
     });
   
     console.log("Llegadas:", llegadasGlobal);
     console.log("Salidas:", salidasGlobal);
+  
     const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
   
     // Dibujar todas las curvas
     this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor);
+  
     // Recalcular al hacer scroll o resize
-    window.addEventListener("scroll", () => this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor));
-    window.addEventListener("resize", () => this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor));
-
-  }    
+    window.addEventListener("scroll", () => 
+      this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
+    );
+    window.addEventListener("resize", () => 
+      this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
+    );
+  }
+     
 }

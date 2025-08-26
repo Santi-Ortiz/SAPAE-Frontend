@@ -94,6 +94,68 @@ p {
   opacity: 0.95;
 }
 
+.caja.perdida {
+  border: 1px solid #d80000 ;
+  background-color: #f8caca ; 
+  color: black;
+  pointer-events: none; 
+  cursor: default;
+  opacity: 0.95;
+}
+
+.caja.actual {
+  border: 1px solid #00d80e ;
+  background-color: #caf8cb ; 
+  color: black;
+  pointer-events: none; 
+  cursor: default;
+  opacity: 0.95;
+}
+
+.contenedor-leyenda {
+  display: flex;
+  justify-content: center; 
+  margin-top: 20px;
+}
+
+.leyenda-colores {
+  display: flex;              
+  justify-content: center;    
+  align-items: center;       
+  gap: 60px;                  
+  flex-wrap: wrap;           
+}
+
+.leyenda-colores .item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.leyenda-colores .color {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 3px;
+}
+
+.color.perdida {
+  border: 1px solid #d80000 ;
+  background-color: #f8caca  ;
+}
+.color.actual {
+  border: 1px solid #00d80e ;
+  background-color: #caf8cb;
+}
+.color.bloqueada {
+  border: 1px solid #00B4D8 ;
+  background-color: #CAF0F8;
+}
+.color.faltante {
+  background-color: #ffffff;
+  border: 1px solid #0077B6
+}
+
 svg {
   position: absolute;
   top: 0;
