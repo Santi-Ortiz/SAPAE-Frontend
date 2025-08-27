@@ -309,87 +309,141 @@ export class PensumView implements OnInit, AfterViewInit {
     llegadas: Map<string, string[]>,
     contenedor: HTMLElement
   ) {
-  
-    // Marcadores de las flechas 
+    // --- Marcadores de flechas ---
     const defs = d3svg.append("defs");
     ["clara", "oscura"].forEach(tipo => {
       defs.append("marker")
-      .attr("id", `flecha-${tipo}-izquierda`)
-      .attr("viewBox", "0 -3 6 6")
-      .attr("refX", 6)
-      .attr("refY", 0)
-      .attr("markerWidth", 4)
-      .attr("markerHeight", 4)
-      .attr("orient", "0")
-      .append("path")
-      .attr("d", "M0,-3L6,0L0,3")
-      .attr("fill", tipo === "oscura" ? "#0077B6" : "#90E0EF");
+        .attr("id", `flecha-${tipo}-izquierda`)
+        .attr("viewBox", "0 -3 6 6")
+        .attr("refX", 6)
+        .attr("refY", 0)
+        .attr("markerWidth", 4)
+        .attr("markerHeight", 4)
+        .attr("orient", "0")
+        .append("path")
+        .attr("d", "M0,-3L6,0L0,3")
+        .attr("fill", tipo === "oscura" ? "#0077B6" : "#90E0EF");
     });
   
     const svg = d3svg.node();
     if (!svg) return;
   
-    // Dibujar flechas 
+    // --- calcular pasillos X entre columnas ---
+    const columnas = Array.from(contenedor.querySelectorAll<HTMLElement>(".semestre-columna"));
+    const gapCentersX: number[] = [];
+    for (let i = 0; i < columnas.length - 1; i++) {
+      const rightEdge = columnas[i].offsetLeft + columnas[i].offsetWidth;
+      const nextLeft = columnas[i + 1].offsetLeft;
+      gapCentersX.push(rightEdge + (nextLeft - rightEdge) / 2);
+    }
+  
+    // --- calcular gaps verticales en cada columna ---
+    const colGapCentersY: Array<number[]> = columnas.map(col => {
+      const cajasEnCol = Array.from(col.querySelectorAll<HTMLElement>(".caja"))
+        .sort((a, b) => a.offsetTop - b.offsetTop);
+      const gaps: number[] = [];
+      for (let j = 0; j < cajasEnCol.length - 1; j++) {
+        const bottom = cajasEnCol[j].offsetTop + cajasEnCol[j].offsetHeight;
+        const topNext = cajasEnCol[j + 1].offsetTop;
+        gaps.push(bottom + (topNext - bottom) / 2);
+      }
+      return gaps;
+    });
+  
+    const lineGenerator = d3.line<[number, number]>()
+      .x(d => d[0])
+      .y(d => d[1])
+      .curve(d3.curveStep);
+  
     cajas.forEach(destino => {
       const requisitos: string[] = llegadas.get(destino.id) || [];
       const totalLlegadas = requisitos.length || 1;
       let llegadaIndex = 0;
   
       requisitos.forEach(origenId => {
-        const origen = document.getElementById(origenId);
+        const origen = document.getElementById(origenId) as HTMLElement | null;
         if (!origen) return;
   
         const totalSalidas = salidas.get(origenId)?.length || 1;
         const salidaIndex = salidas.get(origenId)?.indexOf(destino.id) || 0;
   
-        const origenLeft = origen.offsetLeft;
-        const origenTop = origen.offsetTop;
-        const origenWidth = origen.offsetWidth;
-        const origenHeight = origen.offsetHeight;
-
-        const destinoLeft = destino.offsetLeft;
-        const destinoTop = destino.offsetTop;
-        const destinoHeight = destino.offsetHeight;
-
-        // Flecha desde borde derecho del origen hasta borde izquierdo del destino
-        const xOrigen = origenLeft + origenWidth;
+        // --- coordenadas de salida y entrada ---
+        const xOrigen = origen.offsetLeft + origen.offsetWidth;
         const yOrigen =
-          origenTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origenHeight;
+          origen.offsetTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origen.offsetHeight;
+  
+        const xDestino = destino.offsetLeft;
+        const yDestinoBase =
+          destino.offsetTop + ((llegadaIndex + 1) / (totalLlegadas + 1)) * destino.offsetHeight;
+  
+        // --- offset vertical extra para separar llegadas ---
+        const offsetLlegadaY = (llegadaIndex - (totalLlegadas - 1) / 2) * 12;
+        const yDestino = yDestinoBase + offsetLlegadaY;
 
-        const xDestino = destinoLeft;
-        const yDestino =
-          destinoTop + ((llegadaIndex + 1) / (totalLlegadas + 1)) * destinoHeight;
+        // offset horizontal: solo afecta la curva antes de llegar, no la punta
+        const offsetLlegadaX = (llegadaIndex - (totalLlegadas - 1) / 2) * 12;
 
         llegadaIndex++;
   
         const esActiva =
-        this.conexionesActivas.includes(destino.id) ||
-        this.conexionesActivas.includes(origenId);
-
+          this.conexionesActivas.includes(destino.id) ||
+          this.conexionesActivas.includes(origenId);
+  
         const colorLinea = esActiva ? "#0077B6" : "#90E0EF";
         const tipo = esActiva ? "oscura" : "clara";
   
-        // margen horizontal base más pequeño
-        const margenBase = 15;  
-
-        // separa las líneas para que no se sobrepongan
-        const margenExtra = (salidaIndex - (totalSalidas - 1) / 2) * 12;
-
-        // coordenada intermedia en X (primer giro)
-        const puntoIntermedioX = xOrigen + margenBase + margenExtra;
-
-        const puntosRuta: [number, number][] = [
-          [xOrigen, yOrigen],
-          [puntoIntermedioX, yOrigen],
-          [puntoIntermedioX, yDestino],
-          [xDestino, yDestino]
-        ];
-
-
-        const lineGenerator = d3.line<[number, number]>()
-          .x(d => d[0])
-          .y(d => d[1])
-          .curve(d3.curveStep);
+        // --- lógica de dos curvas optimizada ---
+        const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
+        const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
+  
+        // elegir canal X intermedio
+        let xChannel: number;
+        if (colOriIdx < colDestIdx) {
+          xChannel = gapCentersX[colOriIdx] ?? (xOrigen + 40);
+        } else if (colOriIdx > colDestIdx) {
+          xChannel = gapCentersX[Math.max(0, colOriIdx - 1)] ?? (xOrigen - 40);
+        } else {
+          xChannel = xOrigen + 40; // misma columna
+        }
+  
+        // offset horizontal para salidas múltiples
+        const offsetLinea = (salidaIndex - (totalSalidas - 1) / 2) * 10;
+  
+        // decidir ruta
+        const verticalDist = Math.abs(yDestino - yOrigen);
+        let puntosRuta: [number, number][];
+  
+        if (verticalDist < 40) {
+          puntosRuta = [
+            [xOrigen, yOrigen],
+            [xChannel + offsetLinea, yOrigen],
+            [xDestino - 20 + offsetLlegadaX, yDestino], // curva horizontal
+            [xDestino, yDestino]                       // flecha entra centrada
+          ];
+        } else {
+          let yGapOrigen = (colGapCentersY[colOriIdx] || []).reduce(
+            (best, g) => Math.abs(g - yOrigen) < Math.abs(best - yOrigen) ? g : best,
+            (contenedor.clientHeight || 0) / 2
+          );
+          let yGapDestino = (colGapCentersY[colDestIdx] || []).reduce(
+            (best, g) => Math.abs(g - yDestino) < Math.abs(best - yDestino) ? g : best,
+            (contenedor.clientHeight || 0) / 2
+          );
+        
+          // aplicar offsets
+          yGapOrigen += offsetLinea;
+          yGapDestino += offsetLlegadaY;
+        
+          puntosRuta = [
+            [xOrigen, yOrigen],
+            [xOrigen + 15, yGapOrigen],
+            [xChannel + offsetLinea, yGapOrigen],
+            [xChannel + offsetLinea, yGapDestino],
+            [xDestino - 20 + offsetLlegadaX, yGapDestino], // curva horizontal
+            [xDestino - 20 + offsetLlegadaX, yDestino],
+            [xDestino, yDestino]                           // flecha fija en borde
+          ];
+        }
   
         const path = d3svg.append("path")
           .attr("d", lineGenerator(puntosRuta)!)
@@ -398,14 +452,15 @@ export class PensumView implements OnInit, AfterViewInit {
           .attr("stroke-width", esActiva ? 3 : 2)
           .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
   
-          if (esActiva) {
-            path.classed("resaltada", true);
-            destino.classList.add("resaltada");
-            origen.classList.add("resaltada");
-          } 
+        if (esActiva) {
+          path.classed("resaltada", true);
+          destino.classList.add("resaltada");
+          origen.classList.add("resaltada");
+        }
       });
     });
   }
+  
   
   dibujarConexiones() {
     const svg = this.svgRef?.nativeElement;
@@ -464,5 +519,4 @@ export class PensumView implements OnInit, AfterViewInit {
       this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
     );
   }
-     
 }
