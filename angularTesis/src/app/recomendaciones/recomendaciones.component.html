@@ -104,8 +104,15 @@
       </tbody>
     </table>
 
-    <p *ngIf="explicacion" class="explicacion-texto"><strong>Explicación:</strong> {{ explicacion }}</p>
-  </div>
+    <p *ngIf="explicacion" class="explicacion-texto">
+      <strong>Explicación:</strong> {{ explicacion }}
+    </p>
+  </div> <!-- /respuesta-box -->
+
+  <!-- Nota fuera del cuadro azul, justo abajo y alineada a la derecha -->
+  <p *ngIf="materias.length > 0 && !cargando" class="aviso-validacion">
+    <strong>Nota:</strong> la información proporcionada por el modelo debe ser validada por el estudiante.
+  </p>
 
   <!-- Caso sin resultados -->
   <div *ngIf="!cargando && !error && materias.length === 0 && explicacion" class="respuesta-box">
