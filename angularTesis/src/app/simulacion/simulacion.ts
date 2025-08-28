@@ -40,7 +40,11 @@ export class SimulacionComponent implements OnInit {
   public readonly maxSelecciones = 3;
   public mostrarMensajeError = false;
 
-  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) { }
+  constructor(
+    private router: Router, 
+    private simulacionService: SimulacionService, 
+    private historialService: HistorialService
+  ) { }
 
   ngOnInit(): void {
 
@@ -76,19 +80,24 @@ export class SimulacionComponent implements OnInit {
     console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
     console.log("Priorizaciones seleccionadas: ", priorizacionesSeleccionadas);
 
-    this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
-      next: (resultado: any) => {
-        this.resultadoSimulacion = resultado;
-        this.simulacionService.setSimulacion(resultado);
-
-        console.log('Simulacion generada: ', this.resultadoSimulacion);
-        this.router.navigate(['/simulacion/mostrar'])
+    // Usar el nuevo método asíncrono
+    this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
+      next: (respuesta) => {
+        console.log('Simulación iniciada:', respuesta);
+        
+        // Agregar el job al monitoreo
+        this.simulacionService.agregarJobAlMonitoreo(
+          respuesta.jobId, 
+          `Simulación para ${this.semestreInput} semestres con ${this.creditosInput} créditos`
+        );
+        
+        this.router.navigate(['/historial']);
       },
       error: (error) => {
-        console.error('Error al generar la simulación:', error);
+        console.error('Error al iniciar la simulación:', error);
+        alert('Error al iniciar la simulación. Por favor, intenta nuevamente.');
       }
     });
-
   }
 
   get maxCreditos(): number {

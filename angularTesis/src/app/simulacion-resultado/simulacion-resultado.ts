@@ -173,18 +173,20 @@ export class SimulacionResultado implements OnInit {
 
 
 public visualizarSimulacion(): void {
-  const resultado = this.resultadoSimulacion as Record<string, { materias: Materia[] }>;
-
-  // Enviar las materias agrupadas conservando el key
-  const grupos: Record<string, Materia[]> = Object.keys(resultado)
-    .reduce((acc, key) => {
-      acc[key] = resultado[key].materias;
-      return acc;
-    }, {} as Record<string, Materia[]>);
-
-  this.simulacionService.setMateriasSimuladasPorKey(grupos);
+  // Usar setSimulacion directamente con el resultado completo
+  // Esto asegura que se actualicen todos los subjects correctamente
+  this.simulacionService.setSimulacion(this.resultadoSimulacion);
   
-  this.router.navigate(['/pensum/simulacion']);
+  // Si ya estamos en la ruta de simulación, forzar la recarga del componente
+  const currentUrl = this.router.url;
+  if (currentUrl === '/pensum/simulacion') {
+    // Navegar a una ruta dummy y luego de vuelta para forzar la reinicialización
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['/pensum/simulacion']);
+    });
+  } else {
+    this.router.navigate(['/pensum/simulacion']);
+  }
 }
 
   

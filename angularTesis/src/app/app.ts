@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { NgIf, NgFor, NgClass, } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NotificacionesSimulacionComponent } from './notificaciones-simulacion/notificaciones-simulacion.component';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ import { HttpClientModule } from '@angular/common/http';
     NgIf,
     RouterOutlet,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NotificacionesSimulacionComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']

@@ -1,0 +1,31 @@
+<div class="notificaciones-container">
+  <!-- Jobs Activos -->
+  <div *ngIf="jobsActivos.length > 0" class="jobs-activos">
+    <h4>Simulaciones en Proceso</h4>
+    <div *ngFor="let job of jobsActivos" class="job-item" 
+         [ngClass]="{'job-completada': job.estado === 'COMPLETADA', 'job-error': job.estado === 'ERROR'}">
+      <div class="job-info">
+        <strong>Estado: </strong> 
+        <span [ngClass]="getEstadoClass(job.estado)">{{getEstadoTexto(job.estado)}}</span>
+        <br>
+        <strong>Mensaje: </strong> {{job.mensaje}}
+        <div *ngIf="job.tiempoDuracion" class="duracion">
+          <strong>Duración:</strong> {{job.tiempoDuracion}}ms
+        </div>
+        <div *ngIf="job.error" class="error-detail">
+          <strong>Error:</strong> {{job.error}}
+        </div>
+      </div>
+      <div class="job-actions">
+        <button *ngIf="job.estado === 'COMPLETADA'" 
+                (click)="verResultado(job.jobId)" 
+                class="btn-ver-resultado">
+          Ver Resultado
+        </button>
+        <button (click)="removerJob(job.jobId)" class="btn-remover">
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

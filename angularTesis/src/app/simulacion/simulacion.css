@@ -22,6 +22,41 @@
   line-height: 1.5;
 }
 
+/* Información del proceso asíncrono */
+.info-proceso-asincrono {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid #00B4D8;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 600px;
+  text-align: left;
+}
+
+.info-proceso-asincrono h3 {
+  color: #0077B6;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+.info-proceso-asincrono ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-proceso-asincrono li {
+  padding: 8px 0;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-proceso-asincrono li:last-child {
+  border-bottom: none;
+}
+
 /*--- ESTILOS PARA PREFERENCIA ACADÉMICA Y PRIORIZACIÓN DE MATERIAS --- */
 
 .preferencias-academicas,
