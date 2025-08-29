@@ -14,9 +14,9 @@ export class LecturaService {
 
   subirArchivo(file: File): Observable<any> {
     const formData = new FormData();
-    formData.append('archivo', file);
+    formData.append('archivo', file, file.name);
   
-    return this.http.post(this.apiUrl, formData).pipe(
+    return this.http.post<any>(this.apiUrl, formData).pipe(
       catchError(this.handleError)
     );
   }
