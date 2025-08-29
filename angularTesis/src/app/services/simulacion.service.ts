@@ -155,10 +155,6 @@ export class SimulacionService {
             this.setSimulacion(resultado);
             this.agregarNotificacion(`Simulación completada: ${status.mensaje || 'Simulación finalizada'}`);
             
-            // Remover job de la lista activa después de un tiempo
-            setTimeout(() => {
-              this.removerJobDelMonitoreo(status.jobId);
-            }, 30000); // 30 segundos
           },
           error: (error) => {
             console.error('Error obteniendo resultado:', error);
