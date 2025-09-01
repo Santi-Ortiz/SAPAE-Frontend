@@ -104,8 +104,19 @@ export class Main {
     });
   }
 
-  cerrarSesion(){
-    this.authService.logout().subscribe();
-    this.router.navigate(['/login']);
+  cerrarSesion() {
+    console.log('🔴 Iniciando cierre de sesión...');
+
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('✅ Logout exitoso, redirigiendo a login');
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('❌ Error en logout:', error);
+        // Aún así redirigimos porque el estado local se limpia
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

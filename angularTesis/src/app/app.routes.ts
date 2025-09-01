@@ -11,14 +11,21 @@ import { SimulacionResultado } from './simulacion-resultado/simulacion-resultado
 import { AuthGuard } from './interceptor/auth-guard';
 
 export const routes: Routes = [
-    { path: 'registro', component: Registro },
+    // Rutas públicas sin autenticación
+    { path: 'registro', component: Registro},
     { path: 'login', component: Login },
-    { path: 'pensum/view', component: PensumView },
-    { path: 'historial', component: Historial },
-    { path: 'simulacion', component: SimulacionComponent },
-    { path: 'simulacion/mostrar', component: SimulacionResultado },
-    { path: 'busquedas', component: BusquedasComponent },
-    { path: 'recomendaciones', component: RecomendacionesComponent },
+
+    // Rutas protegidas que requieren autenticación
+    { path: 'pensum/view', component: PensumView, canActivate: [AuthGuard] },
+    { path: 'historial', component: Historial, canActivate: [AuthGuard] },
+    { path: 'simulaciones', component: SimulacionComponent, canActivate: [AuthGuard] },
+    { path: 'simulaciones/mostrar', component: SimulacionResultado, canActivate: [AuthGuard] },
+    { path: 'busquedas', component: BusquedasComponent, canActivate: [AuthGuard] },
+    { path: 'recomendaciones', component: RecomendacionesComponent, canActivate: [AuthGuard] },
     { path: 'main', component: Main, canActivate: [AuthGuard] },
+
+    // Redirección por defecto
     { path: '', redirectTo: '/login', pathMatch: 'full' },
+
+    { path: '**', redirectTo: '/login' }
 ];

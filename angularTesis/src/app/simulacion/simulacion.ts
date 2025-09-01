@@ -82,7 +82,7 @@ export class SimulacionComponent implements OnInit {
         this.simulacionService.setSimulacion(resultado);
 
         console.log('Simulacion generada: ', this.resultadoSimulacion);
-        this.router.navigate(['/simulacion/mostrar'])
+        this.router.navigate(['/simulaciones/mostrar'])
       },
       error: (error) => {
         console.error('Error al generar la simulación:', error);

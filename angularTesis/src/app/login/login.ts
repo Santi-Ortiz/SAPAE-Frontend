@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
@@ -17,12 +17,10 @@ export class Login implements OnInit {
   loginForm!: FormGroup;
   loading = false;
   enviado = false;
-  returnUrl!: string;
   error = '';
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
     private formBuilder: FormBuilder,
     private authService: AuthService
   ) { }
@@ -32,8 +30,6 @@ export class Login implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
       contrasenia: ['', Validators.required]
     });
-
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/main';
   }
 
   get f() { return this.loginForm.controls; }
@@ -60,7 +56,7 @@ export class Login implements OnInit {
         next: () => {
           console.log('✅ Login exitoso, verificando cookies...');
           this.authService.debugCookies();
-          this.router.navigate([this.returnUrl]);
+          this.router.navigate(['/main']);
         },
         error: error => {
           console.error('❌ Error en login:', error);

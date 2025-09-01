@@ -21,7 +21,7 @@ export class PensumService {
   constructor(private http: HttpClient) { }
 
   obtenerPensum(): Observable<PensumDTO[]> {
-    return this.http.get<PensumDTO[]>(`${environment.SERVER_URL}/api/pensum`);
+    return this.http.get<PensumDTO[]>(`${environment.SERVER_URL}/api/pensums`);
   }
 
   // Obtiene todos los pensums 
