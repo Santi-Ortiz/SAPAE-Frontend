@@ -287,7 +287,7 @@ h1 {
   margin: 30px auto;
   padding: 12px 24px;
   font-size: 16px;
-  background-color:#00B4D8;
+  background-color:#0077B6;
   border: none;
   color: white;
   border-radius: 6px;
@@ -296,5 +296,5 @@ h1 {
 }
 
 .visualizar-simulacion:hover {
-  background-color:#0077B6;
+  background-color:#005f8a;
 }

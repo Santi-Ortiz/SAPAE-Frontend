@@ -20,7 +20,7 @@ h1 {
 p {
   text-align: center;
   margin-bottom: 10px;
-  color: black;
+  color: #0B1215;
   font-size: 16px;
   line-height: 1.6;
 }
@@ -29,7 +29,7 @@ p {
   display: flex;
   flex-direction: row;
   gap: 30px;
-  overflow-x: auto; 
+  overflow-x: auto;
   overflow-y: visible;
   padding-bottom: 10px;
 }
@@ -59,15 +59,15 @@ p {
   margin-bottom: 30px;
   font-size: 13px;
   font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: relative;
   cursor: pointer;
   z-index: 5;
-  min-height: 95px; 
-  display: flex;             
-  flex-direction: column;    
-  align-items: center;      
-  justify-content: center;   
+  min-height: 95px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -75,55 +75,56 @@ p {
   background-color: #b3e3fe;
 }
 
-.codigo, .creditos {
+.codigo,
+.creditos {
   font-size: 12px;
-  color: black;
+  color: #0B1215;
 }
 
 .caja.resaltada {
-  border: 2px solid #0077B6 ;
-  background-color: #b3e3fe ;
+  border: 2px solid #0077B6;
+  background-color: #b3e3fe;
 }
 
 .caja.bloqueada {
-  border: 1px solid #00B4D8 ;
-  background-color: #CAF0F8 ; 
-  color: black;
-  pointer-events: none; 
+  border: 1px solid #00B4D8;
+  background-color: #CAF0F8;
+  color: #0B1215;
+  pointer-events: none;
   cursor: default;
   opacity: 0.95;
 }
 
 .caja.perdida {
-  border: 1px solid #d80000 ;
-  background-color: #f8caca ; 
-  color: black;
-  pointer-events: none; 
+  border: 1px solid #d80000;
+  background-color: #f8caca;
+  color: #0B1215;
+  pointer-events: none;
   cursor: default;
   opacity: 0.95;
 }
 
 .caja.actual {
-  border: 1px solid #00d80e ;
-  background-color: #caf8cb ; 
-  color: black;
-  pointer-events: none; 
+  border: 1px solid #00d80e;
+  background-color: #caf8cb;
+  color: #0B1215;
+  pointer-events: none;
   cursor: default;
   opacity: 0.95;
 }
 
 .contenedor-leyenda {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   margin-top: 20px;
 }
 
 .leyenda-colores {
-  display: flex;              
-  justify-content: center;    
-  align-items: center;       
-  gap: 60px;                  
-  flex-wrap: wrap;           
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  flex-wrap: wrap;
 }
 
 .leyenda-colores .item {
@@ -140,17 +141,20 @@ p {
 }
 
 .color.perdida {
-  border: 1px solid #d80000 ;
-  background-color: #f8caca  ;
+  border: 1px solid #d80000;
+  background-color: #f8caca;
 }
+
 .color.actual {
-  border: 1px solid #00d80e ;
+  border: 1px solid #00d80e;
   background-color: #caf8cb;
 }
+
 .color.bloqueada {
-  border: 1px solid #00B4D8 ;
+  border: 1px solid #00B4D8;
   background-color: #CAF0F8;
 }
+
 .color.faltante {
   background-color: #ffffff;
   border: 1px solid #0077B6;
@@ -176,7 +180,8 @@ svg {
   z-index: 10;
 }
 
-path.resaltada, line.resaltada {
+path.resaltada,
+line.resaltada {
   stroke: #0077B6 !important;
   stroke-width: 3 !important;
 }
@@ -190,12 +195,19 @@ path.resaltada, line.resaltada {
   border: 1px solid #cc0000;
   font-size: 13px;
   z-index: 10;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   max-width: 200px;
   animation: fadein 0.3s ease;
 }
 
 @keyframes fadein {
-  from { opacity: 0; transform: translateY(-5px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

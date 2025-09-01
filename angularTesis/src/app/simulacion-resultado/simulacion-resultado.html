@@ -2,7 +2,8 @@
     <h1>Simulación de Escenarios Académicos</h1>
     <section class="simulacion-intro">
         <h2>Resultados de la Simulación</h2>
-        <p>Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.</p>
+        <p>Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.</p> 
+        <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de Estudios</button>
     </section>
     <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
         <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre">
@@ -54,13 +55,13 @@
 
                             <div class="stat-item">
                                 <i class="fa-solid fa-clock"></i>
-                                <span><strong>Horas de Estudio por Día:</strong></span>
+                                <span><strong>Horas de estudio por día:</strong></span>
                                 <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
                             </div>
                             <div class="stat-item">
                                 <i class="fa-solid fa-circle-exclamation"></i>
-                                <span><strong>Créditos Pendientes:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
+                                <span><strong>Créditos pendientes:</strong></span>
+                                <span class="stat-value">{{ calcularCreditosFaltantesPorSemestre(semestre.key) }}</span>
                             </div>
                         </div>
                     </div>
@@ -93,26 +94,25 @@
             <tbody>
                 <tr>
                     <td>Materias en promedio por semestre</td>
-                    <td>4</td>
+                    <td>{{ estadisticasGenerales.promedioMaterias }}</td>
                 </tr>
                 <tr>
                     <td>Créditos en promedio por semestre</td>
-                    <td>12</td>
+                    <td>{{ estadisticasGenerales.promedioCreditos }}</td>
                 </tr>
                 <tr>
                     <td>Créditos faltantes hasta última simulación</td>
-                    <td>12</td>
+                    <td>{{ estadisticasGenerales.creditosFaltantes }}</td>
                 </tr>
                 <tr>
                     <td>Semestre con mayor carga</td>
-                    <td>7</td>
+                    <td>{{ estadisticasGenerales.semestreMayorCarga }}</td>
                 </tr>
             </tbody>
         </table>
     </section>
 
     <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
-    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación</button>
 </body>
 
 

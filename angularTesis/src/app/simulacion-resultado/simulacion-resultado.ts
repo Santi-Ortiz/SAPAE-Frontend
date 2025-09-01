@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Materia } from '../models/materia.model';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
+import { HistorialService } from '../services/historial.service';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -16,25 +17,81 @@ import * as d3 from 'd3';
 export class SimulacionResultado implements OnInit {
 
   public resultadoSimulacion: { [semestre: string]: { materias: Materia[] } } = {};
+  public creditosFaltantesTotales:number = 0;
 
-  constructor(private router: Router, private simulacionService: SimulacionService, private viewportScroller: ViewportScroller) { }
+  public estadisticasGenerales = {
+    promedioMaterias: 0,
+    promedioCreditos: 0,
+    creditosFaltantes: 0,
+    semestreMayorCarga: ''
+  };
+
+  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService, private viewportScroller: ViewportScroller) { }
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
+    this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
+    this.calcularEstadisticasGenerales();
     setTimeout(() => {
       this.crearGraficos();
     }, 0);
 
   }
 
+  public calcularCreditosFaltantesPorSemestre(semestreKey: string): number {
+    let totalCursados = 0;
+    // Suma los créditos de todos los semestres hasta el actual
+    for (const key in this.resultadoSimulacion) {
+      if (parseInt(key) <= parseInt(semestreKey)) {
+        totalCursados += this.resultadoSimulacion[key].materias.reduce((sum, m) => sum + m.creditos, 0);
+      }
+    }
+    return Math.max(this.creditosFaltantesTotales - totalCursados, 0);
+  } 
+
   public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number} {
     const totalCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
-    const horasEstudio = (totalCreditos * 48 / 18 / 5); 
+    const horasEstudio = (totalCreditos * 48 / 18 / 5);
+
     return {
       totalCreditos,
       totalMaterias: materias.length,
       horasEstudio: Number(horasEstudio.toFixed(2))
+    };
+  }
+
+  calcularEstadisticasGenerales(): void {
+    const semestres = Object.values(this.resultadoSimulacion);
+    const numSemestres = semestres.length;
+
+    let totalMaterias = 0;
+    let totalCreditos = 0;
+    let creditosFaltantes = this.creditosFaltantesTotales;
+    let semestreMayorCarga = '';
+    let maxCreditos = 0;
+
+    Object.entries(this.resultadoSimulacion).forEach(([key, value]) => {
+      const materias = value.materias;
+      const sumaCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
+      totalMaterias += materias.length;
+      totalCreditos += sumaCreditos;
+
+      // Semestre con mayor carga
+      if (sumaCreditos > maxCreditos) {
+        maxCreditos = sumaCreditos;
+        semestreMayorCarga = key;
+      }
+    });
+
+    // Créditos faltantes hasta última simulación
+    creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos, 0);
+
+    this.estadisticasGenerales = {
+      promedioMaterias: numSemestres ? (totalMaterias / numSemestres) : 0,
+      promedioCreditos: numSemestres ? (totalCreditos / numSemestres) : 0,
+      creditosFaltantes,
+      semestreMayorCarga
     };
   }
 
