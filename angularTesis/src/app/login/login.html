@@ -1,68 +1,59 @@
 <div class="contenedor-autenticacion">
-    <div class="tarjeta-autenticacion">
-      <h2 class="titulo">Inicio de Sesión</h2>
-      <h3 class="subtitulo">¡Hola!</h3>
-      <p class="mensaje-bienvenida">Bienvenido de vuelta a SAPAE</p>
-  
-      <form>
-        <div class="form-group">
-          <label for="correo">Correo institucional*</label>
-          <div class="grupo-input">
-            <i class="fa-solid fa-envelope icono"></i>
-            <input
-              type="email"
-              id="correo"
-              name="correo"
-              [(ngModel)]="correo"
-              (input)="validarCorreo()"
-              placeholder="usuario@javeriana.edu.co"
-            />
-          </div>
-          <small *ngIf="mensajeCorreo" class="mensaje-error">{{ mensajeCorreo }}</small>
-        </div>
+  <div class="tarjeta-autenticacion">
+    <h2 class="titulo">Inicio de Sesión</h2>
+    <h3 class="subtitulo">¡Hola!</h3>
+    <p class="mensaje-bienvenida">Bienvenido de vuelta a SAPAE</p>
 
-        <div class="form-group">
-          <label for="clave">Contraseña*</label>
-          <div class="grupo-input">
-            <i class="fa-solid fa-lock icono"></i>
-            <input
-              [type]="mostrarLaContrasena ? 'text' : 'password'"
-              id="clave"
-              name="clave"
-              [(ngModel)]="clave"
-              (input)="validarClave()"
-              placeholder="********"
-            />
-            <i
-              class="fa-solid icono icono-ojo"
-              [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
-              (click)="mostrarContrasena()"
-              title="Mostrar/Ocultar contraseña"
-            ></i>
-          </div>
-          <small *ngIf="mensajeClave" class="mensaje-error">{{ mensajeClave }}</small>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="correo">Correo institucional*</label>
+        <div class="grupo-input">
+          <i class="fa-solid fa-envelope icono"></i>
+          <input type="email" id="correo" name="correo" formControlName="correo"
+            placeholder="usuario@javeriana.edu.co" />
         </div>
-  
-        <div class="opciones-extra">
-          <span class="campo-requerido">*Campos requeridos</span>
-          <a href="#">¿Olvidó su contraseña?</a>
+        <small *ngIf="f['correo'].invalid && (f['correo'].dirty || f['correo'].touched)" class="mensaje-error">
+          <span *ngIf="f['correo'].errors?.['required']">El correo es requerido</span>
+          <span *ngIf="f['correo'].errors?.['email']">Ingrese un correo válido</span>
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="clave">Contraseña*</label>
+        <div class="grupo-input">
+          <i class="fa-solid fa-lock icono"></i>
+          <input [type]="mostrarLaContrasena ? 'text' : 'password'" id="clave" name="clave"
+            formControlName="contrasenia" placeholder="********" />
+          <i class="fa-solid icono icono-ojo" [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
+            (click)="mostrarContrasena()" title="Mostrar/Ocultar contraseña"></i>
         </div>
-  
-        <button type="button" class="boton-principal" (click)="iniciarSesion()">
-          Iniciar Sesión
+        <small *ngIf="f['contrasenia'].invalid && (f['contrasenia'].dirty || f['contrasenia'].touched)"
+          class="mensaje-error">
+          La contraseña es requerida
+        </small>
+      </div>
+
+      <div class="opciones-extra">
+        <span class="campo-requerido">*Campos requeridos</span>
+        <a href="#">¿Olvidó su contraseña?</a>
+      </div>
+
+      <!-- Mostrar error de autenticación -->
+      <div *ngIf="error" class="mensaje-error" style="text-align: center; margin-bottom: 1rem;">
+        {{ error }}
+      </div>
+
+      <button type="submit" class="boton-principal" [disabled]="loading || loginForm.invalid">
+        <span *ngIf="loading">Iniciando sesión...</span>
+        <span *ngIf="!loading">Iniciar Sesión</span>
+      </button>
+
+      <p class="cambio-autenticacion">
+        ¿No tiene una cuenta?
+        <button type="button" class="boton-secundario-link" (click)="irARegistro()">
+          Regístrese
         </button>
-  
-        <p class="cambio-autenticacion">
-          ¿No tiene una cuenta?
-          <button
-            type="button"
-            class="boton-secundario-link"
-            (click)="irARegistro()"
-          >
-            Regístrese
-          </button>
-        </p>
-      </form>
-    </div>
+      </p>
+    </form>
   </div>
-  
+</div>

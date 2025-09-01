@@ -10,7 +10,7 @@ import { RecomendacionesComponent } from './recomendaciones/recomendaciones.comp
 import { bootstrapApplication } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { authInterceptor } from './interceptor/auth-interceptor';
+import { AuthInterceptor } from './interceptor/auth-interceptor';
 import { App } from './app';
 import { SimulacionResultado } from './simulacion-resultado/simulacion-resultado';
 
@@ -34,7 +34,7 @@ bootstrapApplication(App, {
         provideHttpClient(withInterceptorsFromDi()),
         { 
             provide: HTTP_INTERCEPTORS, 
-            useClass: authInterceptor, 
+            useClass: AuthInterceptor, 
             multi: true 
         }
     ]
