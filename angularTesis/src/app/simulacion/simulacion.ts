@@ -38,6 +38,8 @@ export class SimulacionComponent implements OnInit {
   };
 
   public readonly maxSelecciones = 3;
+  public readonly maxMaterias = 10;
+  public camposIncompletos = false;
   public mostrarMensajeError = false;
 
   constructor(
@@ -62,7 +64,7 @@ export class SimulacionComponent implements OnInit {
 
   generarSimulacion() {
     if (!this.semestreInput || !this.creditosInput || !this.materiasInput) {
-      alert('Completa todos los campos antes de generar la simulación.');
+      this.camposIncompletos = true;
       return;
     }
     const proyeccionDTO = {
@@ -100,13 +102,13 @@ export class SimulacionComponent implements OnInit {
     });
   }
 
-  get maxCreditos(): number {
+  get maxCreditos(): any {
     switch (this.tipoMatricula) {
       case 'Media Matrícula':
         return 10;
       case 'Matrícula completa':
         return 20;
-      case 'Matrícula completa + 1 créditos':
+      case 'Matrícula completa + 1 crédito':
         return 21;
       case 'Matrícula completa + 2 créditos':
         return 22;
@@ -114,14 +116,22 @@ export class SimulacionComponent implements OnInit {
         return 23;
       case 'Matrícula completa + 4 créditos':
         return 24;
-      default:
-        return 20;
     }
+  }
+
+  get numSemestresSimulados(): number {
+    return this.semestreInput || 0;
   }
 
   ajustarCreditos() {
     if (this.creditosInput && this.creditosInput > this.maxCreditos) {
       this.creditosInput = this.maxCreditos;
+    }
+  }
+
+  ajustarMaterias() {
+    if(this.materiasInput && this.materiasInput > this.maxMaterias) {
+      this.materiasInput = this.maxMaterias;
     }
   }
 
@@ -132,7 +142,7 @@ export class SimulacionComponent implements OnInit {
   onCheckboxChange(campo: keyof typeof this.priorizacionMaterias, event: any) {
     const isChecked = event.target.checked;
 
-    if (isChecked && this.seleccionesActuales >= this.maxSelecciones + 1) {
+    if (isChecked && this.seleccionesActuales >= this.maxSelecciones) {
       event.target.checked = false;
       this.mostrarMensajeError = true;
       return;
@@ -144,7 +154,7 @@ export class SimulacionComponent implements OnInit {
   }
 
   private actualizarMensajeError() {
-    this.mostrarMensajeError = this.seleccionesActuales >= this.maxSelecciones + 1;
+    this.mostrarMensajeError = this.seleccionesActuales >= this.maxSelecciones;
   }
 
   private obtenerPriorizacionesSeleccionadas(): boolean[] {

@@ -18,34 +18,48 @@
 
   <section class="preferencias-academicas">
     <h2>Preferencias Académicas</h2>
-    <form class="form-vertical">
-      <div class="form-group">
-        <label for="semestreInput">Cantidad de Semestres a Proyectar</label>
-        <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput" />
-      </div>
+    <p>Configura cómo quieres simular tu avance académico seleccionando cuántos semestres proyectarás, el tipo de matrícula, los límites de créditos y materias por semestre.</p>
+    <form>
+      <div class="form-grid">
+        <div class="form-block">
+          <div class="form-block-subtitle">Configuración General</div>
 
-      <div class="form-group">
-        <label for="tipoMatricula">Tipo de Matrícula</label>
-        <select id="tipoMatricula" name="tipoMatricula" [(ngModel)]="tipoMatricula" (change)="ajustarCreditos()">
-          <option value="Media Matrícula">Media Matrícula</option>
-          <option value="Matrícula completa">Matrícula completa</option>
-          <option value="Matrícula completa + 1 créditos">Matrícula completa + 1 créditos</option>
-          <option value="Matrícula completa + 2 créditos">Matrícula completa + 2 créditos</option>
-          <option value="Matrícula completa + 3 créditos">Matrícula completa + 3 créditos</option>
-          <option value="Matrícula completa + 4 créditos">Matrícula completa + 4 créditos</option>
-        </select>
-      </div>
+          <div class="form-group">
+            <label for="semestreInput">Cantidad de Semestres a Simular</label>
+            <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput" min="1" />
+            <small style="color: gray;">Se simularán {{ semestreInput }} semestres hacia adelante</small>
+          </div>
+        
+          <div class="form-group">
+            <label for="tipoMatricula">Tipo de Matrícula</label>
+            <select id="tipoMatricula" name="tipoMatricula" [(ngModel)]="tipoMatricula" (change)="ajustarCreditos()">
+              <option value="Media Matrícula">Media Matrícula</option>
+              <option value="Matrícula completa">Matrícula completa</option>
+              <option value="Matrícula completa + 1 crédito">Matrícula completa + 1C</option>
+              <option value="Matrícula completa + 2 créditos">Matrícula completa + 2C</option>
+              <option value="Matrícula completa + 3 créditos">Matrícula completa + 3C</option>
+              <option value="Matrícula completa + 4 créditos">Matrícula completa + 4C</option>
+            </select>
+            <small style="color: gray;">Se asignará: {{ tipoMatricula }}</small>
+          </div>
 
-      <div class="form-group">
-        <label for="creditosInput">Cantidad Máxima de Créditos a Inscribir</label>
-        <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput"
-          [attr.max]="maxCreditos" (input)="ajustarCreditos()" />
-        <small style="color: gray;">Máximo según tipo de matrícula: {{ maxCreditos }}</small>
-      </div>
+        </div>
 
-      <div class="form-group">
-        <label for="materiasInput">Cantidad Máxima de Materias a Inscribir</label>
-        <input type="number" id="materiasInput" name="materiasInput" [(ngModel)]="materiasInput" />
+        <div class="form-block">
+          <div class="form-block-subtitle">Configuración por Semestre</div>
+          <div class="form-group">
+            <label for="creditosInput">Cantidad Máxima de Créditos a Inscribir</label>
+            <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput"
+              [attr.max]="maxCreditos" (input)="ajustarCreditos()" min="1" />
+            <small style="color: gray;">Máximo según tipo de matrícula: {{ maxCreditos }} créditos</small>
+          </div>
+
+          <div class="form-group">
+            <label for="materiasInput">Cantidad Máxima de Materias a Inscribir</label>
+            <input type="number" id="materiasInput" name="materiasInput" [(ngModel)]="materiasInput" [attr.max]="maxMaterias" (input)="ajustarMaterias()" min="1" />
+            <small style="color: gray;">Límite máximo: {{ maxMaterias }} materias</small>
+          </div>
+        </div>
       </div>
     </form>
   </section>
@@ -59,7 +73,7 @@
     
     <!-- Mensaje de error -->
     <p *ngIf="mostrarMensajeError" class="mensaje-error">
-      ⚠️ No puedes seleccionar más de {{ maxSelecciones }} campos de priorización.
+      Alcanzaste el máximo de selecciones para priorización de materias
     </p>
     
     <div class="checkbox-group">
@@ -68,7 +82,8 @@
           type="checkbox" 
           id="prioridad-nucleo-basicas"
           [checked]="priorizacionMaterias.nucleoCienciasBasicas"
-          (change)="onCheckboxChange('nucleoCienciasBasicas', $event)" 
+          (change)="onCheckboxChange('nucleoCienciasBasicas', $event)"
+          [disabled]="!priorizacionMaterias.nucleoCienciasBasicas && seleccionesActuales >= maxSelecciones" 
         /> 
         <label for="prioridad-nucleo-basicas">
           Núcleo de Ciencias Básicas (ej. Cálculos, Físicas, Químicas)
@@ -80,7 +95,8 @@
           type="checkbox" 
           id="prioridad-nucleo-aplicada"
           [checked]="priorizacionMaterias.nucleoIngenieriaAplicada"
-          (change)="onCheckboxChange('nucleoIngenieriaAplicada', $event)" 
+          (change)="onCheckboxChange('nucleoIngenieriaAplicada', $event)"
+          [disabled]="!priorizacionMaterias.nucleoIngenieriaAplicada && seleccionesActuales >= maxSelecciones" 
         /> 
         <label for="prioridad-nucleo-aplicada">
           Núcleo de Ingeniería Aplicada (Específicas de la carrera)
@@ -92,7 +108,8 @@
           type="checkbox" 
           id="prioridad-socio-humanistica"
           [checked]="priorizacionMaterias.nucleoSocioHumanistica"
-          (change)="onCheckboxChange('nucleoSocioHumanistica', $event)" 
+          (change)="onCheckboxChange('nucleoSocioHumanistica', $event)"
+          [disabled]="!priorizacionMaterias.nucleoSocioHumanistica && seleccionesActuales >= maxSelecciones" 
         /> 
         <label for="prioridad-socio-humanistica">
           Núcleo Socio-humanística (ej. Teologías, Éticas)
@@ -104,7 +121,8 @@
           type="checkbox" 
           id="prioridad-electivas"
           [checked]="priorizacionMaterias.electivas"
-          (change)="onCheckboxChange('electivas', $event)" 
+          (change)="onCheckboxChange('electivas', $event)"
+          [disabled]="!priorizacionMaterias.electivas && seleccionesActuales >= maxSelecciones" 
         /> 
         <label for="prioridad-electivas">
           Electivas
@@ -116,7 +134,8 @@
           type="checkbox" 
           id="prioridad-complementarias"
           [checked]="priorizacionMaterias.complementarias"
-          (change)="onCheckboxChange('complementarias', $event)" 
+          (change)="onCheckboxChange('complementarias', $event)"
+          [disabled]="!priorizacionMaterias.complementarias && seleccionesActuales >= maxSelecciones" 
         /> 
         <label for="prioridad-complementarias">
           Complementarias
@@ -128,7 +147,8 @@
           type="checkbox" 
           id="prioridad-enfasis"
           [checked]="priorizacionMaterias.enfasis"
-          (change)="onCheckboxChange('enfasis', $event)" 
+          (change)="onCheckboxChange('enfasis', $event)"
+          [disabled]="!priorizacionMaterias.enfasis && seleccionesActuales >= maxSelecciones" 
         /> 
         <label for="prioridad-enfasis">
           Énfasis
@@ -138,21 +158,12 @@
   </section>
 
   <button class="simulacion-button" (click)="generarSimulacion()">Generar Simulación</button>
-</div>
 
-
-<div *ngIf="resultadoSimulacion">
-  <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
-    <h2>Semestre {{ semestre.key }}</h2>
-    <ul *ngIf="semestre.value.materias">
-      <li *ngFor="let materia of semestre.value.materias">
-        <strong>{{ materia.nombre }}</strong> (Código: {{ materia.codigo }})<br />
-        Créditos: {{ materia.creditos }}<br />
-        Requisitos:
-        <ul>
-          <li *ngFor="let req of materia.requisitos">{{ req }}</li>
-        </ul>
-      </li>
-    </ul>
+  <div class="modal-backdrop" *ngIf="camposIncompletos">
+    <div class="modal-custom">
+      <h3>Campos incompletos</h3>
+      <p>Completa todos los campos de 'Preferencias Académicas' antes de generar la simulación</p>
+      <button (click)="camposIncompletos = false">Cerrar</button>
+    </div>
   </div>
 </div>
