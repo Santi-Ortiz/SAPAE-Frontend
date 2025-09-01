@@ -1,53 +1,33 @@
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse
-} from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { inject } from '@angular/core';
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
-  constructor(private authService: AuthService, private router: Router) { }
+  const isBackendRequest = request.url.startsWith(environment.SERVER_URL);
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
-    console.log('🔧 Interceptor procesando URL:', request.url);
-
-    // Incluir credentials en TODAS las requests que vayan al backend
-    // Verificar si la URL pertenece a nuestro backend
-    const isBackendRequest = request.url.startsWith('http://localhost:8080') ||
-      request.url.startsWith(environment.SERVER_URL) ||
-      request.url.includes('localhost:8080');
-
-    if (isBackendRequest) {
-      console.log('✅ Agregando withCredentials a:', request.url);
-      request = request.clone({
-        withCredentials: true // Se incluyen las cookies
-      });
-    } else {
-      console.log('❌ NO agregando withCredentials a:', request.url);
-    }
-
-    return next.handle(request).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.log('❌ Error interceptado:', error.status, 'en URL:', request.url);
-        if (error.status === 401 || error.status === 403) {
-          this.authService.logout().subscribe(() => {
-            this.router.navigate(['/login']);
-          });
-        }
-        return throwError(() => error);
-      })
-    );
-
+  if (isBackendRequest) {
+    request = request.clone({
+      withCredentials: true
+    });
+  } else {
   }
 
-}
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return next(request).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 || error.status === 403) {
+        authService.logout().subscribe(() => {
+          router.navigate(['/login']);
+        });
+      }
+      return throwError(() => error);
+    })
+  );
+};
 

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SimulacionDTO } from '../dtos/simulacion-dto';
 import { Simulacion } from '../models/simulacion.model';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { Materia } from '../models/materia.model';
 
 @Injectable({
@@ -11,7 +11,7 @@ import { Materia } from '../models/materia.model';
 })
 export class SimulacionService {
   public resultadoSimulacion?: any;
-  private apiUrl = 'http://localhost:8080/api/simulaciones';
+  private apiUrl = `${environment.SERVER_URL}/api/simulaciones`;
 
   constructor(private http: HttpClient) { }
 

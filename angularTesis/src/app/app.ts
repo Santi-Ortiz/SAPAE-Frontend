@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { NgIf, NgFor, NgClass, } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,7 @@ export class App {
 
   hideMenu = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private authService: AuthService) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -36,7 +37,7 @@ export class App {
   }
 
   logout(): void {
-    localStorage.clear();
+    this.authService.logout().subscribe();
     this.router.navigate(['/login']);
   }
 }

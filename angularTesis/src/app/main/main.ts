@@ -4,6 +4,7 @@ import { LecturaService } from '../services/lectura.service';
 import { HistorialService } from '../services/historial.service';
 import { Progreso } from '../models/progreso.model';
 import { NgIf, NgFor } from '@angular/common';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-main',
@@ -20,7 +21,8 @@ export class Main {
   constructor(
     private lecturaService: LecturaService,
     private historialService: HistorialService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
@@ -94,7 +96,7 @@ export class Main {
     this.lecturaService.subirArchivo(this.historial.archivoSeleccionado).subscribe({
       next: (respuesta) => {
         this.historialService.setHistorial(respuesta);
-        this.router.navigate(['/historial']); // Redirige con los datos
+        this.router.navigate(['/historial']);
       },
       error: () => {
         this.historial.error = 'El archivo no corresponde a un informe de avance.';
@@ -103,6 +105,7 @@ export class Main {
   }
 
   cerrarSesion(){
+    this.authService.logout().subscribe();
     this.router.navigate(['/login']);
   }
 }

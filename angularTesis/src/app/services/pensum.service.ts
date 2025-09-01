@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { PensumDTO } from '../dtos/pensum-dto';
 import { Observable } from 'rxjs';
 import { Pensum } from '../models/pensum.model';
@@ -10,7 +10,7 @@ import { Pensum } from '../models/pensum.model';
 })
 export class PensumService {
 
-  private apiUrl = 'http://localhost:8080/api/pensums';
+  private apiUrl = `${environment.SERVER_URL}/api/pensums`;
 
   private httpOptions = {
     headers: new HttpHeaders({

@@ -17,9 +17,7 @@ export class AuthService {
     this.currentUserSubject = new BehaviorSubject<boolean>(false);
     this.currentUser = this.currentUserSubject.asObservable();
 
-    // Se verifica el estado de la autenticación del usuario 
-    // Solo si no estamos en la página de login
-    if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+    if (!window.location.pathname.includes('/login')) {
       this.checkAuthenticationStatus();
     }
   }
@@ -29,18 +27,12 @@ export class AuthService {
   }
 
   login(loginDTO: LoginDTO): Observable<AuthResponseDTO> {
-    console.log('🔵 Enviando login request a:', `${this.apiUrl}/api/auth/login`);
-    console.log('🔵 Con withCredentials:', true);
 
     return this.http.post<AuthResponseDTO>(`${this.apiUrl}/api/auth/login`, loginDTO, {
       withCredentials: true,
-      observe: 'response' // Para ver las headers de respuesta
+      observe: 'response'
     }).pipe(
       map(response => {
-        console.log('✅ Login response headers:', response.headers);
-        console.log('✅ Login response body:', response.body);
-        console.log('🍪 Cookies después del login:', document.cookie);
-
         if (response.body) {
           this.currentUserSubject.next(true);
         }
@@ -65,18 +57,17 @@ export class AuthService {
   }
 
   isAuthenticated(): Observable<boolean> {
-    console.log('🔍 Verificando autenticación en:', `${this.apiUrl}/api/auth/verify`);
 
     return this.http.get<boolean>(`${this.apiUrl}/api/auth/verify`, {
       withCredentials: true
     }).pipe(
       map(response => {
-        console.log('✅ Respuesta de verificación:', response);
+        console.log('Respuesta de verificación de la autenticación:', response);
         this.currentUserSubject.next(response);
         return response;
       }),
       catchError(error => {
-        console.log('❌ Error en verificación:', error.status, error.message);
+        console.log('Error en verificación de la autenticación:', error.status, error.message);
         this.currentUserSubject.next(false);
         return of(false);
       })
@@ -89,15 +80,12 @@ export class AuthService {
 
   // Método para debugging
   debugCookies(): void {
-    console.log('🍪 All accessible cookies:', document.cookie);
-    console.log('🔍 JWT cookie exists in document.cookie:', document.cookie.includes('jwt-token'));
+    console.log('Cookies:', document.cookie);
 
-    // Probar si la cookie se envía automáticamente
     this.testCookieRequest();
   }
 
   private testCookieRequest(): void {
-    console.log('🧪 Probando si la cookie se envía automáticamente...');
     this.isAuthenticated().subscribe({
       next: (result) => {
         console.log('✅ Test de cookie exitoso:', result);

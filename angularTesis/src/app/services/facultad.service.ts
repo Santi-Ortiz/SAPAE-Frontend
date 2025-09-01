@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Facultad } from '../models/facultad.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FacultadService {
 
-  private apiUrl = 'http://localhost:8080/api/facultades';
+  private apiUrl = `${environment.SERVER_URL}/api/facultades`;
 
   constructor(private http: HttpClient) { }
 

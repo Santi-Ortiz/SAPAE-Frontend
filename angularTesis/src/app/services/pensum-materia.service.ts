@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PensumMateria } from '../models/pensum_materia';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PensumMateriaService {
 
-  private apiUrl = 'http://localhost:8080/api/pensum-materias';
+  private apiUrl = `${environment.SERVER_URL}/api/pensum-materias`;
 
   constructor(private http: HttpClient) { }
 
@@ -20,7 +21,7 @@ export class PensumMateriaService {
   getPensumsMateria(materiaId: number) {
     return this.http.get(`${this.apiUrl}/materia/${materiaId}`);
   }
-  
+
   // Se asocia una materia a un pensum
   addMateriaToPensum(pensumId: number, materiaId: number) {
     return this.http.post(`${this.apiUrl}/asociar/${pensumId}/${materiaId}`, {});

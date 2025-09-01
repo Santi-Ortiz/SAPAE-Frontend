@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { Proyeccion } from '../models/proyeccion.model';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProyeccionService {
 
-  private apiUrl = 'http://localhost:8080/api/proyecciones';
+  private apiUrl = `${environment.SERVER_URL}/api/proyecciones`;
 
   private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0, 0));
 

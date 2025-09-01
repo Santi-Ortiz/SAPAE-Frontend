@@ -485,8 +485,6 @@ export class PensumView implements OnInit, AfterViewInit {
       });
     });
   
-    console.log("Llegadas:", llegadasGlobal);
-    console.log("Salidas:", salidasGlobal);
     const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
   
     // Dibujar todas las curvas

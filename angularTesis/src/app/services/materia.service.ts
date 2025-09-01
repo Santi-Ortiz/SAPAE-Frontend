@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Materia } from '../models/materia.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MateriaService {
 
-  private apiUrl = 'http://localhost:8080/api/materias';
+  private apiUrl = `${environment.SERVER_URL}/api/materias`;
 
   constructor(private http: HttpClient) { }
 
