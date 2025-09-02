@@ -16,10 +16,15 @@ export class RecomendacionesComponent {
   creditos: number | 'cualquiera' = 'cualquiera';
   tipo: string = 'cualquiera';
 
-  materias: any[] = [];
+  materias: any[] = [];            // tabla 1 (fuertes)
   explicacion: string = '';
+
+  materiasSugeridas: any[] = [];   // tabla 2 (moderadas)
+  explicacionSugeridas: string = '';
+
   cargando: boolean = false;
   error: string = '';
+  hasSearched: boolean = false;    // <-- clave para no renderizar al inicio
 
   constructor(private http: HttpClient) {}
 
@@ -36,38 +41,47 @@ export class RecomendacionesComponent {
     this.creditos = next === 1 ? 1 : next;
   }
 
-  setCualquieraCreditos() {
-    this.creditos = 'cualquiera';
-  }
+  setCualquieraCreditos() { this.creditos = 'cualquiera'; }
 
   consultarIA() {
     if (!this.pregunta.trim()) return;
 
     this.cargando = true;
+    this.error = '';
+    this.hasSearched = false;
+
+    // limpiar resultados
     this.materias = [];
     this.explicacion = '';
-    this.error = '';
+    this.materiasSugeridas = [];
+    this.explicacionSugeridas = '';
 
     const body: any = {
       intereses: this.pregunta,
-      tipo: this.tipo
+      tipo: this.tipo,
+      creditos: this.creditos === 'cualquiera' ? 'cualquiera' : Number(this.creditos)
     };
-    body.creditos = this.creditos === 'cualquiera' ? 'cualquiera' : Number(this.creditos);
 
     this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe(
       (res) => {
-        if (res && res.materias && Array.isArray(res.materias)) {
-          this.materias = res.materias;
-          this.explicacion = res.explicacion || '';
-        } else {
+        try {
+          this.materias = Array.isArray(res?.materias) ? res.materias : [];
+          this.explicacion = res?.explicacion || '';
+
+          this.materiasSugeridas = Array.isArray(res?.materias_sugeridas) ? res.materias_sugeridas : [];
+          this.explicacionSugeridas = res?.explicacion_sugeridas || '';
+        } catch {
           this.error = 'La respuesta del servicio no es válida.';
+        } finally {
+          this.cargando = false;
+          this.hasSearched = true;
         }
-        this.cargando = false;
       },
       (error) => {
         console.error("Error HTTP:", error);
         this.error = 'Error al consultar el servicio de recomendaciones.';
         this.cargando = false;
+        this.hasSearched = true;
       }
     );
   }
