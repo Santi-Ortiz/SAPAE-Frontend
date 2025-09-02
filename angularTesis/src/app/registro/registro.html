@@ -2,113 +2,100 @@
   <div class="tarjeta-autenticacion">
     <h2 class="titulo">Registrarse</h2>
 
-    <form>
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
       <label>Primer nombre*</label>
-      <input
-        type="text"
-        name="primerNombre"
-        class="input-estilizado"
-        placeholder="Ingrese su primer nombre"
-        [(ngModel)]="primerNombre"
-        required
-      />
+      <input type="text" formControlName="primerNombre" class="input-estilizado" placeholder="Ingrese su primer nombre"
+        [class.input-error]="getErrorMessage('primerNombre')" />
+      <small *ngIf="getErrorMessage('primerNombre')" class="mensaje-error">
+        {{ getErrorMessage('primerNombre') }}
+      </small>
 
       <label>Segundo nombre (Opcional)</label>
-      <input
-        type="text"
-        name="segundoNombre"
-        class="input-estilizado"
-        placeholder="Ingrese su segundo nombre"
-        [(ngModel)]="segundoNombre"
-      />
+      <input type="text" formControlName="segundoNombre" class="input-estilizado"
+        placeholder="Ingrese su segundo nombre" />
 
       <label>Primer apellido*</label>
-      <input
-        type="text"
-        name="primerApellido"
-        class="input-estilizado"
-        placeholder="Ingrese su primer apellido"
-        [(ngModel)]="primerApellido"
-        required
-      />
+      <input type="text" formControlName="primerApellido" class="input-estilizado"
+        placeholder="Ingrese su primer apellido" [class.input-error]="getErrorMessage('primerApellido')" />
+      <small *ngIf="getErrorMessage('primerApellido')" class="mensaje-error">
+        {{ getErrorMessage('primerApellido') }}
+      </small>
 
       <label>Segundo apellido*</label>
-      <input
-        type="text"
-        name="segundoApellido"
-        class="input-estilizado"
-        placeholder="Ingrese su segundo apellido"
-        [(ngModel)]="segundoApellido"
-        required
-      />
+      <input type="text" formControlName="segundoApellido" class="input-estilizado"
+        placeholder="Ingrese su segundo apellido" [class.input-error]="getErrorMessage('segundoApellido')" />
+      <small *ngIf="getErrorMessage('segundoApellido')" class="mensaje-error">
+        {{ getErrorMessage('segundoApellido') }}
+      </small>
+
+      <label>Código estudiantil*</label>
+      <input type="text" formControlName="codigo" class="input-estilizado" placeholder="Ej: 12345678"
+        [class.input-error]="getErrorMessage('codigo')" />
+      <small *ngIf="getErrorMessage('codigo')" class="mensaje-error">
+        {{ getErrorMessage('codigo') }}
+      </small>
+
+      <label>Carrera*</label>
+      <input type="text" formControlName="carrera" class="input-estilizado" placeholder="Ej: Ingeniería de Sistemas"
+        [class.input-error]="getErrorMessage('carrera')" />
+      <small *ngIf="getErrorMessage('carrera')" class="mensaje-error">
+        {{ getErrorMessage('carrera') }}
+      </small>
+
+      <label>Año de ingreso*</label>
+      <input type="number" formControlName="anioIngreso" class="input-estilizado" placeholder="Ej: 2020"
+        [class.input-error]="getErrorMessage('anioIngreso')" />
+      <small *ngIf="getErrorMessage('anioIngreso')" class="mensaje-error">
+        {{ getErrorMessage('anioIngreso') }}
+      </small>
 
       <label>Correo electrónico institucional*</label>
-      <input
-        type="email"
-        name="correo"
-        class="input-estilizado"
-        placeholder="ejemplo@javeriana.edu.co"
-        [(ngModel)]="correo"
-        (input)="validarCorreo()"
-        required
-      />
-      <small *ngIf="mensajeCorreo" class="mensaje-error">{{ mensajeCorreo }}</small>
+      <input type="email" formControlName="correo" class="input-estilizado" placeholder="ejemplo@javeriana.edu.co"
+        [class.input-error]="getErrorMessage('correo')" />
+      <small *ngIf="getErrorMessage('correo')" class="mensaje-error">
+        {{ getErrorMessage('correo') }}
+      </small>
 
       <label>Contraseña*</label>
       <div class="grupo-input">
         <i class="fa-solid fa-lock icono"></i>
-        <input
-          [type]="mostrarLaContrasena ? 'text' : 'password'"
-          name="clave"
-          class="input-estilizado"
-          placeholder="Ingrese al menos 8 caracteres"
-          [(ngModel)]="clave"
-          (input)="validarClave()"
-          required
-        />
-        <i
-          class="fa-solid icono icono-ojo"
-          [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
-          (click)="mostrarContrasena()"
-          title="Mostrar/Ocultar contraseña"
-        ></i>
+        <input [type]="mostrarLaContrasena ? 'text' : 'password'" formControlName="contrasenia" class="input-estilizado"
+          placeholder="Ingrese al menos 8 caracteres" [class.input-error]="getErrorMessage('contrasenia')" />
+        <i class="fa-solid icono icono-ojo" [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
+          (click)="mostrarContrasena()" title="Mostrar/Ocultar contraseña"></i>
       </div>
-      <small *ngIf="mensajeClave" class="mensaje-error">{{ mensajeClave }}</small>
+      <small *ngIf="getErrorMessage('contrasenia')" class="mensaje-error">
+        {{ getErrorMessage('contrasenia') }}
+      </small>
 
       <label>Confirme su contraseña*</label>
       <div class="grupo-input">
         <i class="fa-solid fa-lock icono"></i>
-        <input
-          [type]="mostrarLaConfirmarContrasena ? 'text' : 'password'"
-          name="confirmarClave"
-          class="input-estilizado"
-          placeholder="Confirme la contraseña"
-          [(ngModel)]="confirmarClave"
-          (input)="validarConfirmarClave()"
-          required
-        />
-        <i
-          class="fa-solid icono icono-ojo"
-          [ngClass]="mostrarLaConfirmarContrasena ? 'fa-eye' : 'fa-eye-slash'"
-          (click)="mostrarConfirmarContrasena()"
-          title="Mostrar/Ocultar contraseña"
-        ></i>
+        <input [type]="mostrarLaConfirmarContrasena ? 'text' : 'password'" formControlName="confirmarContrasenia"
+          class="input-estilizado" placeholder="Confirme la contraseña"
+          [class.input-error]="getErrorMessage('confirmarContrasenia') || hasPasswordMismatch()" />
+        <i class="fa-solid icono icono-ojo" [ngClass]="mostrarLaConfirmarContrasena ? 'fa-eye' : 'fa-eye-slash'"
+          (click)="mostrarConfirmarContrasena()" title="Mostrar/Ocultar contraseña"></i>
       </div>
-      <small *ngIf="mensajeConfirmarClave" class="mensaje-error">{{ mensajeConfirmarClave }}</small>
-      <small *ngIf="mensajeCampos" class="mensaje-error">{{ mensajeCampos }}</small>
+      <small *ngIf="getErrorMessage('confirmarContrasenia')" class="mensaje-error">
+        {{ getErrorMessage('confirmarContrasenia') }}
+      </small>
+      <small *ngIf="hasPasswordMismatch()" class="mensaje-error">
+        Las contraseñas no coinciden
+      </small>
+
+      <small *ngIf="error" class="mensaje-error">{{ error }}</small>
+
       <span class="campo-requerido">*Campos requeridos</span>
 
-      <button type="button" class="boton-principal" (click)="registrarse()">
-        Registrarse
+      <button type="submit" class="boton-principal" [disabled]="loading || registroForm.invalid">
+        <span *ngIf="!loading">Registrarse</span>
+        <span *ngIf="loading">Registrando...</span>
       </button>
 
       <p class="cambio-autenticacion">
         ¿Ya tiene una cuenta?
-        <button
-          type="button"
-          class="boton-secundario-link"
-          (click)="irALogin()"
-        >
+        <button type="button" class="boton-secundario-link" (click)="irALogin()">
           Inicie sesión
         </button>
       </p>

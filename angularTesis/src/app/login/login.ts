@@ -48,19 +48,19 @@ export class Login implements OnInit {
       contrasenia: this.f['contrasenia'].value
     };
 
-    console.log('🔵 Enviando datos de login:', loginDto);
+    console.log('Login data:', loginDto);
 
     this.authService.login(loginDto)
       .pipe(first())
       .subscribe({
         next: () => {
-          console.log('✅ Login exitoso, verificando cookies...');
+          console.log('Login exitoso');
           this.authService.debugCookies();
           this.router.navigate(['/main']);
         },
         error: error => {
-          console.error('❌ Error en login:', error);
-          this.error = 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+          console.error('Error en login:', error);
+          this.error = 'Correo y/o contraseñas incorrectas';
           this.loading = false;
         }
       });

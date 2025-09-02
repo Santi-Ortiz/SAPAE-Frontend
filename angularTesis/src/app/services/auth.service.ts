@@ -4,6 +4,7 @@ import { AuthResponseDTO } from '../dtos/auth-response-dto';
 import { LoginDTO } from '../dtos/login-dto';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, lastValueFrom, map, Observable, of, throwError } from 'rxjs';
+import { RegisterDTO } from '../dtos/register-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -27,21 +28,16 @@ export class AuthService {
   }
 
   login(loginDTO: LoginDTO): Observable<AuthResponseDTO> {
-    console.log('🔵 Enviando login request a:', `${this.apiUrl}/api/auth/login`);
-    console.log('🔵 Con withCredentials:', true);
-
     return this.http.post<AuthResponseDTO>(`${this.apiUrl}/api/auth/login`, loginDTO, {
       withCredentials: true,
       observe: 'response'
     }).pipe(
       map(response => {
-        console.log('✅ Login response headers:', response.headers);
-        console.log('✅ Login response body:', response.body);
-        console.log('🍪 Cookies después del login:', document.cookie);
+        console.log('Login response headers:', response.headers);
+        console.log('Login response body:', response.body);
 
         if (response.body) {
           this.currentUserSubject.next(true);
-          console.log('✅ Estado de autenticación actualizado a: true');
         }
         return response.body!;
       }),
@@ -53,21 +49,43 @@ export class AuthService {
     );
   }
 
+  register(registerDTO: RegisterDTO): Observable<string> {
+
+    return this.http.post(`${this.apiUrl}/api/auth/register`, registerDTO, {
+      withCredentials: true,
+      responseType: 'text' // Importante: especificar que esperamos texto, no JSON
+    }).pipe(
+      map(response => {
+        console.log('Registro response:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('Error en registro:', error);
+        let errorMessage = 'Error al registrar usuario';
+        
+        if (error.error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+
   logout(): Observable<string> {
-    console.log('🔴 Enviando logout request');
 
     return this.http.post<string>(`${this.apiUrl}/api/auth/logout`, {}, {
       withCredentials: true
     }).pipe(
       map(response => {
-        console.log('✅ Logout exitoso');
+        console.log('Logout exitoso');
         this.currentUserSubject.next(false);
-        console.log('✅ Estado de autenticación actualizado a: false');
         return response;
       }),
       catchError(error => {
-        console.error('❌ Error en logout:', error);
-        // Aún así limpiamos el estado local
         this.currentUserSubject.next(false);
         return throwError(() => error);
       })
@@ -75,21 +93,16 @@ export class AuthService {
   }
 
   isAuthenticated(): Observable<boolean> {
-    console.log('🔍 Verificando autenticación en:', `${this.apiUrl}/api/auth/verify`);
 
     return this.http.get<boolean>(`${this.apiUrl}/api/auth/verify`, {
       withCredentials: true
     }).pipe(
       map(response => {
-        console.log('✅ Respuesta de verificación:', response);
         this.currentUserSubject.next(response);
-        console.log('✅ Estado de autenticación actualizado a:', response);
         return response;
       }),
       catchError(error => {
-        console.log('❌ Error en verificación:', error.status, error.message);
         this.currentUserSubject.next(false);
-        console.log('✅ Estado de autenticación actualizado a: false (por error)');
         return of(false);
       })
     );
@@ -109,10 +122,10 @@ export class AuthService {
   private testCookieRequest(): void {
     this.isAuthenticated().subscribe({
       next: (result) => {
-        console.log('✅ Test de cookie exitoso:', result);
+        console.log('Test de cookie exitoso:', result);
       },
       error: (error) => {
-        console.log('❌ Test de cookie falló:', error);
+        console.log('Test de cookie falló:', error);
       }
     });
   }

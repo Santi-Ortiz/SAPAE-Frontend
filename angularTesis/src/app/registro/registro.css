@@ -11,21 +11,21 @@
 
 .tarjeta-autenticacion {
   background: white;
-  padding: 32px; 
+  padding: 32px;
   border-radius: 10px;
   width: 500px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .titulo {
   color: #00b4d8;
-  font-size: 32px; 
+  font-size: 32px;
   font-weight: bold;
 }
 
 form {
-  margin-top: 16px; 
+  margin-top: 16px;
   text-align: left;
 }
 
@@ -78,7 +78,7 @@ input {
 }
 
 .campo-requerido {
-  font-size: 12px; 
+  font-size: 12px;
   color: black;
   font-weight: bold;
 }
@@ -136,7 +136,26 @@ input {
   margin-top: 10px;
   font-size: 14px;
 }
-.mensaje-error{
-  color: #0077b6;
+
+.mensaje-error {
+  color: #d63384;
   font-weight: bold;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Estilos para inputs con error */
+.input-error {
+  border: 2px solid #d63384 !important;
+  background: #fdf2f4 !important;
+}
+
+/* Estilos para botón deshabilitado */
+.boton-principal:disabled {
+  background: #6c757d !important;
+  cursor: not-allowed !important;
+}
+
+.boton-principal:disabled:hover {
+  background: #6c757d !important;
 }
