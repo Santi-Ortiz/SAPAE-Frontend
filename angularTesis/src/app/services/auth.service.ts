@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthResponseDTO } from '../dtos/auth-response-dto';
 import { LoginDTO } from '../dtos/login-dto';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, catchError, lastValueFrom, map, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, lastValueFrom, map, Observable, of, throwError, switchMap } from 'rxjs';
 import { RegisterDTO } from '../dtos/register-dto';
 
 @Injectable({
@@ -56,20 +56,47 @@ export class AuthService {
       responseType: 'text' // Importante: especificar que esperamos texto, no JSON
     }).pipe(
       map(response => {
-        console.log('Registro response:', response);
+        console.log('✅ Registro response:', response);
         return response;
       }),
       catchError(error => {
-        console.error('Error en registro:', error);
+        console.error('❌ Error en registro:', error);
         let errorMessage = 'Error al registrar usuario';
-        
+
         if (error.error && typeof error.error === 'string') {
           errorMessage = error.error;
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  
+  // Registra al usuario y automáticamente lo autentica
+  registerAndLogin(registerDTO: RegisterDTO): Observable<AuthResponseDTO> {
+
+    return this.register(registerDTO).pipe(
+      // Después del registro exitoso, hacer login automático
+      map(registerResponse => {
+        console.log('Registro exitoso:', registerResponse);
+        // Es necesario crear LoginDTO con los datos del registro
+        const loginDto: LoginDTO = {
+          correo: registerDTO.correo,
+          contrasenia: registerDTO.contrasenia
+        };
+        return loginDto;
+      }),
+
+      // Se hace el login automático
+      switchMap((loginDto: LoginDTO) => {
+        return this.login(loginDto);
+      }),
+      catchError(error => {
+        console.error('Error en registro y login automático:', error);
+        return throwError(() => error);
       })
     );
   }

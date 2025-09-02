@@ -20,6 +20,16 @@ export class Registro implements OnInit {
   mostrarLaContrasena: boolean = false;
   mostrarLaConfirmarContrasena: boolean = false;
 
+  // Lista de carreras disponibles en la Universidad Javeriana (ordenadas alfabéticamente)
+  carreras: string[] = [
+    'Ingeniería Civil',
+    'Ingeniería Electrónica',
+    'Ingeniería de Sistemas',
+    'Ingeniería Industrial',
+    'Ingeniería Redes y Telecomunicaciones',
+    'Bioingeniería',
+  ];
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -34,7 +44,7 @@ export class Registro implements OnInit {
       segundoApellido: ['', [Validators.required, Validators.minLength(2)]],
       codigo: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
       correo: ['', [Validators.required, Validators.email, this.javerianaEmailValidator]],
-      carrera: ['', [Validators.required, Validators.minLength(2)]],
+      carrera: ['', [Validators.required]], // Solo validación de requerido para el select
       anioIngreso: ['', [Validators.required, Validators.min(2000), Validators.max(new Date().getFullYear())]],
       contrasenia: ['', [Validators.required, Validators.minLength(8)]],
       confirmarContrasenia: ['', [Validators.required]]
@@ -87,16 +97,18 @@ export class Registro implements OnInit {
       this.f['segundoNombre'].value || undefined
     );
 
-    this.authService.register(registerDto)
+    console.log('🔵 Enviando datos de registro:', registerDto);
+
+    this.authService.registerAndLogin(registerDto)
       .pipe(first())
       .subscribe({
         next: () => {
-          console.log('Registro exitoso');
+          console.log('Registro y login exitoso');
+          this.authService.debugCookies();
           this.router.navigate(['/main']);
         },
         error: error => {
-          console.error('Error en registro:', error);
-          this.error = 'Error al registrar usuario. Verifique los datos e intente nuevamente.';
+          console.error('Error en registro y login automático:', error);
           this.loading = false;
         }
       });

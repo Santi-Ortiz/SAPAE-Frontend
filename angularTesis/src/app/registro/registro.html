@@ -36,8 +36,13 @@
       </small>
 
       <label>Carrera*</label>
-      <input type="text" formControlName="carrera" class="input-estilizado" placeholder="Ej: Ingeniería de Sistemas"
-        [class.input-error]="getErrorMessage('carrera')" />
+      <select formControlName="carrera" class="input-estilizado select-estilizado"
+        [class.input-error]="getErrorMessage('carrera')">
+        <option value="" disabled>Seleccione su carrera</option>
+        <option *ngFor="let carrera of carreras" [value]="carrera">
+          {{ carrera }}
+        </option>
+      </select>
       <small *ngIf="getErrorMessage('carrera')" class="mensaje-error">
         {{ getErrorMessage('carrera') }}
       </small>
