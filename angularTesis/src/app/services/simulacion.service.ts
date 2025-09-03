@@ -14,6 +14,7 @@ import { SimulacionJobStatus } from '../dtos/simulacion-job-status.dto';
 export class SimulacionService {
   private readonly STORAGE_KEY = 'resultadoSimulacion';
   private readonly JOBS_STORAGE_KEY = 'simulacionJobs';
+  private readonly NOMBRE_SIMULACION_KEY = 'nombreSimulacionActual';
   resultadoSimulacion!: Record<string, { materias: Materia[] }>;
 
   // Subject para la simulación organizada por semestres
@@ -40,14 +41,14 @@ export class SimulacionService {
   private intervalSubscription?: Subscription;
 
   constructor(private http: HttpClient) {
-    // Si existe en localStorage, la cargamos
-    const stored = localStorage.getItem(this.STORAGE_KEY);
+    // Si existe en sessionStorage, la cargamos
+    const stored = sessionStorage.getItem(this.STORAGE_KEY);
     if (stored) {
       this.resultadoSimulacion = JSON.parse(stored);
       this.simulacionSubject.next(this.resultadoSimulacion);
     }
 
-    // Cargar jobs activos del localStorage
+    // Cargar jobs activos del sessionStorage
     this.cargarJobsActivos();
     
     // Monitorear jobs activos
@@ -70,12 +71,13 @@ export class SimulacionService {
   }
 
   // Agregar job al monitoreo
-  agregarJobAlMonitoreo(jobId: string, descripcion: string): void {
+  agregarJobAlMonitoreo(jobId: string, descripcion: string, nombre: string): void {
     const jobsActivos = this.getJobsActivos();
     const nuevoJob: SimulacionJobStatus = {
       jobId: jobId,
       estado: 'PENDIENTE',
-      mensaje: descripcion
+      mensaje: descripcion,
+      nombre: nombre
     };
     
     jobsActivos.push(nuevoJob);
@@ -83,7 +85,7 @@ export class SimulacionService {
     this.jobsActivosSubject.next(jobsActivos);
   }
 
-  // Monitorear jobs activos periódicamente
+  // Monitorear jobs activos
   private monitorearJobsActivos(): void {
     console.log('Iniciando monitoreo de jobs activos...');
     
@@ -91,41 +93,32 @@ export class SimulacionService {
       .pipe(
         switchMap(() => {
           const jobsActivos = this.getJobsActivos();
-          console.log('Jobs en localStorage:', jobsActivos);
           
           const jobsPendientes = jobsActivos.filter(job => 
             job.estado === 'PENDIENTE' || job.estado === 'EN_PROGRESO' || job.estado === 'EN_PROCESO'
           );
           
-          console.log('Jobs pendientes para verificar:', jobsPendientes);
           
           if (jobsPendientes.length === 0) {
-            console.log('No hay jobs pendientes, finalizando monitoreo');
             return of([]);
           }
-
-          console.log('Verificando estado de jobs:', jobsPendientes.map(j => j.jobId));
 
           // Consultar estado de cada job pendiente - CORREGIDO
           const consultas = jobsPendientes.map(job => 
             this.consultarEstadoJob(job.jobId).pipe(
               catchError(error => {
-                console.error(`Error consultando job ${job.jobId}:`, error);
-                return of(null); // Retornar null en caso de error
+                return of(null);
               })
             )
           );
           
-          // Usar forkJoin para ejecutar todas las consultas en paralelo
           return consultas.length > 0 ? forkJoin(consultas) : of([]);
         })
       )
       .subscribe(resultados => {
-        console.log('Resultados del polling:', resultados);
         if (resultados && resultados.length > 0) {
           resultados.forEach(status => {
             if (status) { // Solo procesar si no es null (error)
-              console.log('Estado recibido del backend:', status);
               this.actualizarEstadoJob(status);
             }
           });
@@ -135,25 +128,25 @@ export class SimulacionService {
 
   // Actualizar estado de un job específico
   private actualizarEstadoJob(status: SimulacionJobStatus): void {
-    console.log('Actualizando estado de job:', status);
     
     const jobsActivos = this.getJobsActivos();
     const index = jobsActivos.findIndex(job => job.jobId === status.jobId);
     
     if (index !== -1) {
       const estadoAnterior = jobsActivos[index].estado;
-      jobsActivos[index] = status;
+      const nombreOriginal = jobsActivos[index].nombre; 
       
-      console.log(`Job ${status.jobId} cambió de ${estadoAnterior} a ${status.estado}`);
+      jobsActivos[index] = {
+        ...status,
+        nombre: nombreOriginal
+      };
       
       // Si el job está completado, obtener el resultado
       if (status.estado === 'COMPLETADA') {
-        console.log('Job completado, obteniendo resultado...');
         this.obtenerResultadoJob(status.jobId).subscribe({
           next: (resultado) => {
-            console.log('Resultado obtenido:', resultado);
             this.setSimulacion(resultado);
-            this.agregarNotificacion(`Simulación completada: ${status.mensaje || 'Simulación finalizada'}`);
+            this.agregarNotificacion(`Simulación completada: ${nombreOriginal}`);
             
           },
           error: (error) => {
@@ -161,16 +154,14 @@ export class SimulacionService {
           }
         });
       } else if (status.estado === 'ERROR') {
-        console.log('Job con error:', status.error);
         this.agregarNotificacion(`Error en simulación: ${status.error || 'Error desconocido'}`);
         
-        // Remover job con error después de un tiempo
         setTimeout(() => {
           this.removerJobDelMonitoreo(status.jobId);
         }, 60000); // 1 minuto
       }
       
-      // Actualizar localStorage y notificar cambios
+      // Actualizar sessionStorage y notificar cambios
       this.guardarJobsActivos(jobsActivos);
       this.jobsActivosSubject.next([...jobsActivos]);
     } else {
@@ -186,14 +177,14 @@ export class SimulacionService {
     this.jobsActivosSubject.next(jobsFiltrados);
   }
 
-  // Métodos para manejar localStorage de jobs
+  // Métodos para manejar sessionStorage de jobs
   private getJobsActivos(): SimulacionJobStatus[] {
-    const stored = localStorage.getItem(this.JOBS_STORAGE_KEY);
+    const stored = sessionStorage.getItem(this.JOBS_STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   }
 
   private guardarJobsActivos(jobs: SimulacionJobStatus[]): void {
-    localStorage.setItem(this.JOBS_STORAGE_KEY, JSON.stringify(jobs));
+    sessionStorage.setItem(this.JOBS_STORAGE_KEY, JSON.stringify(jobs));
   }
 
   private cargarJobsActivos(): void {
@@ -215,25 +206,24 @@ export class SimulacionService {
   }
 
   private getNotificaciones(): string[] {
-    const stored = localStorage.getItem('simulacion-notificaciones');
+    const stored = sessionStorage.getItem('simulacion-notificaciones');
     return stored ? JSON.parse(stored) : [];
   }
 
   private guardarNotificaciones(notificaciones: string[]): void {
-    localStorage.setItem('simulacion-notificaciones', JSON.stringify(notificaciones));
+    sessionStorage.setItem('simulacion-notificaciones', JSON.stringify(notificaciones));
   }
 
-  // Métodos existentes (simulación síncrona)
+  // Métodos existentes
   postSimulacion(simulacionDTO: SimulacionDTO): Observable<any> {
     return this.http.post(`${environment.SERVER_URL}/api/simulacion`, simulacionDTO);
   }
 
   setSimulacion(simulacion: any): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(simulacion));
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(simulacion));
     this.resultadoSimulacion = simulacion;
     this.simulacionSubject.next(simulacion);
 
-    // Extraer todas las materias y emitir por el Subject de materias planas
     const todasLasMaterias: Materia[] = [];
     const gruposPorKey: Record<string, Materia[]> = {};
     
@@ -262,15 +252,28 @@ export class SimulacionService {
     return this.resultadoSimulacion;
   }
 
+  // Métodos para manejar el nombre de la simulación actual
+  setNombreSimulacionActual(nombre: string): void {
+    sessionStorage.setItem(this.NOMBRE_SIMULACION_KEY, nombre);
+  }
+
+  getNombreSimulacionActual(): string | null {
+    return sessionStorage.getItem(this.NOMBRE_SIMULACION_KEY);
+  }
+
+  limpiarNombreSimulacionActual(): void {
+    sessionStorage.removeItem(this.NOMBRE_SIMULACION_KEY);
+  }
+
   resetearSimulacion(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
+    sessionStorage.removeItem(this.STORAGE_KEY);
+    this.limpiarNombreSimulacionActual();
     this.resultadoSimulacion = {};
     this.simulacionSubject.next(null);
     this.materiasSimuladasSubject.next([]);
     this.materiasSimuladasPorKeySubject.next({});
   }
 
-  // Limpiar recursos al destruir el servicio
   ngOnDestroy(): void {
     if (this.intervalSubscription) {
       this.intervalSubscription.unsubscribe();

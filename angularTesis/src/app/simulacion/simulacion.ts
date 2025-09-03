@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-simulacion',
   standalone: true,
-  imports: [NgIf, NgFor, KeyValuePipe, FormsModule],
+  imports: [NgIf, FormsModule],
   templateUrl: './simulacion.html',
   styleUrl: './simulacion.css'
 })
@@ -27,6 +27,7 @@ export class SimulacionComponent implements OnInit {
   public tipoMatricula?: string;
   public creditosInput?: number;
   public materiasInput?: number;
+  public nombreSimulacion?: string;
 
   public priorizacionMaterias = {
     nucleoCienciasBasicas: false,
@@ -63,7 +64,7 @@ export class SimulacionComponent implements OnInit {
   }
 
   generarSimulacion() {
-    if (!this.semestreInput || !this.creditosInput || !this.materiasInput) {
+    if (!this.semestreInput || !this.creditosInput || !this.materiasInput || !this.nombreSimulacion) {
       this.camposIncompletos = true;
       return;
     }
@@ -79,18 +80,13 @@ export class SimulacionComponent implements OnInit {
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
 
-    console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
-    console.log("Priorizaciones seleccionadas: ", priorizacionesSeleccionadas);
-
-    // Usar el nuevo método asíncrono
     this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
       next: (respuesta) => {
-        console.log('Simulación iniciada:', respuesta);
         
-        // Agregar el job al monitoreo
         this.simulacionService.agregarJobAlMonitoreo(
           respuesta.jobId, 
-          `Simulación para ${this.semestreInput} semestres con ${this.creditosInput} créditos`
+          `Simulación para ${this.semestreInput} semestres con ${this.creditosInput} créditos`, 
+          this.nombreSimulacion!
         );
         
         this.router.navigate(['/historial']);

@@ -17,6 +17,16 @@
   </section>
 
   <section class="preferencias-academicas">
+    <h2>Nombre de la Simulación</h2>
+    <div class="form-group">
+      <label for="nombreSimulacion">Ingresa un nombre para la simulación</label>
+      <input type="text" id="nombreSimulacion" name="nombreSimulacion" [(ngModel)]="nombreSimulacion" 
+             placeholder="Ej: Mi simulación semestre 2025-2" maxlength="50" />
+      <small style="color: gray;">Este nombre servirá para identificar cada simulación que realice</small>
+    </div>
+  </section>
+
+  <section class="preferencias-academicas">
     <h2>Preferencias Académicas</h2>
     <p>Configura cómo quieres simular tu avance académico seleccionando cuántos semestres proyectarás, el tipo de matrícula, los límites de créditos y materias por semestre.</p>
     <form>
@@ -162,7 +172,7 @@
   <div class="modal-backdrop" *ngIf="camposIncompletos">
     <div class="modal-custom">
       <h3>Campos incompletos</h3>
-      <p>Completa todos los campos de 'Preferencias Académicas' antes de generar la simulación</p>
+      <p>Completa todos los campos de 'Nombre de Simulación' y 'Preferencias Académicas' antes de generar la simulación</p>
       <button (click)="camposIncompletos = false">Cerrar</button>
     </div>
   </div>

@@ -18,6 +18,7 @@ export class SimulacionResultado implements OnInit {
 
   public resultadoSimulacion: { [semestre: string]: { materias: Materia[] } } = {};
   public creditosFaltantesTotales:number = 0;
+  public nombreSimulacion: string = '';
 
   public estadisticasGenerales = {
     promedioMaterias: 0,
@@ -32,6 +33,7 @@ export class SimulacionResultado implements OnInit {
     this.viewportScroller.scrollToPosition([0, 0]);
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
+    this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.calcularEstadisticasGenerales();
     setTimeout(() => {
       this.crearGraficos();
