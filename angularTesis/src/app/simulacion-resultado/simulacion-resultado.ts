@@ -90,8 +90,8 @@ export class SimulacionResultado implements OnInit {
     creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos, 0);
 
     this.estadisticasGenerales = {
-      promedioMaterias: numSemestres ? (totalMaterias / numSemestres) : 0,
-      promedioCreditos: numSemestres ? (totalCreditos / numSemestres) : 0,
+      promedioMaterias: numSemestres ? Math.round((totalMaterias / numSemestres)) : 0,
+      promedioCreditos: numSemestres ? Math.round((totalCreditos / numSemestres)) : 0,
       creditosFaltantes,
       semestreMayorCarga
     };
