@@ -49,8 +49,8 @@ export class Historial implements OnInit, AfterViewInit {
 
   crearDonut() {
     const data = [
-      { label: 'Créditos cursados', value: this.historial.creditosCursando || 0 },
-      { label: 'Créditos en curso', value: this.historial.creditosCursados || 0 },
+      { label: 'Créditos cursados', value: this.historial.creditosCursados || 0 },
+      { label: 'Créditos en curso', value: this.historial.creditosCursando || 0 },
       { label: 'Créditos faltantes', value: this.historial.creditosFaltantes || 0 }
     ];
 
