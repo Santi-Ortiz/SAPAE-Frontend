@@ -44,7 +44,7 @@ h3 {
   display: flex;
   justify-content: center;
   gap: 40px;
-  margin: 40px auto 20px;
+  margin: 40px auto 40px;
   flex-wrap: wrap;
 }
 
@@ -58,6 +58,15 @@ h3 {
 }
 
 /* BARRA DE PROGRESO */
+.progress-title {
+  text-align: center;
+  margin: 12px 0; 
+  font-weight: bold;
+  font-size: 16px;
+  color:#0077B6;
+  text-shadow: 2px 2px 4px #CAF0F8;
+}
+
 .barra-container {
   padding: 0 20px;
   max-width: 700px;
@@ -87,7 +96,7 @@ h3 {
 .resumen-grid {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 15px;
   align-items: flex-start;
   flex-wrap: wrap;
 }

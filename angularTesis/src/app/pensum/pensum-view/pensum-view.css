@@ -55,15 +55,16 @@ p {
   background-color: #ffffff;
   border: 1px solid #0077B6;
   border-radius: 6px;
-  padding: 5px;
-  margin-bottom: 30px;
+  padding: 2px;
+  width: 110px;
+  margin-bottom: 50px;
   font-size: 13px;
   font-weight: 500;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   position: relative;
   cursor: pointer;
   z-index: 5;
-  min-height: 95px; 
+  height: 75px; 
   display: flex;             
   flex-direction: column;    
   align-items: center;      
@@ -81,7 +82,7 @@ p {
 }
 
 .caja.resaltada {
-  border: 2px solid #0077B6 ;
+  border: 1.2px solid #0077B6 ;
   background-color: #b3e3fe ;
 }
 
@@ -178,21 +179,6 @@ svg {
 
 path.resaltada, line.resaltada {
   stroke: #0077B6 !important;
-  stroke-width: 3 !important;
-}
-
-.mensaje-pop {
-  position: absolute;
-  background-color: #ffdddd;
-  color: #a80000;
-  padding: 10px 14px;
-  border-radius: 6px;
-  border: 1px solid #cc0000;
-  font-size: 13px;
-  z-index: 10;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  max-width: 200px;
-  animation: fadein 0.3s ease;
 }
 
 @keyframes fadein {
