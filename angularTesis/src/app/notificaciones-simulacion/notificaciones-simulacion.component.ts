@@ -61,8 +61,9 @@ export class NotificacionesSimulacionComponent implements OnInit, OnDestroy {
     const job = this.jobsActivos.find(j => j.jobId === jobId);
     const nombreSimulacion = job?.nombre || 'Simulación sin nombre';
     
-    // Guardar el nombre de la simulación actual
+    // Guardar el nombre y jobId de la simulación actual
     this.simulacionService.setNombreSimulacionActual(nombreSimulacion);
+    this.simulacionService.setJobIdSimulacionActual(jobId);
     
     // Quitar la notificacion
     this.removerJob(jobId);

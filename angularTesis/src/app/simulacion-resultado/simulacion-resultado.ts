@@ -6,6 +6,7 @@ import { Materia } from '../models/materia.model';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
 import { HistorialService } from '../services/historial.service';
+import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -19,6 +20,8 @@ export class SimulacionResultado implements OnInit {
   public resultadoSimulacion: { [semestre: string]: { materias: Materia[] } } = {};
   public creditosFaltantesTotales:number = 0;
   public nombreSimulacion: string = '';
+  public jobIdActual: string | null = null;
+  public simulacionGuardada: boolean = false;
 
   public estadisticasGenerales = {
     promedioMaterias: 0,
@@ -27,13 +30,28 @@ export class SimulacionResultado implements OnInit {
     semestreMayorCarga: ''
   };
 
-  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService, private viewportScroller: ViewportScroller) { }
+  constructor(
+    private router: Router, 
+    private simulacionService: SimulacionService, 
+    private historialService: HistorialService, 
+    private viewportScroller: ViewportScroller,
+    private historialSimulacionesService: HistorialSimulacionesService
+  ) { }
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
     this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
+    this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
+    
+    // Verificar si la simulación ya está guardada usando jobId si está disponible, sino usar nombre
+    if (this.jobIdActual) {
+      this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConJobId(this.jobIdActual);
+    } else {
+      this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion);
+    }
+    
     this.calcularEstadisticasGenerales();
     setTimeout(() => {
       this.crearGraficos();
@@ -231,22 +249,38 @@ export class SimulacionResultado implements OnInit {
   }
 
 
-public visualizarSimulacion(): void {
-  // Usar setSimulacion directamente con el resultado completo
-  // Esto asegura que se actualicen todos los subjects correctamente
-  this.simulacionService.setSimulacion(this.resultadoSimulacion);
-  
-  // Si ya estamos en la ruta de simulación, forzar la recarga del componente
-  const currentUrl = this.router.url;
-  if (currentUrl === '/pensum/simulacion') {
-    // Navegar a una ruta dummy y luego de vuelta para forzar la reinicialización
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+  public visualizarSimulacion(): void {
+    this.simulacionService.setSimulacion(this.resultadoSimulacion);
+    
+    const currentUrl = this.router.url;
+    if (currentUrl === '/pensum/simulacion') {
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['/pensum/simulacion']);
+      });
+    } else {
       this.router.navigate(['/pensum/simulacion']);
-    });
-  } else {
-    this.router.navigate(['/pensum/simulacion']);
+    }
   }
-}
 
-  
+  public guardarSimulacion(): void {
+    const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual();
+    
+    const parametrosSimulacion = parametrosGuardados || {
+      semestres: Object.keys(this.resultadoSimulacion).length,
+      tipoMatricula: 'No especificado',
+      creditos: 0,
+      materias: 0,
+      priorizaciones: []
+    };
+
+    this.historialSimulacionesService.guardarSimulacion(
+      this.nombreSimulacion,
+      this.resultadoSimulacion,
+      parametrosSimulacion,
+      this.jobIdActual || undefined
+    );
+
+    this.simulacionGuardada = true;
+    //poner un mensaje de confirmacion
+  }
 }

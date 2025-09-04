@@ -15,6 +15,8 @@ export class SimulacionService {
   private readonly STORAGE_KEY = 'resultadoSimulacion';
   private readonly JOBS_STORAGE_KEY = 'simulacionJobs';
   private readonly NOMBRE_SIMULACION_KEY = 'nombreSimulacionActual';
+  private readonly PARAMETROS_SIMULACION_KEY = 'parametrosSimulacionActual';
+  private readonly JOB_ID_ACTUAL_KEY = 'jobIdSimulacionActual';
   resultadoSimulacion!: Record<string, { materias: Materia[] }>;
 
   // Subject para la simulación organizada por semestres
@@ -146,6 +148,7 @@ export class SimulacionService {
         this.obtenerResultadoJob(status.jobId).subscribe({
           next: (resultado) => {
             this.setSimulacion(resultado);
+            this.setJobIdSimulacionActual(status.jobId); // Guardar el jobId de la simulación completada
             this.agregarNotificacion(`Simulación completada: ${nombreOriginal}`);
             
           },
@@ -252,7 +255,6 @@ export class SimulacionService {
     return this.resultadoSimulacion;
   }
 
-  // Métodos para manejar el nombre de la simulación actual
   setNombreSimulacionActual(nombre: string): void {
     sessionStorage.setItem(this.NOMBRE_SIMULACION_KEY, nombre);
   }
@@ -265,9 +267,36 @@ export class SimulacionService {
     sessionStorage.removeItem(this.NOMBRE_SIMULACION_KEY);
   }
 
+  setParametrosSimulacionActual(parametros: any): void {
+    sessionStorage.setItem(this.PARAMETROS_SIMULACION_KEY, JSON.stringify(parametros));
+  }
+
+  getParametrosSimulacionActual(): any | null {
+    const parametros = sessionStorage.getItem(this.PARAMETROS_SIMULACION_KEY);
+    return parametros ? JSON.parse(parametros) : null;
+  }
+
+  limpiarParametrosSimulacionActual(): void {
+    sessionStorage.removeItem(this.PARAMETROS_SIMULACION_KEY);
+  }
+
+  setJobIdSimulacionActual(jobId: string): void {
+    sessionStorage.setItem(this.JOB_ID_ACTUAL_KEY, jobId);
+  }
+
+  getJobIdSimulacionActual(): string | null {
+    return sessionStorage.getItem(this.JOB_ID_ACTUAL_KEY);
+  }
+
+  limpiarJobIdSimulacionActual(): void {
+    sessionStorage.removeItem(this.JOB_ID_ACTUAL_KEY);
+  }
+
   resetearSimulacion(): void {
     sessionStorage.removeItem(this.STORAGE_KEY);
     this.limpiarNombreSimulacionActual();
+    this.limpiarParametrosSimulacionActual();
+    this.limpiarJobIdSimulacionActual();
     this.resultadoSimulacion = {};
     this.simulacionSubject.next(null);
     this.materiasSimuladasSubject.next([]);

@@ -10,6 +10,7 @@ import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { Materia } from '../models/materia.model';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 
 @Component({
   selector: 'app-simulacion',
@@ -46,7 +47,8 @@ export class SimulacionComponent implements OnInit {
   constructor(
     private router: Router, 
     private simulacionService: SimulacionService, 
-    private historialService: HistorialService
+    private historialService: HistorialService,
+    private historialSimulacionesService: HistorialSimulacionesService
   ) { }
 
   ngOnInit(): void {
@@ -79,6 +81,16 @@ export class SimulacionComponent implements OnInit {
 
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
+
+    // Guardar parámetros de la simulación
+    const parametrosSimulacion = {
+      semestres: this.semestreInput,
+      tipoMatricula: this.tipoMatricula || 'No especificado',
+      creditos: this.creditosInput,
+      materias: this.materiasInput,
+    };
+
+    this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
 
     this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
       next: (respuesta) => {
@@ -164,4 +176,7 @@ export class SimulacionComponent implements OnInit {
     ];
   }
 
+  verHistorialSimulaciones(): void {
+    this.router.navigate(['/historial-simulaciones']);
+  }
 }

@@ -114,6 +114,10 @@
     </section>
 
     <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
+    <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
+    <div *ngIf="simulacionGuardada" class="mensaje-guardado">
+        Su simulación fue guardada con éxito
+    </div>
 </body>
 
 
