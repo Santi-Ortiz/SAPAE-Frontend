@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class LecturaService {
 
-  private apiUrl = `${environment.SERVER_URL}/subir-pdf`;
+  private apiUrl = `${environment.SERVER_URL}/guardarInforme`;
 
   constructor(private http: HttpClient) { }
 

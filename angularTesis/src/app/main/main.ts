@@ -98,7 +98,8 @@ export class Main {
         this.historialService.setHistorial(respuesta);
         this.router.navigate(['/historial']);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al subir archivo:', err);
         this.historial.error = 'El archivo no corresponde a un informe de avance.';
       }
     });
