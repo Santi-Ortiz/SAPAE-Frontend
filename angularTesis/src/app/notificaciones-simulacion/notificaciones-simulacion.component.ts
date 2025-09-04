@@ -65,21 +65,28 @@ export class NotificacionesSimulacionComponent implements OnInit, OnDestroy {
     this.simulacionService.setNombreSimulacionActual(nombreSimulacion);
     this.simulacionService.setJobIdSimulacionActual(jobId);
     
-    // Quitar la notificacion
-    this.removerJob(jobId);
-    // Obtener el resultado y navegar a la vista de resultados
-    this.simulacionService.obtenerResultadoJob(jobId).subscribe(resultado => {
-      this.simulacionService.setSimulacion(resultado);
-      
-      // Si ya estamos en la ruta de simulación, forzar la recarga del componente
-      const currentUrl = this.router.url;
-      if (currentUrl === '/simulacion/mostrar') {
-        // Navegar a una ruta dummy y luego de vuelta para forzar la reinicialización
-        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+    // Obtener el resultado PRIMERO, y solo después remover la notificación
+    this.simulacionService.obtenerResultadoJob(jobId).subscribe({
+      next: (resultado) => {
+        this.simulacionService.setSimulacion(resultado);
+        
+        // Solo después de obtener el resultado exitosamente, remover la notificación
+        this.removerJob(jobId);
+        
+        // Si ya estamos en la ruta de simulación, forzar la recarga del componente
+        const currentUrl = this.router.url;
+        if (currentUrl === '/simulacion/mostrar') {
+          // Navegar a una ruta dummy y luego de vuelta para forzar la reinicialización
+          this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+            this.router.navigate(['/simulacion/mostrar']);
+          });
+        } else {
           this.router.navigate(['/simulacion/mostrar']);
-        });
-      } else {
-        this.router.navigate(['/simulacion/mostrar']);
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener resultado de simulación:', error);
+        // NO remover la notificación si hay error, para que pueda intentar de nuevo
       }
     });
   }
