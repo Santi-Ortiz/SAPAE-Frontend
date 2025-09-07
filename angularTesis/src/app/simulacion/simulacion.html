@@ -7,11 +7,11 @@
     
     <!-- Información sobre el nuevo proceso -->
     <div class="info-proceso-asincrono">
-      <h3>💡 ¿Cómo funciona la simulación?</h3>
-      <ul>
-        <li>✅ Las simulaciones se procesan en segundo plano</li>
-        <li>🚀 Puedes navegar libremente mientras se calcula tu simulación</li>
-        <li>🔔 Recibirás una notificación cuando esté lista</li>
+      <h3>¿Cómo funciona la simulación?</h3>
+      <ul class="lista-viñetas">
+        <li>Las simulaciones se procesan en segundo plano</li>
+        <li>Puedes navegar libremente mientras se calcula tu simulación</li>
+        <li>Recibirás una notificación cuando esté lista</li>
       </ul>
     </div>
       <button class="historial-button" (click)="verHistorialSimulaciones()">Ver Historial de Simulaciones</button>
@@ -22,8 +22,10 @@
     <div class="form-group">
       <label for="nombreSimulacion">Ingresa un nombre para la simulación</label>
       <input type="text" id="nombreSimulacion" name="nombreSimulacion" [(ngModel)]="nombreSimulacion" 
-             placeholder="Ej: Mi simulación semestre 2025-2" maxlength="50" />
-      <small style="color: gray;">Este nombre servirá para identificar cada simulación que realice</small>
+             placeholder="Ej: Mi simulación semestre 2025-2" maxlength="50" 
+             (input)="validarNombreSimulacion()" />
+      <small style="color: gray;" *ngIf="!nombreDuplicado">Este nombre servirá para identificar cada simulación que realice</small>
+      <small style="color: #0077b6;" *ngIf="nombreDuplicado"><strong>Ya tienes una simulación guardada con este nombre. Por favor, elige otro nombre.</strong></small>
     </div>
   </section>
 
@@ -177,4 +179,13 @@
       <button (click)="camposIncompletos = false">Cerrar</button>
     </div>
   </div>
+
+  <div class="modal-backdrop" *ngIf="nombreDuplicadoModal">
+    <div class="modal-custom">
+      <h3>Nombre duplicado</h3>
+      <p>Ya tienes una simulación guardada con el nombre "{{ nombreSimulacion }}". Por favor, elige un nombre diferente para continuar.</p>
+      <button (click)="nombreDuplicadoModal = false">Cerrar</button>
+    </div>
+  </div>
+  
 </div>

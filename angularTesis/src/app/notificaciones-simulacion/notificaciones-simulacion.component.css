@@ -27,18 +27,23 @@
 }
 
 .job-completada {
-  background: #d4edda;
-  border-color: #c3e6cb;
+  background: #caf0f8;
+  border-color: #90e0ef;
+}
+
+.job-nombre {
+  color: #0077b6
 }
 
 .job-error {
-  background: #f8d7da;
-  border-color: #f5c6cb;
+  background: #90e0ef;
+  border-color: #00b4d8;
 }
 
 .job-info {
   flex: 1;
   font-size: 12px;
+  padding-right: 10px;
 }
 
 .job-actions {
@@ -56,40 +61,40 @@
 }
 
 .btn-ver-resultado {
-  background: #28a745;
+  background: #0077b6;
   color: white;
 }
 
 .btn-remover {
-  background: #dc3545;
+  background: #00b4d8;
   color: white;
 }
 
 .btn-limpiar {
-  background: #6c757d;
-  color: white;
+  background: #90e0ef;
+  color: #0077b6;
   margin-bottom: 10px;
 }
 
 .estado-pendiente { 
-  color: #ffc107; 
+  color: #90e0ef; 
 }
 
 .estado-en-progreso { 
-  color: #17a2b8; 
+  color: #00b4d8; 
 }
 
 .estado-completada { 
-  color: #28a745; 
+  color: #0077b6; 
 }
 
 .estado-error { 
-  color: #dc3545; 
+  color: #00b4d8; 
 }
 
 .notificacion-item {
-  background: #e7f3ff;
-  border: 1px solid #b8daff;
+  background: #caf0f8;
+  border: 1px solid #90e0ef;
   border-radius: 3px;
   padding: 8px;
   margin-bottom: 5px;
@@ -97,13 +102,13 @@
 }
 
 .error-detail {
-  color: #dc3545;
+  color: #0077b6;
   font-size: 11px;
   margin-top: 5px;
 }
 
 .duracion {
-  color: #6c757d;
+  color: #00b4d8;
   font-size: 11px;
 }
 

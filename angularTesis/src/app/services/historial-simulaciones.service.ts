@@ -13,6 +13,7 @@ export interface SimulacionGuardada {
     tipoMatricula: string;
     creditos: number;
     materias: number;
+    priorizaciones?: string[]; // Agregamos las priorizaciones
   };
 }
 

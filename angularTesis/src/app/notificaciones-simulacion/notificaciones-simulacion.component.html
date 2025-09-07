@@ -5,15 +5,12 @@
     <div *ngFor="let job of jobsActivos" class="job-item" 
          [ngClass]="{'job-completada': job.estado === 'COMPLETADA', 'job-error': job.estado === 'ERROR'}">
       <div class="job-info">
-        <strong>{{job.nombre}} </strong> 
+        <strong class="job-nombre">{{job.nombre}} </strong> 
         <br>
         <strong>Estado: </strong> 
-        <span [ngClass]="getEstadoClass(job.estado)">{{getEstadoTexto(job.estado)}}</span>
+        <strong><span [ngClass]="getEstadoClass(job.estado)">{{getEstadoTexto(job.estado)}}</span></strong>
         <br>
         <strong>Mensaje: </strong> {{job.mensaje}}
-        <div *ngIf="job.tiempoDuracion" class="duracion">
-          <strong>Duración:</strong> {{job.tiempoDuracion}}ms
-        </div>
         <div *ngIf="job.error" class="error-detail">
           <strong>Error:</strong> {{job.error}}
         </div>

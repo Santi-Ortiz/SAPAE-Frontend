@@ -115,9 +115,18 @@
 
     <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
     <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
-    <div *ngIf="simulacionGuardada" class="mensaje-guardado">
-        Su simulación fue guardada con éxito
+
+    <!-- Modal para confirmar que se guardó -->
+    <div class="modal-backdrop" *ngIf="mostrarModalGuardar">
+    <div class="modal-custom">
+        <h3>Simulación guardada con éxito</h3>
+        <p>Puede revisarla en cualquier momento en el historial.</p>
+        <div class="modal-buttons">
+        <button class="btn-cerrar" (click)="mostrarModalGuardar = false">Cerrar</button>
+        </div>
     </div>
+    </div>
+
 </body>
 
 

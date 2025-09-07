@@ -22,6 +22,7 @@ export class SimulacionResultado implements OnInit {
   public nombreSimulacion: string = '';
   public jobIdActual: string | null = null;
   public simulacionGuardada: boolean = false;
+  public mostrarModalGuardar: boolean = false;
 
   public estadisticasGenerales = {
     promedioMaterias: 0,
@@ -281,6 +282,6 @@ export class SimulacionResultado implements OnInit {
     );
 
     this.simulacionGuardada = true;
-    //poner un mensaje de confirmacion
+    this.mostrarModalGuardar = true;
   }
 }

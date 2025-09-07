@@ -29,7 +29,7 @@
   border-radius: 12px;
   padding: 20px;
   margin: 20px auto;
-  max-width: 600px;
+  max-width: 500px;
   text-align: left;
 }
 
@@ -48,9 +48,21 @@
 
 .info-proceso-asincrono li {
   padding: 8px 0;
+  position: relative;
+  padding-left: 25px;
   font-size: 14px;
   color: #333;
   border-bottom: 1px solid #e0e0e0;
+}
+
+.info-proceso-asincrono li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  color: #0077B6;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .info-proceso-asincrono li:last-child {
@@ -332,7 +344,7 @@
 
 .modal-custom h3 {
   margin-top: 0;
-  color: #c9302c;
+  color: #00b4d8;
   font-size: 1.4em;
 }
 

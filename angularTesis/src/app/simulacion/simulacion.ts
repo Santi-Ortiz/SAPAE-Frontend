@@ -43,6 +43,8 @@ export class SimulacionComponent implements OnInit {
   public readonly maxMaterias = 10;
   public camposIncompletos = false;
   public mostrarMensajeError = false;
+  public nombreDuplicado = false;
+  public nombreDuplicadoModal = false;
 
   constructor(
     private router: Router, 
@@ -70,6 +72,12 @@ export class SimulacionComponent implements OnInit {
       this.camposIncompletos = true;
       return;
     }
+
+    if (this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
+      this.nombreDuplicadoModal = true;
+      return;
+    }
+
     const proyeccionDTO = {
       id: 1,
       semestre: (this.semestreInput + this.progresoActual.semestre!),
@@ -78,6 +86,7 @@ export class SimulacionComponent implements OnInit {
     }
 
     const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
+    const nombresPriorizaciones = this.obtenerNombresPriorizacionesSeleccionadas();
 
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
@@ -88,6 +97,7 @@ export class SimulacionComponent implements OnInit {
       tipoMatricula: this.tipoMatricula || 'No especificado',
       creditos: this.creditosInput,
       materias: this.materiasInput,
+      priorizaciones: nombresPriorizaciones
     };
 
     this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
@@ -176,7 +186,40 @@ export class SimulacionComponent implements OnInit {
     ];
   }
 
+  private obtenerNombresPriorizacionesSeleccionadas(): string[] {
+    const nombres: string[] = [];
+    
+    if (this.priorizacionMaterias.nucleoCienciasBasicas) {
+      nombres.push('Núcleo Ciencias Básicas');
+    }
+    if (this.priorizacionMaterias.nucleoIngenieriaAplicada) {
+      nombres.push('Núcleo Ingeniería Aplicada');
+    }
+    if (this.priorizacionMaterias.nucleoSocioHumanistica) {
+      nombres.push('Núcleo Socio-Humanística');
+    }
+    if (this.priorizacionMaterias.electivas) {
+      nombres.push('Electivas');
+    }
+    if (this.priorizacionMaterias.complementarias) {
+      nombres.push('Complementarias');
+    }
+    if (this.priorizacionMaterias.enfasis) {
+      nombres.push('Énfasis');
+    }
+    
+    return nombres;
+  }
+
   verHistorialSimulaciones(): void {
     this.router.navigate(['/historial-simulaciones']);
+  }
+
+  validarNombreSimulacion(): void {
+    if (this.nombreSimulacion && this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
+      this.nombreDuplicado = true;
+    } else {
+      this.nombreDuplicado = false;
+    }
   }
 }
