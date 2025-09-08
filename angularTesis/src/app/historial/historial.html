@@ -12,13 +12,18 @@
           <div class="valor">{{ historial.semestre }}</div>
           <div class="titulo">Semestre</div>
         </div>
-      </div> 
-      <div class="progress-title">Cumplimiento del plan de estudios</div>
-        <div class="progress-container">
-          <div class="progress-bar" [style.width.%]="historial.porcentaje">
-            {{ historial.porcentaje?.toFixed(2) || '0.00' }}%
+        <div class="progress-bar-section">
+          <div class="progress-titulo">
+            <h3>Porcentaje de Avance</h3>
           </div>
-        </div>   
+          <div class="progress-container">
+            <div class="progress-bar" [style.width.%]="historial.porcentaje">
+              {{ historial.porcentaje?.toFixed(2) || '0.00' }}%
+            </div>
+          </div>
+        </div>
+        
+      </div>      
       <h3>Créditos Faltantes</h3>
       <!-- Créditos y gráfico -->
       <div class="resumen-grid">

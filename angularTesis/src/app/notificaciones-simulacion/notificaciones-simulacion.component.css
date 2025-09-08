@@ -1,0 +1,119 @@
+.notificaciones-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  z-index: 1000;
+}
+
+.jobs-activos, .notificaciones {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.job-item {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.job-completada {
+  background: #caf0f8;
+  border-color: #90e0ef;
+}
+
+.job-nombre {
+  color: #0077b6
+}
+
+.job-error {
+  background: #90e0ef;
+  border-color: #00b4d8;
+}
+
+.job-info {
+  flex: 1;
+  font-size: 12px;
+  padding-right: 10px;
+}
+
+.job-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.btn-ver-resultado, .btn-remover, .btn-limpiar {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-ver-resultado {
+  background: #0077b6;
+  color: white;
+}
+
+.btn-remover {
+  background: #00b4d8;
+  color: white;
+}
+
+.btn-limpiar {
+  background: #90e0ef;
+  color: #0077b6;
+  margin-bottom: 10px;
+}
+
+.estado-pendiente { 
+  color: #90e0ef; 
+}
+
+.estado-en-progreso { 
+  color: #00b4d8; 
+}
+
+.estado-completada { 
+  color: #0077b6; 
+}
+
+.estado-error { 
+  color: #00b4d8; 
+}
+
+.notificacion-item {
+  background: #caf0f8;
+  border: 1px solid #90e0ef;
+  border-radius: 3px;
+  padding: 8px;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.error-detail {
+  color: #0077b6;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.duracion {
+  color: #00b4d8;
+  font-size: 11px;
+}
+
+h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+}

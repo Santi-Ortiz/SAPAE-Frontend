@@ -10,11 +10,12 @@ import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { Materia } from '../models/materia.model';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 
 @Component({
   selector: 'app-simulacion',
   standalone: true,
-  imports: [NgIf, NgFor, KeyValuePipe, FormsModule],
+  imports: [NgIf, FormsModule],
   templateUrl: './simulacion.html',
   styleUrl: './simulacion.css'
 })
@@ -27,6 +28,7 @@ export class SimulacionComponent implements OnInit {
   public tipoMatricula?: string;
   public creditosInput?: number;
   public materiasInput?: number;
+  public nombreSimulacion?: string;
 
   public priorizacionMaterias = {
     nucleoCienciasBasicas: false,
@@ -37,10 +39,21 @@ export class SimulacionComponent implements OnInit {
     enfasis: false
   };
 
-  public readonly maxSelecciones = 3;
-  public mostrarMensajeError = false;
+  public practicaProfesional: boolean = false;
 
-  constructor(private router: Router, private simulacionService: SimulacionService, private historialService: HistorialService) { }
+  public readonly maxSelecciones = 3;
+  public readonly maxMaterias = 10;
+  public camposIncompletos = false;
+  public mostrarMensajeError = false;
+  public nombreDuplicado = false;
+  public nombreDuplicadoModal = false;
+
+  constructor(
+    private router: Router, 
+    private simulacionService: SimulacionService, 
+    private historialService: HistorialService,
+    private historialSimulacionesService: HistorialSimulacionesService
+  ) { }
 
   ngOnInit(): void {
 
@@ -57,10 +70,16 @@ export class SimulacionComponent implements OnInit {
   }
 
   generarSimulacion() {
-    if (!this.semestreInput || !this.creditosInput || !this.materiasInput) {
-      alert('Completa todos los campos antes de generar la simulación.');
+    if (!this.semestreInput || !this.creditosInput || !this.materiasInput || !this.nombreSimulacion) {
+      this.camposIncompletos = true;
       return;
     }
+
+    if (this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
+      this.nombreDuplicadoModal = true;
+      return;
+    }
+
     const proyeccionDTO = {
       id: 1,
       semestre: (this.semestreInput + this.progresoActual.semestre!),
@@ -69,35 +88,49 @@ export class SimulacionComponent implements OnInit {
     }
 
     const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
+    const nombresPriorizaciones = this.obtenerNombresPriorizacionesSeleccionadas();
 
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
+    this.simulacionDTO!.practicaProfesional = this.practicaProfesional;
 
-    console.log("SimulacionDTO FINAL: ", this.simulacionDTO);
-    console.log("Priorizaciones seleccionadas: ", priorizacionesSeleccionadas);
+    // Guardar parámetros de la simulación
+    const parametrosSimulacion = {
+      semestres: this.semestreInput,
+      tipoMatricula: this.tipoMatricula || 'No especificado',
+      creditos: this.creditosInput,
+      materias: this.materiasInput,
+      priorizaciones: nombresPriorizaciones,
+      practicaProfesional: this.practicaProfesional
+    };
 
-    this.simulacionService.generarSimulacion(this.simulacionDTO!).subscribe({
-      next: (resultado: any) => {
-        this.resultadoSimulacion = resultado;
-        this.simulacionService.setSimulacion(resultado);
+    this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
 
-        console.log('Simulacion generada: ', this.resultadoSimulacion);
-        this.router.navigate(['/simulacion/mostrar'])
+    this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
+      next: (respuesta) => {
+        
+        this.simulacionService.agregarJobAlMonitoreo(
+          respuesta.jobId, 
+          `Simulación para ${this.semestreInput} semestres con ${this.creditosInput} créditos`, 
+          this.nombreSimulacion!
+        );
+        
+        this.router.navigate(['/historial']);
       },
       error: (error) => {
-        console.error('Error al generar la simulación:', error);
+        console.error('Error al iniciar la simulación:', error);
+        alert('Error al iniciar la simulación. Por favor, intenta nuevamente.');
       }
     });
-
   }
 
-  get maxCreditos(): number {
+  get maxCreditos(): any {
     switch (this.tipoMatricula) {
       case 'Media Matrícula':
         return 10;
       case 'Matrícula completa':
         return 20;
-      case 'Matrícula completa + 1 créditos':
+      case 'Matrícula completa + 1 crédito':
         return 21;
       case 'Matrícula completa + 2 créditos':
         return 22;
@@ -105,14 +138,22 @@ export class SimulacionComponent implements OnInit {
         return 23;
       case 'Matrícula completa + 4 créditos':
         return 24;
-      default:
-        return 20;
     }
+  }
+
+  get numSemestresSimulados(): number {
+    return this.semestreInput || 0;
   }
 
   ajustarCreditos() {
     if (this.creditosInput && this.creditosInput > this.maxCreditos) {
       this.creditosInput = this.maxCreditos;
+    }
+  }
+
+  ajustarMaterias() {
+    if(this.materiasInput && this.materiasInput > this.maxMaterias) {
+      this.materiasInput = this.maxMaterias;
     }
   }
 
@@ -123,7 +164,7 @@ export class SimulacionComponent implements OnInit {
   onCheckboxChange(campo: keyof typeof this.priorizacionMaterias, event: any) {
     const isChecked = event.target.checked;
 
-    if (isChecked && this.seleccionesActuales >= this.maxSelecciones + 1) {
+    if (isChecked && this.seleccionesActuales >= this.maxSelecciones) {
       event.target.checked = false;
       this.mostrarMensajeError = true;
       return;
@@ -135,7 +176,7 @@ export class SimulacionComponent implements OnInit {
   }
 
   private actualizarMensajeError() {
-    this.mostrarMensajeError = this.seleccionesActuales >= this.maxSelecciones + 1;
+    this.mostrarMensajeError = this.seleccionesActuales >= this.maxSelecciones;
   }
 
   private obtenerPriorizacionesSeleccionadas(): boolean[] {
@@ -149,4 +190,40 @@ export class SimulacionComponent implements OnInit {
     ];
   }
 
+  private obtenerNombresPriorizacionesSeleccionadas(): string[] {
+    const nombres: string[] = [];
+    
+    if (this.priorizacionMaterias.nucleoCienciasBasicas) {
+      nombres.push('Núcleo Ciencias Básicas');
+    }
+    if (this.priorizacionMaterias.nucleoIngenieriaAplicada) {
+      nombres.push('Núcleo Ingeniería Aplicada');
+    }
+    if (this.priorizacionMaterias.nucleoSocioHumanistica) {
+      nombres.push('Núcleo Socio-Humanística');
+    }
+    if (this.priorizacionMaterias.electivas) {
+      nombres.push('Electivas');
+    }
+    if (this.priorizacionMaterias.complementarias) {
+      nombres.push('Complementarias');
+    }
+    if (this.priorizacionMaterias.enfasis) {
+      nombres.push('Énfasis');
+    }
+    
+    return nombres;
+  }
+
+  verHistorialSimulaciones(): void {
+    this.router.navigate(['/historial-simulaciones']);
+  }
+
+  validarNombreSimulacion(): void {
+    if (this.nombreSimulacion && this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
+      this.nombreDuplicado = true;
+    } else {
+      this.nombreDuplicado = false;
+    }
+  }
 }

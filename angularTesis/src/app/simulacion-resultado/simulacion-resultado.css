@@ -42,6 +42,13 @@ h1 {
   margin-bottom: 10px;
 }
 
+.simulacion-intro h3 {
+  text-align: center;
+  color: #0077b6;
+  margin: 20px;
+  font-size: 20px;
+}
+
 .simulacion-intro p {
   text-align: center;
   margin-bottom: 30px;
@@ -287,7 +294,7 @@ h1 {
   margin: 30px auto;
   padding: 12px 24px;
   font-size: 16px;
-  background-color:#00B4D8;
+  background-color:#0077B6;
   border: none;
   color: white;
   border-radius: 6px;
@@ -296,5 +303,121 @@ h1 {
 }
 
 .visualizar-simulacion:hover {
+  background-color:#005f8a;
+}
+
+/*Boton guardar simulacion*/
+.guardar-simulacion {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #0077B6;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.nueva-simulacion:hover {
+  background-color: #005f8a;
+}
+
+.visualizar-simulacion {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 24px;
+  font-size: 16px;
   background-color:#0077B6;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.visualizar-simulacion:hover {
+  background-color:#005f8a;
+}
+
+/* --- MENSAJE DE SIMULACIÓN GUARDADA ---*/
+.mensaje-guardado {
+  display: block;
+  margin: 30px auto;
+  padding: 15px 25px;
+  font-size: 16px;
+  color: #0077B6;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  max-width: 400px;
+}
+
+/* --- MODAL PARA GUARDAR SIMULACIÓN --- */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-custom {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  animation: slideIn 0.3s ease;
+}
+
+.modal-custom h3 {
+  color: #00b4d8;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.modal-custom p {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+/* Botones de modales */
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.btn-cerrar {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.btn-cerrar {
+  background-color: #0077b6;
+  color: white;
+}
+
+.btn-cerrar:hover {
+  background-color: #005f8a;
+  transform: translateY(-2px);
 }

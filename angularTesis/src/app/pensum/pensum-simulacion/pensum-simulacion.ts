@@ -4,6 +4,7 @@ import {
   ElementRef,
   ViewChild,
   OnInit,
+  OnDestroy,
   HostListener,
   NgZone,
   ChangeDetectorRef
@@ -14,7 +15,7 @@ import { PensumDTO } from '../../dtos/pensum-dto';
 import { MateriaDTO } from '../../dtos/materia-dto';
 import { Materia } from '../../models/materia.model';
 import { Progreso } from '../../models/progreso.model';
-import { catchError, of, take } from 'rxjs';
+import { catchError, of, take, Subscription } from 'rxjs';
 import { PensumService } from '../../services/pensum.service';
 import { SimulacionService } from '../../services/simulacion.service';
 import { HistorialService } from '../../services/historial.service';
@@ -32,7 +33,7 @@ type GrupoMaterias = {
   templateUrl: './pensum-simulacion.html',
   styleUrl: './pensum-simulacion.css',
 })
-export class PensumSimulacion implements OnInit, AfterViewInit {
+export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
   progreso!: Progreso;
   materiasCursadasCodigos: Set<string> = new Set();
   materiasCursadas: MateriaDTO[] = [];
@@ -45,6 +46,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit {
   private llegadasGlobal = new Map<string, string[]>();
   private salidasGlobal = new Map<string, string[]>();
   private listenersAgregados = false;
+  private subscriptions: Subscription[] = [];
 
   @ViewChild('svgRef') svgRef!: ElementRef<SVGSVGElement>;
   @ViewChild('contenedor') contenedorRef!: ElementRef<HTMLElement>;
@@ -61,43 +63,52 @@ export class PensumSimulacion implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.progreso = this.historialService.getHistorial()!;
 
-    this.pensumService.obtenerPensum().pipe(
-      catchError(err => {
-        console.error('Error cargando pensum', err);
-        return of([] as PensumDTO[]);
+    this.subscriptions.push(
+      this.pensumService.obtenerPensum().pipe(
+        catchError(err => {
+          console.error('Error cargando pensum', err);
+          return of([] as PensumDTO[]);
+        })
+      ).subscribe(pensum => {
+        this.allPensum = pensum;
+
+        this.requisitosMap.clear();
+        for (const m of this.allPensum) {
+          let req: string[] = [];
+          try {
+            const r = (m.requisitos?.length ? m.requisitos : JSON.parse(m.requisitosJson || '[]')) as (string | number)[];
+            req = r.map(String);
+          } catch {
+            req = [];
+          }
+          this.requisitosMap.set(String(m.codigo), req);
+        }
+
+        // Materias simuladas
+        this.subscriptions.push(
+          this.simulacionService.materiasSimuladasPorKey$.subscribe(grupos => {
+            if (grupos && Object.keys(grupos).length > 0) {
+              this.soloMaterias = this.progreso?.materias ?? [];
+              this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
+      
+              // lista plana de Materia[]
+              this.materiasSimuladas = Object.values(grupos).flatMap(arr => arr);
+      
+              // agrupado por key (manteniendo la key original)
+              this.materiasAgrupadas = this.agruparMateriasSimuladasPorKey(grupos);
+      
+              this.cdr.detectChanges();
+              this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
+            } else {
+              // Si no hay grupos, limpiar los datos
+              this.materiasSimuladas = [];
+              this.materiasAgrupadas = [];
+              this.cdr.detectChanges();
+            }
+          })
+        );
       })
-    ).subscribe(pensum => {
-      this.allPensum = pensum;
-
-      this.requisitosMap.clear();
-      for (const m of this.allPensum) {
-        let req: string[] = [];
-        try {
-          const r = (m.requisitos?.length ? m.requisitos : JSON.parse(m.requisitosJson || '[]')) as (string | number)[];
-          req = r.map(String);
-        } catch {
-          req = [];
-        }
-        this.requisitosMap.set(String(m.codigo), req);
-      }
-
-      // Materias simuladas
-      this.simulacionService.materiasSimuladasPorKey$.subscribe(grupos => {
-        if (grupos && Object.keys(grupos).length > 0) {
-          this.soloMaterias = this.progreso?.materias ?? [];
-          this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
-  
-          // lista plana de Materia[]
-          this.materiasSimuladas = Object.values(grupos).flatMap(arr => arr);
-  
-          // agrupado por key (manteniendo la key original)
-          this.materiasAgrupadas = this.agruparMateriasSimuladasPorKey(grupos);
-  
-          this.cdr.detectChanges();
-          this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
-        }
-      });
-    });
+    );
   }
 
   getCodigo(m: Materia | MateriaDTO): string {
@@ -395,6 +406,26 @@ export class PensumSimulacion implements OnInit, AfterViewInit {
         this.dibujarCurvas(d3svg, cajas, this.salidasGlobal, this.llegadasGlobal, contenedor)
       );
     }
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar todas las suscripciones
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+    
+    // Limpiar listeners de eventos de DOM
+    if (this.listenersAgregados) {
+      // Remover listeners, aunque no tenemos referencias específicas, 
+      // al menos marcamos que ya no están activos
+      this.listenersAgregados = false;
+    }
+    
+    // Limpiar los datos del componente
+    this.materiasSimuladas = [];
+    this.materiasAgrupadas = [];
+    this.requisitosMap.clear();
+    this.llegadasGlobal.clear();
+    this.salidasGlobal.clear();
   }
 
   public volverSimulacion(): void {

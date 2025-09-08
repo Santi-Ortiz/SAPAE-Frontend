@@ -14,6 +14,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { authInterceptor } from './interceptor/auth-interceptor';
 import { App } from './app';
 import { SimulacionResultado } from './simulacion-resultado/simulacion-resultado';
+import { HistorialSimulacionesComponent } from './historial-simulaciones/historial-simulaciones.component';
 
 export const routes: Routes = [
   { path: 'registro', component: Registro },
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'historial', component: Historial },
   { path: 'simulacion', component: SimulacionComponent },
   { path: 'simulacion/mostrar', component: SimulacionResultado },
+  { path: 'historial-simulaciones', component: HistorialSimulacionesComponent },
   { path: 'busquedas', component: BusquedasComponent},
   { path: 'recomendaciones', component: RecomendacionesComponent},
   { path: 'main', component: Main },

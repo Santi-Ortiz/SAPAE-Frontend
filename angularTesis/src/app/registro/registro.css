@@ -11,21 +11,21 @@
 
 .tarjeta-autenticacion {
   background: white;
-  padding: 32px; 
+  padding: 32px;
   border-radius: 10px;
   width: 500px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .titulo {
   color: #00b4d8;
-  font-size: 32px; 
+  font-size: 32px;
   font-weight: bold;
 }
 
 form {
-  margin-top: 16px; 
+  margin-top: 16px;
   text-align: left;
 }
 
@@ -72,14 +72,14 @@ input {
 
 .mensaje-error {
   display: block;
-  color: black;
+  color: #0B1215;
   font-size: 12px;
   margin-top: 4px;
 }
 
 .campo-requerido {
-  font-size: 12px; 
-  color: black;
+  font-size: 12px;
+  color: #0B1215;
   font-weight: bold;
 }
 
@@ -136,7 +136,8 @@ input {
   margin-top: 10px;
   font-size: 14px;
 }
-.mensaje-error{
+
+.mensaje-error {
   color: #0077b6;
   font-weight: bold;
 }
