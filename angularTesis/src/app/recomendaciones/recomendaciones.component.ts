@@ -13,8 +13,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 export class RecomendacionesComponent {
 
   pregunta: string = '';
-  creditos: number | 'cualquiera' = 'cualquiera'; // permite cualquiera o número
-  tipo: string = 'cualquiera'; // 'cualquiera' | 'énfasis' | 'electivas' | 'complementarias'
+  creditos: number | 'cualquiera' = 'cualquiera';
+  tipo: string = 'cualquiera';
 
   materias: any[] = [];
   explicacion: string = '';
