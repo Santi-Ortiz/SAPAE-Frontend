@@ -122,7 +122,8 @@ export class SimulacionResultado implements OnInit {
     'nucleoSociohumanisticas': 'Núcleo de Socio-humanísticas',
     'enfasis': 'Énfasis',
     'complementaria': 'Complementaria',
-    'electiva': 'Electiva'
+    'electiva': 'Electiva',
+    'practicaProfesional': 'Práctica Profesional'
   };
 
   public obtenerNombre(tipoMateria: string): string {

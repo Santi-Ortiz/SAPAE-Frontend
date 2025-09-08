@@ -19,8 +19,8 @@
 
   <section class="preferencias-academicas">
     <h2>Nombre de la Simulación</h2>
+    <p>Ingresa un nombre para la simulación</p>
     <div class="form-group">
-      <label for="nombreSimulacion">Ingresa un nombre para la simulación</label>
       <input type="text" id="nombreSimulacion" name="nombreSimulacion" [(ngModel)]="nombreSimulacion" 
              placeholder="Ej: Mi simulación semestre 2025-2" maxlength="50" 
              (input)="validarNombreSimulacion()" />
@@ -28,6 +28,8 @@
       <small style="color: #0077b6;" *ngIf="nombreDuplicado"><strong>Ya tienes una simulación guardada con este nombre. Por favor, elige otro nombre.</strong></small>
     </div>
   </section>
+
+  <hr class="section-divider" />
 
   <section class="preferencias-academicas">
     <h2>Preferencias Académicas</h2>
@@ -166,6 +168,19 @@
         <label for="prioridad-enfasis">
           Énfasis
         </label>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <section class="preferencias-academicas">
+    <h2>Práctica Profesional</h2>
+    <p>Indica si deseas incluir la Práctica Profesional en la simulación.</p>
+    <div class="checkbox-group">
+      <div>
+        <input type="checkbox" id="practicaProfesional" [(ngModel)]="practicaProfesional" />
+        <label for="practicaProfesional">Práctica Profesional</label>
       </div>
     </div>
   </section>

@@ -86,7 +86,7 @@
 
 .preferencias-academicas h2 {
   margin-top: 0;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
   color: #005a8e;
   font-weight: 700;
   text-align: center;
@@ -253,6 +253,7 @@
   font-size: 16px;
   color: white;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding-left: 2px;
 }
 
 .checkbox-group input[type="checkbox"]:checked+label:before {
@@ -298,13 +299,12 @@
 }
 
 .mensaje-error {
-  color: #f6df81; 
   font-size: 14px;
   font-weight: 600;
   margin: 8px 0;
   padding: 8px 12px;
-  background-color: #f6df81;
-  border: 1px solid #f5c6cb;
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 1px solid #00B4D8;
   border-radius: 4px;
   animation: fadeIn 0.3s ease-in;
 }

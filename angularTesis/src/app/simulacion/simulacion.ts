@@ -39,6 +39,8 @@ export class SimulacionComponent implements OnInit {
     enfasis: false
   };
 
+  public practicaProfesional: boolean = false;
+
   public readonly maxSelecciones = 3;
   public readonly maxMaterias = 10;
   public camposIncompletos = false;
@@ -90,6 +92,7 @@ export class SimulacionComponent implements OnInit {
 
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
+    this.simulacionDTO!.practicaProfesional = this.practicaProfesional;
 
     // Guardar parámetros de la simulación
     const parametrosSimulacion = {
@@ -97,7 +100,8 @@ export class SimulacionComponent implements OnInit {
       tipoMatricula: this.tipoMatricula || 'No especificado',
       creditos: this.creditosInput,
       materias: this.materiasInput,
-      priorizaciones: nombresPriorizaciones
+      priorizaciones: nombresPriorizaciones,
+      practicaProfesional: this.practicaProfesional
     };
 
     this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
