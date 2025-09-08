@@ -72,14 +72,14 @@ input {
 
 .mensaje-error {
   display: block;
-  color: black;
+  color: #0B1215;
   font-size: 12px;
   margin-top: 4px;
 }
 
 .campo-requerido {
   font-size: 12px;
-  color: black;
+  color: #0B1215;
   font-weight: bold;
 }
 
@@ -138,7 +138,7 @@ input {
 }
 
 .mensaje-error {
-  color: #d63384;
+  color: #0077b6;
   font-weight: bold;
   font-size: 12px;
   margin-top: 4px;

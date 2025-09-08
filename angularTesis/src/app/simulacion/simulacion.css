@@ -22,14 +22,61 @@
   line-height: 1.5;
 }
 
+/* Información del proceso asíncrono */
+.info-proceso-asincrono {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid #00B4D8;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  text-align: left;
+}
+
+.info-proceso-asincrono h3 {
+  color: #0077B6;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+.info-proceso-asincrono ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-proceso-asincrono li {
+  padding: 8px 0;
+  position: relative;
+  padding-left: 25px;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-proceso-asincrono li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  color: #0077B6;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.info-proceso-asincrono li:last-child {
+  border-bottom: none;
+}
+
 /*--- ESTILOS PARA PREFERENCIA ACADÉMICA Y PRIORIZACIÓN DE MATERIAS --- */
 
 .preferencias-academicas,
 .priorizacion-materias {
-  max-width: 700px;
+  max-width: 800px;
   background-color: white;
   padding: 20px 10px;
-  margin-left: 145px;
+  margin-left: 85px;
   border-radius: 10px;
   margin-bottom: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -39,13 +86,43 @@
 
 .preferencias-academicas h2 {
   margin-top: 0;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
   color: #005a8e;
   font-weight: 700;
   text-align: center;
 }
 
 /*--- FORMULARIO PARA PREFERENCIAS ACADÉMICAS ---*/
+
+.preferencias-academicas p {
+  color: #6c757d;
+  font-size: 0.95em;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.form-block {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-block-subtitle {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #005a8e;
+  margin-bottom: 12px;
+  text-align: center;
+
+}
 
 .form-vertical {
   display: grid;
@@ -68,8 +145,9 @@
 }
 
 .form-group input[type="number"],
+.form-group input[type="text"],
 .form-group select {
-  width: 50%;
+  width: 80%;
   padding: 14px 18px;
   border: 2px solid #ced4da;
   border-radius: 10px;
@@ -87,6 +165,7 @@
 }
 
 .form-group input[type="number"]:focus,
+.form-group input[type="text"]:focus,
 .form-group select:focus {
   outline: none;
   border-color: #0077b6;
@@ -174,6 +253,7 @@
   font-size: 16px;
   color: white;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding-left: 2px;
 }
 
 .checkbox-group input[type="checkbox"]:checked+label:before {
@@ -195,8 +275,8 @@
   border: none;
   height: 2.5px;
   background-color: #d1d1d1;
-  margin: 40px auto;
-  width: 80%;
+  margin: 35px auto;
+  width: 90%;
 }
 
 /*--- BOTÓN PARA GENERAR SIMULACIÓN ---*/
@@ -219,13 +299,94 @@
 }
 
 .mensaje-error {
-  color: #dc3545;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   margin: 8px 0;
   padding: 8px 12px;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 1px solid #00B4D8;
   border-radius: 4px;
   animation: fadeIn 0.3s ease-in;
+}
+
+/* Boton historial de simulaciones*/
+
+.historial-button {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #0077B6;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.historial-button:hover {
+  background-color: #005f8a;
+}
+
+/* Modal para los campos incompletos de los formularios*/
+
+.modal-custom {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  text-align: center;
+  min-width: 320px;
+  opacity: 0;
+  transform: translateY(-30px) scale(0.98);
+  animation: fadeModal 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.modal-custom h3 {
+  margin-top: 0;
+  color: #00b4d8;
+  font-size: 1.4em;
+}
+
+.modal-custom button {
+  margin-top: 18px;
+  padding: 8px 22px;
+  background: #0077b6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-custom button:hover {
+  background: #005a8e;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeBackdrop 0.4s ease;
+}
+
+@keyframes fadeBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeModal {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

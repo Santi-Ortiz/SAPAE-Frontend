@@ -12,7 +12,7 @@ html, body {
 /* Sidebar */
 .sidebar {
   position: fixed;
-  width: 250px;
+  width: 210px;
   height: 100vh;  
   background-color: #0077B6;
   color: #BFE9FF;
@@ -83,7 +83,7 @@ html, body {
 
 /* Main content */
 .main-content {
-  margin-left: 250px; 
+  margin-left: 205px; 
   width: calc(100% - 220px);
   overflow-y: auto;
   flex: 1;

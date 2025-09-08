@@ -1,11 +1,20 @@
 <div #contenedor class="pensum-container">
   <div class="pensum-column">
+    
     <h1>Avance en el plan de estudios</h1>
     <p>
       Visualiza tu plan de estudios y el avance de las materias que has cursado.
-      Las asignaturas se activan según tus prerequisitos y, al hacer clic en una,
-      verás qué otras dependen de ella.
+      Además, en las <strong>materias faltantes</strong> al hacerle click podrás consultar sus
+      requisitos y las materias que se habilitan al aprobarlas.
     </p>
+    <div class="contenedor-leyenda">
+      <div class="leyenda-colores">
+        <div class="item"><span class="color perdida"></span> Materia Perdida</div>
+        <div class="item"><span class="color bloqueada"></span> Materia Cursada</div>
+        <div class="item"><span class="color actual"></span> Materia Actual</div>
+        <div class="item"><span class="color faltante"></span> Materia Faltante</div>
+      </div>  
+    </div>     
 
     <div class="semestres">
       
@@ -20,7 +29,7 @@
           [attr.data-semestre]="grupo.semestre"
           [attr.data-requisitos]="'[]'"     
           (click)="seleccionarMateria(getCodigo(materia))"            
-          [ngClass]="{ 'bloqueada': esMateriaBloqueada(materia) }"
+          [ngClass]="materia.cssClass"
         >
           <strong>{{ materia.titulo }}</strong>
           <span class="codigo">{{ getCodigo(materia) }}</span> 
@@ -46,13 +55,7 @@
         </div>
       </div>
     </div>
-    <svg #svgRef class="svg-lines"></svg>
-    <div *ngIf="mostrarMensaje"
-        class="mensaje-pop"
-        [style.right.px]="mensajeX"
-        [style.top.px]="mensajeY">
-      {{ mensajeSinRequisitos }}
-    </div>    
+    <svg #svgRef class="svg-lines"></svg>   
   </div>
 
 </div>

@@ -228,7 +228,6 @@ button:hover {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0,180,216,.20);
 }
-/* cuando está “activo” (aria-pressed="true") se marca con borde y check */
 .chip-any[aria-pressed="true"] {
   background: #00B4D8;
   border-color: #8de1f1;
@@ -292,3 +291,21 @@ button:hover {
   border-color: #0077B6;
   box-shadow: 0 0 0 3px rgba(0,119,182,0.15);
 }
+
+/* ===== Nota fuera del cuadro azul, alineada a la derecha ===== */
+.aviso-validacion {
+  margin: 10px 0 0 auto;             /* empuja la caja hacia la derecha */
+  width: min(720px, 92%);             /* tamaño compacto y responsivo */
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  background: #ffffff;                /* fuera del fondo azul */
+  border: 1px solid #cfe9f7;
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.07);
+  border-left: 4px solid #00B4D8;
+
+  color: #0b3550;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.aviso-validacion strong { color: #0077B6; }

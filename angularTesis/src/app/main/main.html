@@ -30,40 +30,45 @@
 
 <!-- historial -->
 <div class="historial-container">
-  <!-- <h1 id="historial">Progreso académico</h1> -->
-  <p class="description">
-    Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
-    historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
-  </p>
+    <!-- <h1 id="historial">Progreso académico</h1> -->
+    <p class="description">
+      Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
+       historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
+    </p>
+  
+    <div class="form-wrapper">
+      <div class="form">
+        <input type="file" (change)="onFileSelected($event)" />
+        <button (click)="onSubmit()">Cargar PDF</button>
+      </div>
+    </div>
 
-  <div class="form-wrapper">
-    <div class="form">
-      <input type="file" (change)="onFileSelected($event)" />
-      <button (click)="onSubmit()">Cargar PDF</button>
+    <!-- Spinner -->
+    <div *ngIf="cargando" class="mensaje-cargando">
+      <div class="spinner"></div>
+      <p>Cargando archivo, un momento por favor...</p>
+    </div>
+  
+    <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
+  
+    <div class="tutorial-box">
+      <div class="tutorial-text">
+        <h2>¿Cómo descargar mi informe de avance?</h2>
+        <p>
+          Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para comenzar a planear tu camino académico.
+        </p>
+      </div>
+      <div class="tutorial-video">
+        <video controls width="400">
+          <source src="assets/videos/VideoInforme.mp4" type="video/mp4" />
+          Tu navegador no soporta el video.
+        </video>
+      </div>
     </div>
   </div>
-
-  <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
-
-  <div class="tutorial-box">
-    <div class="tutorial-text">
-      <h2>¿Cómo descargar mi informe de avance?</h2>
-      <p>
-        Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para
-        comenzar a planear tu camino académico.
-      </p>
-    </div>
-    <div class="tutorial-video">
-      <video controls width="400">
-        <source src="assets/videos/VideoInforme.mp4" type="video/mp4" />
-        Tu navegador no soporta el video.
-      </video>
-    </div>
-  </div>
-</div>
-
-
-<!-- Funcionalidades -->
+  
+  
+  <!-- Funcionalidades -->
 <section class="features">
   <h2>Explora las funcionalidades</h2>
   <p class="description">

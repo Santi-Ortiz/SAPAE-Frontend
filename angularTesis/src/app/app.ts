@@ -5,6 +5,7 @@ import { NgIf, NgFor, NgClass, } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
+import { NotificacionesSimulacionComponent } from './notificaciones-simulacion/notificaciones-simulacion.component';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,8 @@ import { AuthService } from './services/auth.service';
     NgIf,
     RouterOutlet,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NotificacionesSimulacionComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']

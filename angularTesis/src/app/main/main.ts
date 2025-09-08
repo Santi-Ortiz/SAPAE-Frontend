@@ -17,6 +17,7 @@ export class Main {
 
   historial: Progreso = new Progreso();
   mostrarMenu = false;
+  cargando: boolean = false;
 
   constructor(
     private lecturaService: LecturaService,
@@ -92,15 +93,18 @@ export class Main {
       this.historial.error = 'Primero seleccione un archivo PDF.';
       return;
     }
+    this.cargando = true;
 
     this.lecturaService.subirArchivo(this.historial.archivoSeleccionado).subscribe({
       next: (respuesta) => {
         this.historialService.setHistorial(respuesta);
-        this.router.navigate(['/historial']);
+        this.router.navigate(['/historial']); // Redirige con los datos
+        this.cargando = false;
       },
       error: (err) => {
         console.error('Error al subir archivo:', err);
         this.historial.error = 'El archivo no corresponde a un informe de avance.';
+        this.cargando = false;
       }
     });
   }
