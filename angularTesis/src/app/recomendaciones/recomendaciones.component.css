@@ -28,6 +28,14 @@
   gap: 16px;
 }
 
+/* NUEVO: bloque que envuelve textarea + nota para alinear y compartir ancho */
+.input-block {
+  width: 100%;
+  max-width: 600px;    /* igual que el textarea */
+  display: flex;
+  flex-direction: column;
+}
+
 textarea {
   width: 100%;
   max-width: 600px;
@@ -152,6 +160,8 @@ button:hover { background-color: #00B4D8; }
     0 8px 24px rgba(0,119,182,0.10),
     inset 0 1px 0 rgba(255,255,255,0.8);
 }
+
+/* Botones + y − (centrado perfecto) */
 .chip-btn {
   width: 40px;
   height: 40px;
@@ -162,16 +172,33 @@ button:hover { background-color: #00B4D8; }
   font-size: 20px;
   font-weight: 800;
   cursor: pointer;
-  line-height: 1;
-  display: grid;
-  place-items: center;
+  display: flex;               /* <-- centrado */
+  align-items: center;         /* <-- centrado vertical */
+  justify-content: center;     /* <-- centrado horizontal */
+  padding: 0;                  /* evita desplazamientos */
+  line-height: 1;              /* evita asc/desc raros */
   transition: transform .06s ease, box-shadow .15s ease, background .15s ease;
   box-shadow: 0 4px 10px rgba(0, 119, 182, 0.25);
 }
+.chip-btn .sym {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+  pointer-events: none;        /* icono no capta clicks */
+}
 .chip-btn:hover { background: #006aa3; }
 .chip-btn:active { transform: translateY(1px) scale(.98); }
-.chip-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,119,182,.18); }
-.chip-btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+.chip-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,119,182,.18);
+}
+.chip-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Valor central */
 .chip-value {
   min-width: 120px;
   text-align: center;
@@ -184,6 +211,8 @@ button:hover { background-color: #00B4D8; }
   border: 1px solid #cfe9f7;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
 }
+
+/* Botón "Cualquiera" estilo toggle */
 .chip-any {
   border: 1px solid transparent;
   border-radius: 999px;
@@ -197,15 +226,36 @@ button:hover { background-color: #00B4D8; }
 }
 .chip-any:hover { background: #00a3c4; }
 .chip-any:active { transform: translateY(1px) scale(.98); }
-.chip-any:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,180,216,.20); }
+.chip-any:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,180,216,.20);
+}
 .chip-any[aria-pressed="true"] {
   background: #00B4D8;
   border-color: #8de1f1;
   box-shadow: inset 0 -2px 0 rgba(0,0,0,.05);
 }
-.chip-any[aria-pressed="true"]::before { content: "✓"; font-weight: 900; margin-right: 8px; }
-.hint { margin-top: 2px; font-size: 13px; color: #4a6072; }
+.chip-any[aria-pressed="true"]::before {
+  content: "✓";
+  font-weight: 900;
+  margin-right: 8px;
+}
 
+/* Hint genérico */
+.hint {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #4a6072;
+}
+
+/* NUEVO: Hint para nota del modelo debajo del textarea
+   (mismo ancho y alineación que el textarea, más pegado) */
+.nota-modelo {
+  width: 100%;
+  margin-top: 6px;   /* un poco más pegado al textarea */
+}
+
+/* Select estilizado (tipo de materia) */
 .tipo-materia {
   display: grid;
   grid-template-columns: 1fr;
@@ -214,7 +264,10 @@ button:hover { background-color: #00B4D8; }
   width: 100%;
   max-width: 260px;
 }
-.tipo-materia label { font-weight: 600; color: #1a1a1a; }
+.tipo-materia label {
+  font-weight: 600;
+  color: #1a1a1a;
+}
 .tipo-materia select {
   width: 100%;
   padding: 12px 14px;
@@ -236,24 +289,6 @@ button:hover { background-color: #00B4D8; }
 }
 .tipo-materia select:hover { border-color: #00B4D8; }
 .tipo-materia select:focus { border-color: #0077B6; box-shadow: 0 0 0 3px rgba(0,119,182,0.15); }
-
-/* ===== Nota fuera del cuadro azul, alineada a la derecha ===== */
-.aviso-validacion {
-  margin: 10px 0 0 auto;
-  width: min(720px, 92%);
-  padding: 10px 12px;
-  border-radius: 10px;
-
-  background: #ffffff;
-  border: 1px solid #cfe9f7;
-  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.07);
-  border-left: 4px solid #00B4D8;
-
-  color: #0b3550;
-  font-size: 13px;
-  line-height: 1.45;
-}
-.aviso-validacion strong { color: #0077B6; }
 
 /* ===== Sugerencias (afinidad moderada) ===== */
 .sugerencias-box {

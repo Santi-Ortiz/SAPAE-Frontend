@@ -6,8 +6,15 @@
   </p>
 
   <div class="formulario">
-    <textarea [(ngModel)]="pregunta" name="pregunta"
-      placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+    <!-- Bloque del textarea + nota SIEMPRE visible y alineada -->
+    <div class="input-block">
+      <textarea [(ngModel)]="pregunta" name="pregunta"
+        placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+
+      <div class="hint nota-modelo">
+        La información proporcionada por el modelo debe ser validada por el estudiante.
+      </div>
+    </div>
 
     <!-- Tipo de materia -->
     <div class="tipo-materia">
@@ -25,25 +32,41 @@
       <label for="creditos">Créditos de la materia</label>
 
       <div class="creditos-chip pretty">
-        <button type="button" class="chip-btn chip-btn--minus"
-                (click)="decCreditos()" [disabled]="cargando || creditos === 'cualquiera'">−</button>
+        <button
+          type="button"
+          class="chip-btn chip-btn--minus"
+          (click)="decCreditos()"
+          [disabled]="cargando || creditos === 'cualquiera'"
+          aria-label="Disminuir créditos"
+        ><span class="sym">−</span></button>
 
-        <div class="chip-value">
+        <div class="chip-value" title="Créditos seleccionados" aria-live="polite">
           {{ creditos === 'cualquiera' ? 'Cualquiera' : creditos }}
         </div>
 
-        <button type="button" class="chip-btn chip-btn--plus"
-                (click)="incCreditos()" [disabled]="cargando">+</button>
+        <button
+          type="button"
+          class="chip-btn chip-btn--plus"
+          (click)="incCreditos()"
+          [disabled]="cargando"
+          aria-label="Aumentar créditos"
+        ><span class="sym">+</span></button>
 
-        <button type="button" class="chip-any"
-                (click)="setCualquieraCreditos()"
-                [disabled]="cargando"
-                [attr.aria-pressed]="(creditos === 'cualquiera') ? 'true' : 'false'">
+        <button
+          type="button"
+          class="chip-any"
+          (click)="setCualquieraCreditos()"
+          [disabled]="cargando"
+          [attr.aria-pressed]="(creditos === 'cualquiera') ? 'true' : 'false'"
+        >
           Cualquiera
         </button>
       </div>
 
-      <div class="hint" *ngIf="creditos === 'cualquiera'">Sin restricción de créditos.</div>
+      <!-- Hint de créditos -->
+      <div class="hint" *ngIf="creditos === 'cualquiera'">
+        Sin restricción de créditos.
+      </div>
     </div>
 
     <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>
@@ -61,7 +84,7 @@
     <p>{{ error }}</p>
   </div>
 
-  <!-- Tabla 1: Resultados principales (fuertes) -->
+  <!-- Resultados principales (tabla 1) -->
   <div *ngIf="hasSearched && !cargando && materias.length > 0" class="respuesta-box">
     <h3 class="titulo-respuesta">Materias recomendadas</h3>
 
@@ -93,7 +116,7 @@
     </p>
   </div>
 
-  <!-- Tabla 2: Resultados sugeridos (afinidad moderada) -->
+  <!-- Resultados sugeridos (tabla 2) -->
   <div *ngIf="hasSearched && !cargando && materiasSugeridas.length > 0" class="sugerencias-box">
     <h3 class="titulo-respuesta">Otras asignaturas relacionadas</h3>
     <p class="sugerencias-parrafo">
@@ -124,14 +147,8 @@
     </table>
   </div>
 
-  <!-- Solo después de buscar, si no hay nada en ninguna tabla -->
+  <!-- Caso sin resultados (solo después de buscar) -->
   <div *ngIf="hasSearched && !cargando && !error && materias.length === 0 && materiasSugeridas.length === 0" class="respuesta-box">
     <h3 class="titulo-respuesta">No se encontraron materias que coincidan con tu consulta.</h3>
   </div>
-
-  <!-- Nota (si hay cualquier resultado) -->
-  <p *ngIf="hasSearched && !cargando && (materias.length > 0 || materiasSugeridas.length > 0)" class="aviso-validacion">
-    <strong>Nota:</strong> la información proporcionada por el modelo debe ser validada por el estudiante.
-  </p>
-  
 </section>
