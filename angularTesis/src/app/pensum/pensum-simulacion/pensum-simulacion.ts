@@ -207,7 +207,9 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
   }
 
   seleccionarMateria(codigo: string) {
+    console.log(`MATERIA SELECCIONADA: ${codigo}`);
     const codSel = this.norm(codigo);
+
     if (this.materiasCursadasCodigos.has(codSel)) return;
 
     this.conexionesActivas = [codSel];
@@ -217,20 +219,29 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
       try {
         const codMat = this.norm(materia.codigo);
         const parsed = JSON.parse(materia.requisitosJson || '[]');
-        const requisitos: string[] = (Array.isArray(parsed) ? parsed : []).map(r => this.norm(r));
+        const requisitos: string[] = (Array.isArray(parsed) ? parsed : [])
+          .map(r => this.norm(r));
 
+        /* La seleccionada es requisito de otra (flecha de salida)
         if (requisitos.includes(codSel)) {
           this.conexionesActivas.push(codMat);
           tieneConexiones = true;
-        }
+        }*/
+
       } catch {}
     });
 
+    // Quitar duplicados y asegurar todo normalizado
     this.conexionesActivas = Array.from(new Set(this.conexionesActivas.map(c => this.norm(c))));
+
+    // Quitar resaltados previos
     document.querySelectorAll('.caja').forEach(c => c.classList.remove('resaltada'));
 
+    // Resaltar origen con el MISMO id del HTML
     const origenBox = document.getElementById(codSel);
-    if (origenBox) origenBox.classList.add('resaltada');
+    if (origenBox) {
+      origenBox.classList.add('resaltada');
+    }
 
     this.dibujarConexiones();
   }
@@ -263,100 +274,219 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
       llegadas: Map<string, string[]>,
       contenedor: HTMLElement
     ) {
-    
-      // Marcadores de las flechas 
+      // --- Marcadores ---
+      d3svg.select("defs").remove();
       const defs = d3svg.append("defs");
       ["clara", "oscura"].forEach(tipo => {
         defs.append("marker")
-        .attr("id", `flecha-${tipo}-izquierda`)
-        .attr("viewBox", "0 -3 6 6")
-        .attr("refX", 6)
-        .attr("refY", 0)
-        .attr("markerWidth", 4)
-        .attr("markerHeight", 4)
-        .attr("orient", "0")
-        .append("path")
-        .attr("d", "M0,-3L6,0L0,3")
-        .attr("fill", tipo === "oscura" ? "#0077B6" : "#90E0EF");
+          .attr("id", `flecha-${tipo}-izquierda`)
+          .attr("viewBox", "0 -3 6 6")
+          .attr("refX", 6)
+          .attr("refY", 0)
+          .attr("markerWidth", 4)
+          .attr("markerHeight", 4)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-3L6,0L0,3")
+          .attr("fill", tipo === "oscura" ? "#0077B6" : "#90E0EF");
       });
     
-      const svg = d3svg.node();
-      if (!svg) return;
+      d3svg.selectAll("g.capa-lineas, g.capa-lineas-resaltadas").remove();
+      const capaLineas = d3svg.append("g").attr("class", "capa-lineas");
+      const capaLineasResaltadas = d3svg.append("g").attr("class", "capa-lineas-resaltadas");
     
-      // Dibujar flechas 
+      const columnas = Array.from(contenedor.querySelectorAll<HTMLElement>(".semestre-columna"));
+      const gapCentersX: number[] = [];
+      for (let i = 0; i < columnas.length - 1; i++) {
+        const rightEdge = columnas[i].offsetLeft + columnas[i].offsetWidth;
+        const nextLeft = columnas[i + 1].offsetLeft;
+        gapCentersX.push(rightEdge + (nextLeft - rightEdge) / 2);
+      }
+    
+      const offsetHorizBase = 16;
+      const laneSpacingY = 12;
+      const laneSpacingX = 16;
+      const offsetLlegada = 12;
+      const shortRun = 14;
+    
+      const colGapCentersY: Array<number[]> = columnas.map(col => {
+        const cajasEnCol = Array.from(col.querySelectorAll<HTMLElement>(".caja"))
+          .sort((a, b) => a.offsetTop - b.offsetTop);
+        if (cajasEnCol.length <= 1) return [];
+        const gaps: number[] = [];
+        for (let j = 0; j < cajasEnCol.length - 1; j++) {
+          const bottom = cajasEnCol[j].offsetTop + cajasEnCol[j].offsetHeight;
+          const topNext = cajasEnCol[j + 1].offsetTop;
+          gaps.push(bottom + (topNext - bottom) / 2);
+        }
+        return gaps;
+      });
+    
+      const lineGenerator = d3.line<[number, number]>()
+        .x(d => d[0])
+        .y(d => d[1])
+        .curve(d3.curveStep);
+    
+      const cellSize = Math.max(7, Math.round(Math.max(laneSpacingX, laneSpacingY) * 0.1));
+      const occupied: Set<string> = new Set();
+      const keyOf = (gx: number, gy: number) => `${gx},${gy}`;
+    
+      function toGridCoord(x: number, y: number): [number, number] {
+        return [Math.round(x / cellSize), Math.round(y / cellSize)];
+      }
+    
+      function fromGridCoord(gx: number, gy: number): [number, number] {
+        return [gx * cellSize, gy * cellSize];
+      }
+    
+      function findFreeCellNear(gx0: number, gy0: number, maxRadius = 8): [number, number] | null {
+        for (let r = 0; r <= maxRadius; r++) {
+          for (let dx = -r; dx <= r; dx++) {
+            const dyCandidates = [-r, r];
+            for (const dy of dyCandidates) {
+              const gx = gx0 + dx;
+              const gy = gy0 + dy;
+              if (!occupied.has(keyOf(gx, gy))) return [gx, gy];
+            }
+          }
+          for (let dy = -r + 1; dy <= r - 1; dy++) {
+            const dxCandidates = [-r, r];
+            for (const dx of dxCandidates) {
+              const gx = gx0 + dx;
+              const gy = gy0 + dy;
+              if (!occupied.has(keyOf(gx, gy))) return [gx, gy];
+            }
+          }
+        }
+        return null;
+      }
+    
+      function occupySegmentGrid(x1: number, y1: number, x2: number, y2: number) {
+        const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+        const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+        const [gx1] = toGridCoord(minX, minY);
+        const [gx2] = toGridCoord(maxX, minY);
+        const [, gy1] = toGridCoord(minX, minY);
+        const [, gy2] = toGridCoord(minX, maxY);
+    
+        for (let gx = Math.min(gx1, gx2); gx <= Math.max(gx1, gx2); gx++) {
+          for (let gy = Math.min(gy1, gy2); gy <= Math.max(gy1, gy2); gy++) {
+            occupied.add(keyOf(gx, gy));
+          }
+        }
+      }
+    
+      function reservarEnGrid(x: number, y: number): [number, number] {
+        const [gx0, gy0] = toGridCoord(x, y);
+        const free = findFreeCellNear(gx0, gy0, 12) || [gx0, gy0];
+        occupied.add(keyOf(free[0], free[1]));
+        return fromGridCoord(free[0], free[1]);
+      }
+    
+      const verticalLaneCounters: Map<string, number> = new Map();
+    
       cajas.forEach(destino => {
         const requisitos: string[] = llegadas.get(destino.id) || [];
         const totalLlegadas = requisitos.length || 1;
-        let llegadaIndex = 0;
     
         requisitos.forEach(origenId => {
           const origen = document.getElementById(origenId);
           if (!origen) return;
     
           const totalSalidas = salidas.get(origenId)?.length || 1;
-          const salidaIndex = salidas.get(origenId)?.indexOf(destino.id) || 0;
+          const salidaIndex = salidas.get(origenId)?.indexOf(destino.id) ?? 0;
     
-          const origenLeft = origen.offsetLeft;
-          const origenTop = origen.offsetTop;
-          const origenWidth = origen.offsetWidth;
-          const origenHeight = origen.offsetHeight;
-  
-          const destinoLeft = destino.offsetLeft;
-          const destinoTop = destino.offsetTop;
-          const destinoHeight = destino.offsetHeight;
-  
-          // Flecha desde borde derecho del origen hasta borde izquierdo del destino
-          const xOrigen = origenLeft + origenWidth;
-          const yOrigen =
-            origenTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origenHeight;
-  
-          const xDestino = destinoLeft;
-          const yDestino =
-            destinoTop + ((llegadaIndex + 1) / (totalLlegadas + 1)) * destinoHeight;
-  
-          llegadaIndex++;
+          const xOrigen = origen.offsetLeft + origen.offsetWidth;
+          const yOrigen = origen.offsetTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origen.offsetHeight;
+          const xDestino = destino.offsetLeft;
     
-          const esActiva =
-          this.conexionesActivas.includes(destino.id) ||
-          this.conexionesActivas.includes(origenId);
-  
+          // --- distribuir flechas verticalmente ---
+          if (!verticalLaneCounters.has(destino.id)) verticalLaneCounters.set(destino.id, 0);
+          const slotIndex = verticalLaneCounters.get(destino.id)!;
+          const marginY = 4;
+          const heightCaja = destino.offsetHeight - 2 * marginY;
+          const stepY = heightCaja / totalLlegadas;
+          const yDestino = destino.offsetTop + marginY + stepY * slotIndex + stepY / 2;
+          verticalLaneCounters.set(destino.id, slotIndex + 1);
+    
+          const esActiva = this.conexionesActivas.includes(destino.id) || this.conexionesActivas.includes(origenId);
           const colorLinea = esActiva ? "#0077B6" : "#90E0EF";
           const tipo = esActiva ? "oscura" : "clara";
     
-          // margen horizontal base más pequeño
-          const margenBase = 15;  
-  
-          // separa las líneas para que no se sobrepongan
-          const margenExtra = (salidaIndex - (totalSalidas - 1) / 2) * 12;
-  
-          // coordenada intermedia en X (primer giro)
-          const puntoIntermedioX = xOrigen + margenBase + margenExtra;
-  
+          const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
+          const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
+    
+          let rawXChannel: number;
+          if (colOriIdx < colDestIdx) {
+            const gapX = gapCentersX[colOriIdx] ?? (xOrigen + shortRun);
+            rawXChannel = Math.min(xOrigen + shortRun, gapX - 8) + salidaIndex * laneSpacingX;
+          } else if (colOriIdx > colDestIdx) {
+            const gapX = gapCentersX[Math.max(0, colOriIdx - 1)] ?? (xOrigen - shortRun);
+            rawXChannel = Math.max(xOrigen - shortRun, gapX + 8) - salidaIndex * laneSpacingX;
+          } else {
+            rawXChannel = xOrigen + Math.min(shortRun, offsetHorizBase ?? 30) + salidaIndex * laneSpacingX;
+          }
+    
+          const channelYraw = (function chooseChannelY() {
+            const gaps = colGapCentersY[colDestIdx] || [];
+            for (let i = 0; i < gaps.length; i++) {
+              const g = gaps[i];
+              if (g > Math.min(yOrigen, yDestino) + 2 && g < Math.max(yOrigen, yDestino) - 2) return g;
+            }
+            if (gaps.length > 0) {
+              let best = gaps[0];
+              let bestDist = Math.abs(best - (yOrigen + yDestino) / 2);
+              for (let i = 1; i < gaps.length; i++) {
+                const d = Math.abs(gaps[i] - (yOrigen + yDestino) / 2);
+                if (d < bestDist) { best = gaps[i]; bestDist = d; }
+              }
+              return best;
+            }
+            return yOrigen + (yDestino - yOrigen) * 0.2;
+          })();
+    
+          const [xChannelGrid, channelYGrid] = reservarEnGrid(rawXChannel, channelYraw);
+    
+          occupySegmentGrid(xOrigen, yOrigen, xChannelGrid, yOrigen);
+          occupySegmentGrid(xChannelGrid, yOrigen, xChannelGrid, channelYGrid);
+          occupySegmentGrid(xChannelGrid, channelYGrid, xDestino - offsetLlegada, channelYGrid);
+          occupySegmentGrid(xDestino - offsetLlegada, channelYGrid, xDestino - offsetLlegada, yDestino);
+    
           const puntosRuta: [number, number][] = [
             [xOrigen, yOrigen],
-            [puntoIntermedioX, yOrigen],
-            [puntoIntermedioX, yDestino],
+            [xChannelGrid, yOrigen],
+            [xChannelGrid, channelYGrid],
+            [xDestino - offsetLlegada, channelYGrid],
+            [xDestino - offsetLlegada, yDestino],
             [xDestino, yDestino]
           ];
-  
-  
-          const lineGenerator = d3.line<[number, number]>()
-            .x(d => d[0])
-            .y(d => d[1])
-            .curve(d3.curveStep);
     
-          const path = d3svg.append("path")
+          if (Math.abs(yDestino - yOrigen) < 20 && colOriIdx !== colDestIdx) {
+            const puntosDirectos: [number, number][] = [
+              [xOrigen, yOrigen],
+              [xChannelGrid, yOrigen],
+              [xDestino - offsetLlegada, yDestino],
+              [xDestino, yDestino]
+            ];
+            if (Math.abs(puntosDirectos[2][1] - yOrigen) < Math.abs(channelYGrid - yOrigen)) {
+              puntosRuta.splice(0, puntosRuta.length, ...puntosDirectos);
+            }
+          }
+    
+          const capa = esActiva ? capaLineasResaltadas : capaLineas;
+          const path = capa.append("path")
             .attr("d", lineGenerator(puntosRuta)!)
             .attr("fill", "none")
             .attr("stroke", colorLinea)
-            .attr("stroke-width", esActiva ? 3 : 2)
+            .attr("stroke-width", esActiva ? 2 : 2)
             .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
     
-            if (esActiva) {
-              path.classed("resaltada", true);
-              destino.classList.add("resaltada");
-              origen.classList.add("resaltada");
-            } 
+          if (esActiva) {
+            path.classed("resaltada", true);
+            destino.classList.add("resaltada");
+            origen.classList.add("resaltada");
+            path.raise();
+          }
         });
       });
     }
