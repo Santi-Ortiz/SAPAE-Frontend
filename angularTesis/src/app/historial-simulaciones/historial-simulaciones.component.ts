@@ -46,7 +46,7 @@ export class HistorialSimulacionesComponent implements OnInit {
     }
     
     // Navegar a la vista de resultado
-    this.router.navigate(['/simulacion/mostrar']);
+    this.router.navigate(['/simulaciones/mostrar']);
   }
 
   eliminarSimulacion(simulacion: SimulacionGuardada): void {
@@ -74,7 +74,7 @@ export class HistorialSimulacionesComponent implements OnInit {
   }
 
   volverSimulacion(): void {
-    this.router.navigate(['/simulacion']);
+    this.router.navigate(['/simulaciones']);
   }
 
   formatearFecha(fecha: Date): string {

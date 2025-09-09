@@ -75,13 +75,13 @@ export class NotificacionesSimulacionComponent implements OnInit, OnDestroy {
         
         // Si ya estamos en la ruta de simulación, forzar la recarga del componente
         const currentUrl = this.router.url;
-        if (currentUrl === '/simulacion/mostrar') {
+        if (currentUrl === '/simulaciones/mostrar') {
           // Navegar a una ruta dummy y luego de vuelta para forzar la reinicialización
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/simulacion/mostrar']);
+            this.router.navigate(['/simulaciones/mostrar']);
           });
         } else {
-          this.router.navigate(['/simulacion/mostrar']);
+          this.router.navigate(['/simulaciones/mostrar']);
         }
       },
       error: (error) => {

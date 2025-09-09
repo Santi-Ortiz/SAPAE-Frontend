@@ -13,7 +13,7 @@ import { SimulacionJobStatus } from '../dtos/simulacion-job-status.dto';
 })
 export class SimulacionService {
 
-  private apiUrl = `${environment.SERVER_URL}/api/simulaciones`;
+  private apiUrl = `${environment.SERVER_URL}`;
   private readonly STORAGE_KEY = 'resultadoSimulacion';
   private readonly JOBS_STORAGE_KEY = 'simulacionJobs';
   private readonly NOMBRE_SIMULACION_KEY = 'nombreSimulacionActual';
@@ -64,17 +64,17 @@ export class SimulacionService {
 
   // Método para iniciar simulación asíncrona
   iniciarSimulacion(simulacionDTO: SimulacionDTO): Observable<SimulacionJobResponse> {
-    return this.http.post<SimulacionJobResponse>(`${environment.SERVER_URL}/api/simulacion/iniciar`, simulacionDTO);
+    return this.http.post<SimulacionJobResponse>(`${environment.SERVER_URL}/api/simulaciones/iniciar`, simulacionDTO);
   }
 
   // Método para consultar estado de un job
   consultarEstadoJob(jobId: string): Observable<SimulacionJobStatus> {
-    return this.http.get<SimulacionJobStatus>(`${environment.SERVER_URL}/api/simulacion/estado/${jobId}`);
+    return this.http.get<SimulacionJobStatus>(`${environment.SERVER_URL}/api/simulaciones/estado/${jobId}`);
   }
 
   // Método para obtener resultado de un job completado
   obtenerResultadoJob(jobId: string): Observable<any> {
-    return this.http.get<any>(`${environment.SERVER_URL}/api/simulacion/resultado/${jobId}`);
+    return this.http.get<any>(`${environment.SERVER_URL}/api/simulaciones/resultado/${jobId}`);
   }
 
   // Agregar job al monitoreo
@@ -224,7 +224,7 @@ export class SimulacionService {
 
   // Métodos existentes
   postSimulacion(simulacionDTO: SimulacionDTO): Observable<any> {
-    return this.http.post(`${environment.SERVER_URL}/api/simulacion`, simulacionDTO);
+    return this.http.post(`${environment.SERVER_URL}/api/simulaciones`, simulacionDTO);
   }
 
   setSimulacion(simulacion: any): void {

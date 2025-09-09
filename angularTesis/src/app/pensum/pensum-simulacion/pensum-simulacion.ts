@@ -387,8 +387,8 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
       });
     });
   
-    console.log("Llegadas simuladas (una sola vez):", this.llegadasGlobal);
-    console.log("Salidas simuladas (una sola vez):", this.salidasGlobal);
+    //console.log("Llegadas simuladas (una sola vez):", this.llegadasGlobal);
+    //console.log("Salidas simuladas (una sola vez):", this.salidasGlobal);
   
     const cajas = Array.from(document.querySelectorAll<HTMLElement>(".caja"));
   
@@ -429,6 +429,6 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public volverSimulacion(): void {
-    this.router.navigate(["/simulacion/mostrar"]);
+    this.router.navigate(["/simulaciones/mostrar"]);
   }
 }
