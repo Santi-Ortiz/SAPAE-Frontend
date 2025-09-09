@@ -11,7 +11,7 @@ export class ProyeccionService {
 
   private apiUrl = `${environment.SERVER_URL}/api/proyecciones`;
 
-  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0, 0));
+  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0));
 
   constructor(private http: HttpClient) { }
 

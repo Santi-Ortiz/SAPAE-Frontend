@@ -33,8 +33,8 @@ export class AuthService {
       observe: 'response'
     }).pipe(
       map(response => {
-        console.log('Login response headers:', response.headers);
-        console.log('Login response body:', response.body);
+        //console.log('Login response headers:', response.headers);
+        //console.log('Login response body:', response.body);
 
         if (response.body) {
           this.currentUserSubject.next(true);

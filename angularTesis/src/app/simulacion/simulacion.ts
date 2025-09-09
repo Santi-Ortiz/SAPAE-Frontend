@@ -81,11 +81,12 @@ export class SimulacionComponent implements OnInit {
     }
 
     const proyeccionDTO = {
-      id: 1,
       semestre: (this.semestreInput + this.progresoActual.semestre!),
       numMaxCreditos: this.creditosInput,
       numMaxMaterias: this.materiasInput
     }
+
+    console.log('Proyección DTO:', proyeccionDTO);
 
     const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
     const nombresPriorizaciones = this.obtenerNombresPriorizacionesSeleccionadas();
@@ -93,6 +94,8 @@ export class SimulacionComponent implements OnInit {
     this.simulacionDTO!.proyeccion = proyeccionDTO;
     this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
     this.simulacionDTO!.practicaProfesional = this.practicaProfesional;
+
+    console.log('Simulación DTO completo:', this.simulacionDTO);
 
     // Guardar parámetros de la simulación
     const parametrosSimulacion = {
