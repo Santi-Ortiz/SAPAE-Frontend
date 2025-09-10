@@ -6,8 +6,15 @@
   </p>
 
   <div class="formulario">
-    <textarea [(ngModel)]="pregunta" name="pregunta"
-      placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+    <!-- Bloque del textarea + nota SIEMPRE visible y alineada -->
+    <div class="input-block">
+      <textarea [(ngModel)]="pregunta" name="pregunta"
+        placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+
+      <div class="hint nota-modelo">
+        La información proporcionada por el modelo debe ser validada por el estudiante.
+      </div>
+    </div>
 
     <!-- Tipo de materia -->
     <div class="tipo-materia">
@@ -31,7 +38,7 @@
           (click)="decCreditos()"
           [disabled]="cargando || creditos === 'cualquiera'"
           aria-label="Disminuir créditos"
-        >−</button>
+        ><span class="sym">−</span></button>
 
         <div class="chip-value" title="Créditos seleccionados" aria-live="polite">
           {{ creditos === 'cualquiera' ? 'Cualquiera' : creditos }}
@@ -43,7 +50,7 @@
           (click)="incCreditos()"
           [disabled]="cargando"
           aria-label="Aumentar créditos"
-        >+</button>
+        ><span class="sym">+</span></button>
 
         <button
           type="button"
@@ -56,7 +63,7 @@
         </button>
       </div>
 
-      <!-- Mensaje de sin restricción -->
+      <!-- Hint de créditos -->
       <div class="hint" *ngIf="creditos === 'cualquiera'">
         Sin restricción de créditos.
       </div>
@@ -72,14 +79,14 @@
   </div>
 
   <!-- Error -->
-  <div *ngIf="error && !cargando" class="respuesta-box">
+  <div *ngIf="hasSearched && error && !cargando" class="respuesta-box">
     <h3 class="titulo-respuesta">Error:</h3>
     <p>{{ error }}</p>
   </div>
 
-  <!-- Resultado -->
-  <div *ngIf="materias.length > 0 && !cargando" class="respuesta-box">
-    <h3 class="titulo-respuesta">Materias recomendadas:</h3>
+  <!-- Resultados principales (tabla 1) -->
+  <div *ngIf="hasSearched && !cargando && materias.length > 0" class="respuesta-box">
+    <h3 class="titulo-respuesta">Materias recomendadas</h3>
 
     <table class="tabla-materias">
       <thead>
@@ -107,15 +114,41 @@
     <p *ngIf="explicacion" class="explicacion-texto">
       <strong>Explicación:</strong> {{ explicacion }}
     </p>
-  </div> <!-- /respuesta-box -->
+  </div>
 
-  <!-- Nota fuera del cuadro azul, justo abajo y alineada a la derecha -->
-  <p *ngIf="materias.length > 0 && !cargando" class="aviso-validacion">
-    <strong>Nota:</strong> la información proporcionada por el modelo debe ser validada por el estudiante.
-  </p>
+  <!-- Resultados sugeridos (tabla 2) -->
+  <div *ngIf="hasSearched && !cargando && materiasSugeridas.length > 0" class="sugerencias-box">
+    <h3 class="titulo-respuesta">Otras asignaturas relacionadas</h3>
+    <p class="sugerencias-parrafo">
+      {{ explicacionSugeridas }}
+    </p>
 
-  <!-- Caso sin resultados -->
-  <div *ngIf="!cargando && !error && materias.length === 0 && explicacion" class="respuesta-box">
+    <table class="tabla-materias">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Grado</th>
+          <th>ID</th>
+          <th>Créditos</th>
+          <th>N° Catálogo</th>
+          <th>N° Oferta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let materia of materiasSugeridas">
+          <td>{{ materia.nombre }}</td>
+          <td>{{ materia.grado }}</td>
+          <td>{{ materia.id }}</td>
+          <td>{{ materia.creditos }}</td>
+          <td>{{ materia.numero_catalogo }}</td>
+          <td>{{ materia.numero_oferta }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Caso sin resultados (solo después de buscar) -->
+  <div *ngIf="hasSearched && !cargando && !error && materias.length === 0 && materiasSugeridas.length === 0" class="respuesta-box">
     <h3 class="titulo-respuesta">No se encontraron materias que coincidan con tu consulta.</h3>
   </div>
 </section>
