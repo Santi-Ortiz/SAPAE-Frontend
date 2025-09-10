@@ -29,6 +29,10 @@
       <div class="resumen-grid">
         <div class="creditos-grid">
           <div class="cuadro-credito">
+            <h3>NÚCLEO</h3>
+            <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0) }} créditos</p>
+          </div>
+          <div class="cuadro-credito">
             <h3>ELECTIVAS</h3>
             <p>{{ historial.faltanElectiva }} créditos</p>
           </div>
@@ -108,7 +112,7 @@
               <td>{{ m.curso }}</td>
               <td>{{ m.titulo }}</td>
               <td [ngClass]="{'sin-calificacion': m.calif === 'SIN CALIFICACIÓN'}">
-                {{ m.calif === 'SIN CALIFICACIÓN' ? '⚠️' : m.calif }}
+                {{ m.calif === 'SIN CALIFICACIÓN' ? '🔄' : m.calif }}
               </td>
               <td>{{ m.cred }}</td>
               <td>{{ m.tipo }}</td>
@@ -148,7 +152,7 @@
                   <td>{{ m.curso }}</td>
                   <td>{{ m.titulo }}</td>
                   <td [ngClass]="{'sin-calificacion': m.calif === 'SIN CALIFICACIÓN'}">
-                    {{ m.calif === 'SIN CALIFICACIÓN' ? '⚠️' : m.calif }}
+                    {{ m.calif === 'SIN CALIFICACIÓN' ? '🔄' : m.calif }}
                   </td>
                   <td>{{ m.cred }}</td>
                   <td>{{ m.tipo }}</td>
