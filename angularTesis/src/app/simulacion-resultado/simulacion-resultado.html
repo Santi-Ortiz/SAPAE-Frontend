@@ -1,147 +1,148 @@
 <body>
-    <h1>Simulación de Escenarios Académicos</h1>
-    <section class="simulacion-intro">
-        <h2>Resultados de la Simulación</h2>
-        <h3><span class="nombre">{{ nombreSimulacion }}</span></h3>
-        <p>Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.</p> 
-        <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de Estudios</button>
-    </section>
-    <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
-        <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre">
-            <h2>Semestre {{ semestre.key }}</h2>
+  <h1>Simulación de Escenarios Académicos</h1>
 
-            <table class="materias-table">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre Materia</th>
-                        <th>Créditos</th>
-                        <th>Semestre</th>
-                        <th>Tipo</th> 
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let materia of semestre.value.materias">
-                        <td>{{ materia.codigo }}</td>
-                        <td>{{ materia.nombre }}</td>
-                        <td>{{ materia.creditos }}</td>
-                        <td>{{ materia.semestre }}</td>
-                        <td>{{ obtenerNombre(materia.tipo!) }}</td>
-                    </tr>
-                </tbody>
-            </table>
+  <section class="simulacion-intro">
+    <h2>Resultados de la Simulación</h2>
+    <h3><span class="nombre">{{ nombreSimulacion }}</span></h3>
+    <p>
+      Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.
+    </p>
+    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de Estudios</button>
+  </section>
 
-            <div class="resumen-container">
-                <h2>Resumen para Semestre {{ semestre.key }}</h2>
-                
-                <div class="semestre-card">
-                    
-                    <div class="card-header">
-                    <h3>Semestre {{ semestre.key }}</h3>
-                    </div>
+  <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
+    <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre">
+      <h2>Semestre {{ semestre.key }}</h2>
 
-                    <div class="card-body">
-                        <div class="stats-grid">
-                            
-                            <div class="stat-item">
-                                <i class="fas fa-book-open"></i>
-                                <span><strong>Materias a cursar:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalMaterias }}</span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="fas fa-star"></i>
-                                <span><strong>Total de créditos:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
-                            </div>
+      <table class="materias-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre Materia</th>
+            <th>Créditos</th>
+            <th>Semestre</th>
+            <th>Tipo</th>
+            <th class="col-recom">Recomendación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let materia of semestre.value.materias; let i = index">
+            <td>{{ materia.codigo }}</td>
+            <td>{{ materia.nombre }}</td>
+            <td>{{ materia.creditos }}</td>
+            <td>{{ materia.semestre }}</td>
+            <td>{{ obtenerNombre(materia.tipo!) }}</td>
+            <td class="col-recom">
+              <button
+                *ngIf="esReemplazable(materia); else bloqueado"
+                class="btn-recom"
+                title="Elegir desde Recomendaciones"
+                (click)="irARecomendaciones(materia, semestre.key, i)"
+                aria-label="Elegir recomendación"
+              >
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <ng-template #bloqueado>
+                <button class="btn-bloqueado" title="No aplica" disabled aria-label="No aplica">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-                            <div class="stat-item">
-                                <i class="fa-solid fa-clock"></i>
-                                <span><strong>Horas de estudio por día:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="fa-solid fa-circle-exclamation"></i>
-                                <span><strong>Créditos pendientes:</strong></span>
-                                <span class="stat-value">{{ calcularCreditosFaltantesPorSemestre(semestre.key) }}</span>
-                            </div>
-                        </div>
-                    </div>
+      <div class="resumen-container">
+        <h2>Resumen para Semestre {{ semestre.key }}</h2>
 
-                </div>
+        <div class="semestre-card">
+          <div class="card-header">
+            <h3>Semestre {{ semestre.key }}</h3>
+          </div>
+
+          <div class="card-body">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <i class="fas fa-book-open"></i>
+                <span><strong>Materias a cursar:</strong></span>
+                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalMaterias }}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-star"></i>
+                <span><strong>Total de créditos:</strong></span>
+                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fa-solid fa-clock"></i>
+                <span><strong>Horas de estudio por día:</strong></span>
+                <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span><strong>Créditos pendientes:</strong></span>
+                <span class="stat-value">{{ calcularCreditosFaltantesPorSemestre(semestre.key) }}</span>
+              </div>
             </div>
-
-            <div class="chart-section">
-                <h2>Porcentaje por Tipo de Materia</h2>
-                <div [id]="'pie-chart-semestre-' + semestre.key" class="pie-chart-container"></div>
-            </div>
+          </div>
 
         </div>
-    </section>
+      </div>
 
-    
-    <hr class="divider">
+      <div class="chart-section">
+        <h2>Porcentaje por Tipo de Materia</h2>
+        <div [id]="'pie-chart-semestre-' + semestre.key" class="pie-chart-container"></div>
+      </div>
 
-    <section class="resumen-general">
-        <h2>Resumen General de Simulaciones</h2>
-        <p>Este resumen reúne las estadísticas más importantes de tu simulación académica. Úsalo para visualizar tu carga promedio, estimar tu ritmo de avance y planificar mejor tus próximos semestres.</p>
+    </div>
+  </section>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Estadística</th>
-                    <th>Valor</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Materias en promedio por semestre</td>
-                    <td>{{ estadisticasGenerales.promedioMaterias }}</td>
-                </tr>
-                <tr>
-                    <td>Créditos en promedio por semestre</td>
-                    <td>{{ estadisticasGenerales.promedioCreditos }}</td>
-                </tr>
-                <tr>
-                    <td>Créditos faltantes hasta última simulación</td>
-                    <td>{{ estadisticasGenerales.creditosFaltantes }}</td>
-                </tr>
-                <tr>
-                    <td>Semestre con mayor carga</td>
-                    <td>{{ estadisticasGenerales.semestreMayorCarga }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+  <hr class="divider" />
 
-    <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
-    <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
+  <section class="resumen-general">
+    <h2>Resumen General de Simulaciones</h2>
+    <p>
+      Este resumen reúne las estadísticas más importantes de tu simulación académica. Úsalo para visualizar tu carga promedio, estimar tu ritmo de avance y planificar mejor tus próximos semestres.
+    </p>
 
-    <!-- Modal para confirmar que se guardó -->
-    <div class="modal-backdrop" *ngIf="mostrarModalGuardar">
+    <table>
+      <thead>
+        <tr>
+          <th>Estadística</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Materias en promedio por semestre</td>
+          <td>{{ estadisticasGenerales.promedioMaterias }}</td>
+        </tr>
+        <tr>
+          <td>Créditos en promedio por semestre</td>
+          <td>{{ estadisticasGenerales.promedioCreditos }}</td>
+        </tr>
+        <tr>
+          <td>Créditos faltantes hasta última simulación</td>
+          <td>{{ estadisticasGenerales.creditosFaltantes }}</td>
+        </tr>
+        <tr>
+          <td>Semestre con mayor carga</td>
+          <td>{{ estadisticasGenerales.semestreMayorCarga }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
+  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
+
+  <!-- Modal para confirmar que se guardó -->
+  <div class="modal-backdrop" *ngIf="mostrarModalGuardar">
     <div class="modal-custom">
-        <h3>Simulación guardada con éxito</h3>
-        <p>Puede revisarla en cualquier momento en el historial.</p>
-        <div class="modal-buttons">
+      <h3>Simulación guardada con éxito</h3>
+      <p>Puede revisarla en cualquier momento en el historial.</p>
+      <div class="modal-buttons">
         <button class="btn-cerrar" (click)="mostrarModalGuardar = false">Cerrar</button>
-        </div>
+      </div>
     </div>
-    </div>
-
-</body>
-
-
-<!--<div *ngIf="resultadoSimulacion">
-  <div *ngFor="let semestre of resultadoSimulacion | keyvalue">
-    <h2>Semestre {{ semestre.key }}</h2>
-    <ul *ngIf="semestre.value.materias">
-      <li *ngFor="let materia of semestre.value.materias">
-        <strong>{{ materia.nombre }}</strong> (Código: {{ materia.codigo }})<br />
-        Créditos: {{ materia.creditos }}<br />
-        Requisitos:
-        <ul>
-          <li *ngFor="let req of materia.requisitos">{{ req }}</li>
-        </ul>
-      </li>
-    </ul>
   </div>
-</div> -->
+</body>
