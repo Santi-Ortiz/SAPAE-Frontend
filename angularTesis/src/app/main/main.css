@@ -215,7 +215,7 @@ button:hover {
 
 /* TUTORIAL */
 .tutorial-box {
-  background-color: #00B4D8;
+  background-color: #5dc3d7;
   color: white;
   border-radius: 16px;
   padding: 40px;
@@ -315,7 +315,6 @@ button:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* Flechas */
 .arrow {
   background-color: #0077B6;
   color: white;
@@ -324,7 +323,7 @@ button:hover {
   width: 42px;
   height: 42px;
   font-size: 28px;
-  line-height: 1;
+  line-height: 6;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -350,93 +349,373 @@ button:hover {
   margin-bottom: 16px;
 }
 
-/* BENEFICIOS */
 .benefits h2 {
   font-size: 36px;
   color: #0077B6;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   text-align: center;
 }
 
-.benefit-list {
+.benefits-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+}
+
+.benefit-card {
+  display: flex;
+  margin-bottom: 24px;
+  animation: slideInUp 0.6s ease-out;
+  position: relative;
+}
+
+.benefit-card.left {
+  justify-content: flex-start;
+  padding-right: 60px;
+}
+
+.benefit-card.right {
+  justify-content: flex-end;
+  padding-left: 60px;
+}
+
+.benefit-card::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 60px;
+  background: linear-gradient(to bottom, #90CAF9, transparent);
+  top: 100%;
+  z-index: 1;
+}
+
+.benefit-card.left::after {
+  right: 30px;
+}
+
+.benefit-card.right::after {
+  left: 30px;
+}
+
+.benefit-card:last-child::after {
+  display: none;
+}
+
+.benefit-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fcff 100%);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 119, 182, 0.1);
+  border: 2px solid #e3f2fd;
+  width: 100%;
+  max-width: 450px;
+  min-width: 400px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 119, 182, 0.05), transparent);
+  transition: left 0.8s;
+}
+
+.benefit-content:hover::before {
+  left: 100%;
+}
+
+.benefit-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 119, 182, 0.2);
+  border-color: #0077B6;
+}
+
+.benefit-icon {
+  background: linear-gradient(135deg, #0077B6, #00B4D8);
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.3);
+}
+
+.benefit-icon i {
+  font-size: 28px;
+}
+
+.benefit-info {
+  flex: 1;
+}
+
+.benefit-info h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0077B6;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.benefit-info p {
+  font-size: 16px;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .benefits-container {
+    padding: 0 15px;
+  }
+
+  .benefit-card.left,
+  .benefit-card.right {
+    justify-content: center;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+
+  .benefit-card::after {
+    display: none;
+  }
+
+  .benefit-content {
+    max-width: 100%;
+    min-width: auto;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .benefit-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .benefit-icon i {
+    font-size: 24px;
+  }
+
+  .benefit-info h3 {
+    font-size: 18px;
+  }
+
+  .benefit-info p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .benefit-card.left {
+    padding-right: 30px;
+  }
+
+  .benefit-card.right {
+    padding-left: 30px;
+  }
+
+  .benefit-content {
+    min-width: 350px;
+    max-width: 400px;
+  }
+}
+
+
+/* FOOTER MODERNO */
+.footer {
+  background: linear-gradient(135deg, #0077B6 0%, #005a8a 100%);
+  color: #fff;
+  padding: 40px 0 0 0;
+  margin-top: 60px;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 30px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.footer-brand {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 0;
-  list-style: none;
-  max-width: 700px;
-  margin: 30px auto 0;
-  padding-left: 20px;
+  gap: 12px;
 }
 
-.benefit-list li {
-  display: flex;
-  align-items: start;
-  font-size: 1.1rem;
-  line-height: 1.5;
-  background: #ffffff;
-  padding: 14px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition: background 0.3s ease;
+.footer-logo {
+  font-size: 32px;
+  font-weight: 800;
+  color: #CAF0F8;
+  margin: 0;
+  letter-spacing: 2px;
 }
 
-.benefit-list li:hover {
-  background: #e8faff;
-}
-
-.check-icon {
-  color: #0077B6;
-  font-weight: bold;
-  font-size: 1.4rem;
-  margin-right: 12px;
-  line-height: 1;
-}
-
-.benefit-text {
-  flex: 1;
-  color: #333;
-}
-
-
-/* FOOTER */
-.footer {
-  background: #0077B6;
-  color: #fff;
-  padding: 60px 20px;
+.footer-tagline {
+  font-size: 14px;
+  color: #90CAF9;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 280px;
 }
 
 .footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 60px;
-  margin: 30px 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
 }
 
-.footer-links h4 {
-  font-weight: bold;
-  margin-bottom: 12px;
+.footer-section h4 {
+  font-weight: 600;
+  margin-bottom: 16px;
   font-size: 16px;
+  color: #CAF0F8;
+  border-bottom: 2px solid #00B4D8;
+  padding-bottom: 8px;
+  display: inline-block;
 }
 
-.footer-links a {
+.footer-section a {
   display: block;
-  color: #fff;
+  color: #B3E5FC;
   text-decoration: none;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 14px;
-  opacity: 0.9;
+  transition: all 0.3s ease;
+  padding: 4px 0;
 }
 
-.footer-links a:hover {
-  text-decoration: underline;
+.footer-section a:hover {
+  color: #CAF0F8;
+  padding-left: 8px;
+  transform: translateX(4px);
+}
+
+.footer-bottom {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-top: 1px solid rgba(202, 240, 248, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .footer-copy {
-  font-size: 0.9rem;
-  text-align: center;
-  color: #ddd;
+  font-size: 13px;
+  color: #B3E5FC;
+  margin: 0;
+}
+
+.footer-social {
+  display: flex;
+  gap: 16px;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(202, 240, 248, 0.1);
+  border-radius: 50%;
+  color: #CAF0F8;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(202, 240, 248, 0.3);
+}
+
+.social-link:hover {
+  background: #CAF0F8;
+  color: #0077B6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(202, 240, 248, 0.3);
+}
+
+.social-link i {
+  font-size: 16px;
+}
+
+/* Responsive Footer */
+@media (max-width: 768px) {
+  .footer {
+    padding: 30px 0 0 0;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 20px 20px;
+  }
+
+  .footer-brand {
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-size: 28px;
+  }
+
+  .footer-links {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    text-align: center;
+  }
+
+  .footer-section h4 {
+    margin-bottom: 12px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 16px 20px;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1024px) {
+  .footer-links {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+
+  .footer-section:last-child {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
 }
 
 .modern-upload-wrapper {
@@ -622,6 +901,7 @@ button:hover {
 }
 
 .process-btn {
+  background: linear-gradient(135deg, #0077B6, #00B4D8);
   border: none;
   border-radius: 12px;
   padding: 14px 24px;
@@ -629,6 +909,7 @@ button:hover {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -637,6 +918,12 @@ button:hover {
   box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
   max-width: 200px;
   margin: 0 auto;
+}
+
+.process-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #005c8a, #0077B6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 119, 182, 0.4);
 }
 
 .process-btn:disabled {
@@ -671,8 +958,8 @@ button:hover {
   background: linear-gradient(135deg, #ffebee, #ffcdd2);
   border: 1px solid #ef5350;
   border-radius: 12px;
-  padding: 16px;
-  margin: 0 auto;
+  padding: 16px 20px;
+  margin: 20px auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -681,6 +968,8 @@ button:hover {
   font-weight: 500;
   animation: slideIn 0.3s ease;
   text-align: center;
+  max-width: 400px;
+  width: fit-content;
 }
 
 @keyframes slideIn {

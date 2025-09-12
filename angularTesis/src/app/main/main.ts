@@ -69,11 +69,26 @@ export class Main {
   }
 
   benefits = [
-    'Optimizar tu tiempo',
-    'Tener mayor control sobre tu avance',
-    'Planear según tus objetivos personales',
-    'Prevenir retrasos',
-    'Apoyar decisiones académicas con información confiable'
+    {
+      title: 'Optimizar tu tiempo',
+      description: 'Planifica tu carga académica de manera eficiente y evita conflictos de horarios.'
+    },
+    {
+      title: 'Tener mayor control sobre tu avance',
+      description: 'Visualiza tu progreso académico en tiempo real y toma decisiones informadas.'
+    },
+    {
+      title: 'Planear según tus objetivos personales',
+      description: 'Personaliza tu ruta académica según tus metas profesionales y preferencias.'
+    },
+    {
+      title: 'Prevenir retrasos',
+      description: 'Identifica posibles obstáculos y toma medidas preventivas a tiempo.'
+    },
+    {
+      title: 'Apoyar decisiones académicas con información confiable',
+      description: 'Recibe recomendaciones basadas en datos y estadísticas académicas actuales.'
+    }
   ];
 
 
