@@ -1,4 +1,4 @@
-<!-- Barra de inicio -->
+
 <header class="barra">
   <div class="barra-inicio">
     <h1 class="logo">SAPAE</h1>
@@ -13,108 +13,133 @@
 </header>
 
 
-<!-- Inicio -->
 <section class="inicio">
-    <div class="inicio-content">
-      <h1>Planifica tu carrera de forma inteligente</h1>
-      <p class="description">
-        Optimiza tu progreso, visualiza tu avance, proyecta tus semestres, recibe
-        recomendaciones personalizadas y aclara tus dudas al instante. Todo desde
-        un solo lugar, sin complicaciones.
-      </p>
-    </div>
-    <div class="inicio-image">
-      <img src="assets/images/plan-de-carrera.jpg" alt="Personas trabajando" />
-    </div>
+  <div class="inicio-content">
+    <h1>Planifica tu carrera de forma inteligente</h1>
+    <p class="description">
+      Optimiza tu progreso, visualiza tu avance, proyecta tus semestres, recibe
+      recomendaciones personalizadas y aclara tus dudas al instante. Todo desde
+      un solo lugar, sin complicaciones.
+    </p>
+  </div>
+  <div class="inicio-image">
+    <img src="assets/images/plan-de-carrera.jpg" alt="Personas trabajando" />
+  </div>
 </section>
 
-<!-- historial -->
 <div class="historial-container">
-    <!-- <h1 id="historial">Progreso académico</h1> -->
-    <p class="description">
-      Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
-       historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
-    </p>
-  
-    <div class="form-wrapper">
-      <div class="form">
-        <input type="file" (change)="onFileSelected($event)" />
-        <button (click)="onSubmit()">Cargar PDF</button>
+  <p class="description">
+    Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
+    historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
+  </p>
+
+  <div class="modern-upload-wrapper">
+    <div class="upload-area" [class.dragover]="isDragOver" [class.has-file]="historial.archivoSeleccionado"
+      (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onFileDrop($event)"
+      (click)="fileInput.click()">
+
+      <input #fileInput type="file" accept=".pdf" (change)="onFileSelected($event)" class="hidden-input" />
+
+      <div class="upload-content" *ngIf="!historial.archivoSeleccionado">
+        <div class="upload-icon">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <h3>Arrastra tu archivo PDF aquí</h3>
+        <p>o <span class="link-text">selecciona desde tu dispositivo</span></p>
+      </div>
+
+      <div class="file-preview" *ngIf="historial.archivoSeleccionado">
+        <div class="file-icon">
+          <i class="fa-solid fa-file-pdf"></i>
+        </div>
+        <div class="file-details">
+          <h4>{{ historial.archivoSeleccionado.name }}</h4>
+          <span class="file-size">{{ getFileSize(historial.archivoSeleccionado.size) }}</span>
+        </div>
+        <button class="remove-btn" (click)="removeFile($event)" type="button">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Spinner -->
+    <button class="process-btn" [disabled]="!historial.archivoSeleccionado || cargando" (click)="onSubmit()">
+      <span class="btn-content">
+        <i class="fa-solid fa-play"></i>
+        Cargar PDF
+      </span>
+    </button>
+
     <div *ngIf="cargando" class="mensaje-cargando">
       <div class="spinner"></div>
       <p>Cargando archivo, un momento por favor...</p>
     </div>
-  
-    <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
-  
-    <div class="tutorial-box">
-      <div class="tutorial-text">
-        <h2>¿Cómo descargar mi informe de avance?</h2>
-        <p>
-          Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para comenzar a planear tu camino académico.
-        </p>
-      </div>
-      <div class="tutorial-video">
-        <video controls width="400">
-          <source src="assets/videos/VideoInforme.mp4" type="video/mp4" />
-          Tu navegador no soporta el video.
-        </video>
-      </div>
+  </div>
+
+  <div *ngIf="historial.error" class="error-alert">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    <span>{{ historial.error }}</span>
+  </div>
+
+  <div class="tutorial-box">
+    <div class="tutorial-text">
+      <h2>¿Cómo descargar mi informe de avance?</h2>
+      <p>
+        Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para
+        comenzar a planear tu camino académico.
+      </p>
+    </div>
+    <div class="tutorial-video">
+      <video controls width="400">
+        <source src="assets/videos/VideoInforme.mp4" type="video/mp4" />
+        Tu navegador no soporta el video.
+      </video>
     </div>
   </div>
-  
-  
-  <!-- Funcionalidades -->
+</div>
+
+
 <section class="features">
-    <h2>Explora las funcionalidades</h2>
-    <p class="description">
-      Estas herramientas han sido desarrolladas para facilitar el seguimiento de tu
-      proceso formativo y garantizar una planeación académica clara y eficiente.
-    </p>
-  
-    <div class="feature-carousel">
-      <button class="arrow left" (click)="scrollLeft()">
-        ‹
-      </button>
-    
-      <div class="feature-scroll-wrapper" #scrollContainer>
-        <div class="feature-cards">
-          <div class="card" *ngFor="let feature of features">
-            <img [src]="feature.image" [alt]="feature.title" />
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
-          </div>
+  <h2>Explora las funcionalidades</h2>
+  <p class="description">
+    Estas herramientas han sido desarrolladas para facilitar el seguimiento de tu
+    proceso formativo y garantizar una planeación académica clara y eficiente.
+  </p>
+
+  <div class="feature-carousel">
+    <button class="arrow left" (click)="scrollLeft()">
+      ‹
+    </button>
+
+    <div class="feature-scroll-wrapper" #scrollContainer>
+      <div class="feature-cards">
+        <div class="card" *ngFor="let feature of features">
+          <img [src]="feature.image" [alt]="feature.title" />
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
         </div>
       </div>
-    
-      <button class="arrow right" (click)="scrollRight()">
-        ›
-      </button>
-    </div>      
-</section>
-  
-  <!-- Beneficios -->
-  <section class="benefits">
-    <h2>Te ayudará a</h2>
-    <ul class="benefit-list">
-      <li *ngFor="let benefit of benefits">
-        <span class="check-icon">✔</span>
-        <span class="benefit-text">{{ benefit }}</span>
-      </li>
-    </ul>
-  </section>  
-
-  <!-- Footer -->
-<footer class="footer">
-    <div class="footer-logo">
-      <!--<img src="assets/images/logo.png" alt="Logo" /> -->
     </div>
-    <p class="footer-copy">
-      © 2025 SAPAE. 
-    </p>
-  </footer>
-  
+
+    <button class="arrow right" (click)="scrollRight()">
+      ›
+    </button>
+  </div>
+</section>
+
+<section class="benefits">
+  <h2>Te ayudará a</h2>
+  <ul class="benefit-list">
+    <li *ngFor="let benefit of benefits">
+      <span class="check-icon">✔</span>
+      <span class="benefit-text">{{ benefit }}</span>
+    </li>
+  </ul>
+</section>
+
+<footer class="footer">
+  <div class="footer-logo">
+  </div>
+  <p class="footer-copy">
+    © 2025 SAPAE.
+  </p>
+</footer>
