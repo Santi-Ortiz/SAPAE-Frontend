@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { LecturaService } from '../services/lectura.service';
 import { HistorialService } from '../services/historial.service';
@@ -12,12 +12,16 @@ import { NgIf, NgFor } from '@angular/common';
   templateUrl: './main.html',
   styleUrls: ['./main.css']
 })
-export class Main {
+export class Main implements AfterViewInit {
 
   historial: Progreso = new Progreso();
   mostrarMenu = false;
   cargando: boolean = false;
   isDragOver: boolean = false;
+
+  currentIndex: number = 0;
+  canScrollLeft: boolean = true;
+  canScrollRight: boolean = false;
 
   constructor(
     private lecturaService: LecturaService,
@@ -29,24 +33,24 @@ export class Main {
 
   features = [
     {
-      title: 'Historial de progreso',
-      description: 'Consulta tu progreso de manera visual e intuitiva a través del informe de avance cargado.',
-      image: 'assets/images/plan-de-carrera.jpg'
+      title: 'Progreso Académico',
+      description: 'Consulta el histórico de tu progreso académico de manera visual e intuitiva a través del informe de avance cargado.',
+      image: 'assets/images/pathway.png'
     },
     {
-      title: 'Simulación académica',
-      description: 'Genera proyecciones personalizadas según tus asignaturas aprobadas y objetivos académicos.',
-      image: 'assets/images/plan-de-carrera.jpg'
+      title: 'Simulación Académica',
+      description: 'Genera proyecciones personalizadas de escenarios académicos según tus asignaturas aprobadas.',
+      image: 'assets/images/stopwatch.png'
     },
     {
-      title: 'Recomendación de materias',
-      description: 'Recibe sugerencias de asignaturas basadas en tus gustos con ayuda de un sistema inteligente.',
-      image: 'assets/images/plan-de-carrera.jpg'
+      title: 'Recomendación de Materias',
+      description: 'Recibe sugerencias de asignaturas basadas en tus gustos e intereses con ayuda de un modelo de inteligencia artificial.',
+      image: 'assets/images/recomendation.png'
     },
     {
-      title: 'Búsqueda de materias',
-      description: 'Encuentra materias por nombre, área o nivel con inteligencia integrada.',
-      image: 'assets/images/plan-de-carrera.jpg'
+      title: 'Búsqueda de Información Universitaria',
+      description: 'Encuentra información relevante sobre programas académicos, requisitos de admisión, reglamento estudiantil y más.',
+      image: 'assets/images/search-file.png'
     }
   ];
 
@@ -55,17 +59,65 @@ export class Main {
   }
 
   scrollLeft() {
-    this.scrollContainer.nativeElement.scrollBy({
-      left: -300,
+    const container = this.scrollContainer.nativeElement;
+    const cardWidth = 320;
+    container.scrollBy({
+      left: -cardWidth,
       behavior: 'smooth'
     });
+
+    setTimeout(() => {
+      this.updateScrollButtons();
+      this.updateCurrentIndex();
+    }, 300);
   }
 
   scrollRight() {
-    this.scrollContainer.nativeElement.scrollBy({
-      left: 300,
+    const container = this.scrollContainer.nativeElement;
+    const cardWidth = 320;
+    container.scrollBy({
+      left: cardWidth,
       behavior: 'smooth'
     });
+
+    setTimeout(() => {
+      this.updateScrollButtons();
+      this.updateCurrentIndex();
+    }, 300);
+  }
+
+  ngAfterViewInit(): void {
+    this.updateScrollButtons();
+  }
+
+  scrollToIndex(index: number): void {
+    const container = this.scrollContainer.nativeElement;
+    const cardWidth = 320;
+    container.scrollTo({
+      left: cardWidth * index,
+      behavior: 'smooth'
+    });
+
+    this.currentIndex = index;
+    setTimeout(() => {
+      this.updateScrollButtons();
+    }, 300);
+  }
+
+  private updateScrollButtons(): void {
+    const container = this.scrollContainer.nativeElement;
+    this.canScrollLeft = container.scrollLeft > 0;
+    this.canScrollRight = container.scrollLeft < (container.scrollWidth - container.clientWidth);
+  }
+
+  private updateCurrentIndex(): void {
+    const container = this.scrollContainer.nativeElement;
+    const cardWidth = 320;
+    this.currentIndex = Math.round(container.scrollLeft / cardWidth);
+  }
+
+  trackByFeature(index: number, feature: any): string {
+    return feature.title;
   }
 
   benefits = [

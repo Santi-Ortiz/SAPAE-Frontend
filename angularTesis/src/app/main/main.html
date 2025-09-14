@@ -22,7 +22,7 @@
     </p>
   </div>
   <div class="inicio-image">
-    <img src="assets/images/plan-de-carrera.jpg" alt="Personas trabajando" />
+    <img src="assets/images/main.jpg" alt="Personas trabajando" />
   </div>
 </section>
 
@@ -104,25 +104,32 @@
     proceso formativo y garantizar una planeación académica clara y eficiente.
   </p>
 
-  <div class="feature-carousel">
-    <button class="arrow left" (click)="scrollLeft()">
-      ‹
+  <div class="modern-carousel">
+    <button class="carousel-arrow left" (click)="scrollLeft()">
+      <i class="fa-solid fa-chevron-left"></i>
     </button>
 
-    <div class="feature-scroll-wrapper" #scrollContainer>
-      <div class="feature-cards">
-        <div class="card" *ngFor="let feature of features">
-          <img [src]="feature.image" [alt]="feature.title" />
-          <h3>{{ feature.title }}</h3>
-          <p>{{ feature.description }}</p>
+    <div class="carousel-container">
+      <div class="carousel-track" #scrollContainer>
+        <div class="modern-card" *ngFor="let feature of features; trackBy: trackByFeature">
+          <div class="card-image-wrapper">
+            <img [src]="feature.image" [alt]="feature.title" />
+            <div class="card-overlay"></div>
+          </div>
+          <div class="card-content">
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+            <div class="card-shine"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <button class="arrow right" (click)="scrollRight()">
-      ›
+    <button class="carousel-arrow right" (click)="scrollRight()">
+      <i class="fa-solid fa-chevron-right"></i>
     </button>
   </div>
+
 </section>
 
 <section class="benefits">
