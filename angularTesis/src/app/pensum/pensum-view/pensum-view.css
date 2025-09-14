@@ -64,11 +64,11 @@ p {
   position: relative;
   cursor: pointer;
   z-index: 5;
-  height: 75px; 
-  display: flex;             
-  flex-direction: column;    
-  align-items: center;      
-  justify-content: center;   
+  height: 75px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -83,8 +83,8 @@ p {
 }
 
 .caja.resaltada {
-  border: 1.2px solid #0077B6 ;
-  background-color: #b3e3fe ;
+  border: 1.2px solid #0077B6;
+  background-color: #b3e3fe;
 }
 
 .caja.bloqueada {
@@ -116,8 +116,159 @@ p {
 
 .contenedor-leyenda {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 20px;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.vista-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.vista-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 15px;
+}
+
+.vista-title {
+  color: #0077B6;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  text-align: left;
+}
+
+.vista-toggle-block {
+  background: linear-gradient(145deg, #f8fdff 0%, #ffffff 100%);
+  border: 2px solid #CAF0F8;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.vista-toggle-block:hover {
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.15);
+  border-color: #00B4D8;
+}
+
+.vista-toggle {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.toggle-labels {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.left-label {
+  color: #7a7a7a;
+  font-weight: 500;
+}
+
+.right-label {
+  color: #00B4D8;
+  font-weight: 700;
+  background-color: rgba(0, 180, 216, 0.1);
+}
+
+.left-label.active {
+  color: #0077B6 !important;
+  font-weight: 700 !important;
+  background-color: rgba(0, 119, 182, 0.1) !important;
+}
+
+.right-label.active {
+  color: #00B4D8 !important;
+  font-weight: 700 !important;
+  background-color: rgba(0, 180, 216, 0.1) !important;
+}
+
+.left-label:not(.active) {
+  color: #7a7a7a !important;
+  font-weight: 500 !important;
+  background-color: transparent !important;
+}
+
+.right-label:not(.active) {
+  color: #7a7a7a !important;
+  font-weight: 500 !important;
+  background-color: transparent !important;
+}
+
+.toggle-container {
+  position: relative;
+  display: inline-block;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-slider {
+  display: block;
+  width: 60px;
+  height: 30px;
+  background-color: #0077B6;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-slider:before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked+.toggle-slider {
+  background-color: #00B4D8;
+}
+
+.toggle-input:checked+.toggle-slider:before {
+  transform: translateX(30px);
+}
+
+.toggle-slider:hover {
+  box-shadow: 0 0 10px rgba(0, 119, 182, 0.3);
+}
+
+.button-section {
+  display: flex;
+  align-items: center;
 }
 
 .leyenda-colores {
@@ -195,5 +346,93 @@ line.resaltada {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contenedor-leyenda {
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .vista-controls {
+    align-items: center;
+    width: 100%;
+  }
+
+  .vista-section {
+    align-items: center;
+    width: 100%;
+  }
+
+  .vista-title {
+    text-align: center;
+    font-size: 15px;
+  }
+
+  .vista-toggle-block {
+    padding: 15px;
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .vista-toggle {
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+  }
+
+  .leyenda-colores {
+    gap: 30px;
+  }
+
+  .leyenda-colores .item {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vista-title {
+    font-size: 14px;
+  }
+
+  .vista-toggle-block {
+    padding: 12px;
+  }
+
+  .vista-toggle {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .toggle-label {
+    font-size: 12px;
+  }
+
+  .toggle-slider {
+    width: 50px;
+    height: 26px;
+  }
+
+  .toggle-slider:before {
+    width: 20px;
+    height: 20px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .toggle-input:checked+.toggle-slider:before {
+    transform: translateX(24px);
+  }
+
+  .leyenda-colores {
+    flex-direction: column;
+    gap: 15px;
   }
 }

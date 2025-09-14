@@ -6,7 +6,7 @@ import {
   OnInit,
   HostListener
 } from '@angular/core';
-import {  NgFor, NgClass } from '@angular/common';
+import { NgFor, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PensumDTO } from '../../dtos/pensum-dto';
 import { MateriaDTO } from '../../dtos/materia-dto';
@@ -40,6 +40,9 @@ export class PensumView implements OnInit, AfterViewInit {
   soloMaterias: MateriaDTO[] = [];
   requisitosMap = new Map<string, string[]>();
 
+  // Propiedades para el toggle de vista
+  vistaHistorico: boolean = false; // false = "Según plan de estudios", true = "Tu histórico"
+
 
   @ViewChild('svgRef') svgRef!: ElementRef<SVGSVGElement>;
   @ViewChild('contenedor') contenedorRef!: ElementRef<HTMLElement>;
@@ -54,8 +57,8 @@ export class PensumView implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    this.progreso = this.historialService.getHistorial()!; 
-    
+    this.progreso = this.historialService.getHistorial()!;
+
     this.pensumService.obtenerPensum().pipe(
       catchError(err => {
         console.error('Error cargando pensum', err);
@@ -63,7 +66,7 @@ export class PensumView implements OnInit, AfterViewInit {
       })
     ).subscribe(pensum => {
       this.allPensum = pensum;
-  
+
       this.requisitosMap.clear();
 
       for (const m of this.allPensum) {
@@ -76,7 +79,7 @@ export class PensumView implements OnInit, AfterViewInit {
         }
         this.requisitosMap.set(String(m.codigo), req);
       }
-  
+
       if (this.progreso) {
         this.soloMaterias = this.progreso.materias ?? [];
         this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
@@ -89,20 +92,20 @@ export class PensumView implements OnInit, AfterViewInit {
 
     });
   }
-  
+
   getCodigo(m: PensumDTO | MateriaDTO): string {
     return (m as any).codigo ?? (m as any).curso;
-  }  
+  }
 
-  getRequisitosJson(codigoDestino: string): string { 
-    const req = this.requisitosMap.get(String(codigoDestino)) || []; 
+  getRequisitosJson(codigoDestino: string): string {
+    const req = this.requisitosMap.get(String(codigoDestino)) || [];
     return JSON.stringify(req);
   }
 
   agruparPorSemestre(materias: MateriaDTO[]) {
-    const ordenSemestres = ["PrimPe", "SegPe", "TerPe"]; 
+    const ordenSemestres = ["PrimPe", "SegPe", "TerPe"];
     const semestreMap = new Map<number, (MateriaDTO & { cssClass: string })[]>();
-  
+
     // ordenar ciclos
     const ciclosOrdenados = Array.from(
       new Set(
@@ -119,10 +122,10 @@ export class PensumView implements OnInit, AfterViewInit {
       if (anioA !== anioB) return parseInt(anioA) - parseInt(anioB);
       return ordenSemestres.indexOf(cicloA) - ordenSemestres.indexOf(cicloB);
     });
-  
+
     let semestreCounter = 1;
     const cicloToSemestre = new Map<string, number>();
-  
+
     for (let i = 0; i < ciclosOrdenados.length; i++) {
       const [ciclo, anio] = ciclosOrdenados[i].split("-");
       if (ciclo === "SegPe") {
@@ -132,19 +135,19 @@ export class PensumView implements OnInit, AfterViewInit {
         semestreCounter++;
       }
     }
-  
+
     // último semestre cursado
     const ultimoSemestre = Math.max(...Array.from(cicloToSemestre.values()));
-  
+
     materias.forEach(m => {
       const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
       if (match && m.cred > 0) {
         const clave = `${match[1]}-${match[2]}`;
         const semestre = cicloToSemestre.get(clave) ?? 0;
         if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
-        
+
         const califNum = Number(m.calif);
-  
+
         // asignar clases según condición
         let clase = "bloqueada"; // por defecto
         if (!isNaN(califNum) && califNum < 3) {
@@ -155,30 +158,30 @@ export class PensumView implements OnInit, AfterViewInit {
         semestreMap.get(semestre)!.push({ ...m, cssClass: clase });
       }
     });
-  
+
     return Array.from(semestreMap.entries()).map(([semestre, materias]) => ({
       semestre,
       materias
     }));
-  }   
+  }
 
   agruparMateriasFaltantes(progreso: Progreso, pensum: PensumDTO[]) {
     if (!progreso || !pensum || pensum.length === 0) return [];
-  
-    const semestreActual = progreso.semestre ?? 0; 
+
+    const semestreActual = progreso.semestre ?? 0;
     const materiasCursadasCodigos = new Set(progreso.materias.map(m => m.curso));
-  
+
     // Materias faltantes 
     const materiasFaltantes = (progreso.listaMateriasFaltantes?.length
       ? progreso.listaMateriasFaltantes.map(m => m.nombre)
       : pensum
-          .filter(materia => !materiasCursadasCodigos.has(materia.codigo))
-          .map(m => m.nombre)
+        .filter(materia => !materiasCursadasCodigos.has(materia.codigo))
+        .map(m => m.nombre)
     );
-  
+
     // Buscar en el pensum cada materia faltante y asignarla a su semestre
     const agrupadoPorSemestre = new Map<number, PensumDTO[]>();
-  
+
     materiasFaltantes.forEach(nombreMateria => {
       const materiaPensum = pensum.find(p => p.nombre === nombreMateria);
       if (materiaPensum && materiaPensum.semestre > semestreActual) {
@@ -214,7 +217,7 @@ export class PensumView implements OnInit, AfterViewInit {
         );
       }
     });
-  
+
     // Devolver arreglo 
     return Array.from(agrupadoPorSemestre.entries())
       .sort(([a], [b]) => a - b)
@@ -228,12 +231,12 @@ export class PensumView implements OnInit, AfterViewInit {
       return true;
     }
     return false;
-  } 
-    
+  }
+
   // Normaliza todos los códigos al mismo formato 
   private norm(c: any): string {
     const s = String(c ?? '').trim();
-    return /^\d+$/.test(s) ? s.padStart(6, '0') : s; 
+    return /^\d+$/.test(s) ? s.padStart(6, '0') : s;
   }
 
   seleccionarMateria(codigo: string) {
@@ -258,7 +261,7 @@ export class PensumView implements OnInit, AfterViewInit {
           tieneConexiones = true;
         }*/
 
-      } catch {}
+      } catch { }
     });
 
     // Quitar duplicados y asegurar todo normalizado
@@ -275,9 +278,12 @@ export class PensumView implements OnInit, AfterViewInit {
 
     this.dibujarConexiones();
   }
-  
-  
+
+
   ngAfterViewInit() {
+    // Inicializar el estado del toggle (por defecto: "Según plan de estudios")
+    this.inicializarEstadoToggle();
+
     this.zone.onStable.subscribe(() => {
       this.dibujarConexiones();
     });
@@ -293,7 +299,7 @@ export class PensumView implements OnInit, AfterViewInit {
   onScroll() {
     this.dibujarConexiones();
   }
-  
+
 
   private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
     const { scrollWidth: width, scrollHeight: height } = contenedor;
@@ -301,7 +307,7 @@ export class PensumView implements OnInit, AfterViewInit {
     svg.setAttribute('height', `${height}`);
     svg.innerHTML = ''; // limpiar SVG
   }
-  
+
   private dibujarCurvas(
     d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
     cajas: HTMLElement[],
@@ -325,11 +331,11 @@ export class PensumView implements OnInit, AfterViewInit {
         .attr("d", "M0,-3L6,0L0,3")
         .attr("fill", tipo === "oscura" ? "#0077B6" : "#90E0EF");
     });
-  
+
     d3svg.selectAll("g.capa-lineas, g.capa-lineas-resaltadas").remove();
     const capaLineas = d3svg.append("g").attr("class", "capa-lineas");
     const capaLineasResaltadas = d3svg.append("g").attr("class", "capa-lineas-resaltadas");
-  
+
     const columnas = Array.from(contenedor.querySelectorAll<HTMLElement>(".semestre-columna"));
     const gapCentersX: number[] = [];
     for (let i = 0; i < columnas.length - 1; i++) {
@@ -337,13 +343,13 @@ export class PensumView implements OnInit, AfterViewInit {
       const nextLeft = columnas[i + 1].offsetLeft;
       gapCentersX.push(rightEdge + (nextLeft - rightEdge) / 2);
     }
-  
+
     const offsetHorizBase = 16;
     const laneSpacingY = 12;
     const laneSpacingX = 16;
     const offsetLlegada = 12;
     const shortRun = 14;
-  
+
     const colGapCentersY: Array<number[]> = columnas.map(col => {
       const cajasEnCol = Array.from(col.querySelectorAll<HTMLElement>(".caja"))
         .sort((a, b) => a.offsetTop - b.offsetTop);
@@ -356,24 +362,24 @@ export class PensumView implements OnInit, AfterViewInit {
       }
       return gaps;
     });
-  
+
     const lineGenerator = d3.line<[number, number]>()
       .x(d => d[0])
       .y(d => d[1])
       .curve(d3.curveStep);
-  
+
     const cellSize = Math.max(7, Math.round(Math.max(laneSpacingX, laneSpacingY) * 0.1));
     const occupied: Set<string> = new Set();
     const keyOf = (gx: number, gy: number) => `${gx},${gy}`;
-  
+
     function toGridCoord(x: number, y: number): [number, number] {
       return [Math.round(x / cellSize), Math.round(y / cellSize)];
     }
-  
+
     function fromGridCoord(gx: number, gy: number): [number, number] {
       return [gx * cellSize, gy * cellSize];
     }
-  
+
     function findFreeCellNear(gx0: number, gy0: number, maxRadius = 8): [number, number] | null {
       for (let r = 0; r <= maxRadius; r++) {
         for (let dx = -r; dx <= r; dx++) {
@@ -395,7 +401,7 @@ export class PensumView implements OnInit, AfterViewInit {
       }
       return null;
     }
-  
+
     function occupySegmentGrid(x1: number, y1: number, x2: number, y2: number) {
       const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
       const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
@@ -403,38 +409,38 @@ export class PensumView implements OnInit, AfterViewInit {
       const [gx2] = toGridCoord(maxX, minY);
       const [, gy1] = toGridCoord(minX, minY);
       const [, gy2] = toGridCoord(minX, maxY);
-  
+
       for (let gx = Math.min(gx1, gx2); gx <= Math.max(gx1, gx2); gx++) {
         for (let gy = Math.min(gy1, gy2); gy <= Math.max(gy1, gy2); gy++) {
           occupied.add(keyOf(gx, gy));
         }
       }
     }
-  
+
     function reservarEnGrid(x: number, y: number): [number, number] {
       const [gx0, gy0] = toGridCoord(x, y);
       const free = findFreeCellNear(gx0, gy0, 12) || [gx0, gy0];
       occupied.add(keyOf(free[0], free[1]));
       return fromGridCoord(free[0], free[1]);
     }
-  
+
     const verticalLaneCounters: Map<string, number> = new Map();
-  
+
     cajas.forEach(destino => {
       const requisitos: string[] = llegadas.get(destino.id) || [];
       const totalLlegadas = requisitos.length || 1;
-  
+
       requisitos.forEach(origenId => {
         const origen = document.getElementById(origenId);
         if (!origen) return;
-  
+
         const totalSalidas = salidas.get(origenId)?.length || 1;
         const salidaIndex = salidas.get(origenId)?.indexOf(destino.id) ?? 0;
-  
+
         const xOrigen = origen.offsetLeft + origen.offsetWidth;
         const yOrigen = origen.offsetTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origen.offsetHeight;
         const xDestino = destino.offsetLeft;
-  
+
         // --- distribuir flechas verticalmente ---
         if (!verticalLaneCounters.has(destino.id)) verticalLaneCounters.set(destino.id, 0);
         const slotIndex = verticalLaneCounters.get(destino.id)!;
@@ -443,14 +449,14 @@ export class PensumView implements OnInit, AfterViewInit {
         const stepY = heightCaja / totalLlegadas;
         const yDestino = destino.offsetTop + marginY + stepY * slotIndex + stepY / 2;
         verticalLaneCounters.set(destino.id, slotIndex + 1);
-  
+
         const esActiva = this.conexionesActivas.includes(destino.id) || this.conexionesActivas.includes(origenId);
         const colorLinea = esActiva ? "#0077B6" : "#90E0EF";
         const tipo = esActiva ? "oscura" : "clara";
-  
+
         const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
         const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
-  
+
         let rawXChannel: number;
         if (colOriIdx < colDestIdx) {
           const gapX = gapCentersX[colOriIdx] ?? (xOrigen + shortRun);
@@ -461,7 +467,7 @@ export class PensumView implements OnInit, AfterViewInit {
         } else {
           rawXChannel = xOrigen + Math.min(shortRun, offsetHorizBase ?? 30) + salidaIndex * laneSpacingX;
         }
-  
+
         const channelYraw = (function chooseChannelY() {
           const gaps = colGapCentersY[colDestIdx] || [];
           for (let i = 0; i < gaps.length; i++) {
@@ -479,14 +485,14 @@ export class PensumView implements OnInit, AfterViewInit {
           }
           return yOrigen + (yDestino - yOrigen) * 0.2;
         })();
-  
+
         const [xChannelGrid, channelYGrid] = reservarEnGrid(rawXChannel, channelYraw);
-  
+
         occupySegmentGrid(xOrigen, yOrigen, xChannelGrid, yOrigen);
         occupySegmentGrid(xChannelGrid, yOrigen, xChannelGrid, channelYGrid);
         occupySegmentGrid(xChannelGrid, channelYGrid, xDestino - offsetLlegada, channelYGrid);
         occupySegmentGrid(xDestino - offsetLlegada, channelYGrid, xDestino - offsetLlegada, yDestino);
-  
+
         const puntosRuta: [number, number][] = [
           [xOrigen, yOrigen],
           [xChannelGrid, yOrigen],
@@ -495,7 +501,7 @@ export class PensumView implements OnInit, AfterViewInit {
           [xDestino - offsetLlegada, yDestino],
           [xDestino, yDestino]
         ];
-  
+
         if (Math.abs(yDestino - yOrigen) < 20 && colOriIdx !== colDestIdx) {
           const puntosDirectos: [number, number][] = [
             [xOrigen, yOrigen],
@@ -507,7 +513,7 @@ export class PensumView implements OnInit, AfterViewInit {
             puntosRuta.splice(0, puntosRuta.length, ...puntosDirectos);
           }
         }
-  
+
         const capa = esActiva ? capaLineasResaltadas : capaLineas;
         const path = capa.append("path")
           .attr("d", lineGenerator(puntosRuta)!)
@@ -515,7 +521,7 @@ export class PensumView implements OnInit, AfterViewInit {
           .attr("stroke", colorLinea)
           .attr("stroke-width", esActiva ? 2 : 2)
           .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
-  
+
         if (esActiva) {
           path.classed("resaltada", true);
           destino.classList.add("resaltada");
@@ -525,23 +531,23 @@ export class PensumView implements OnInit, AfterViewInit {
       });
     });
   }
-  
+
   dibujarConexiones() {
     const svg = this.svgRef?.nativeElement;
     const contenedor = this.contenedorRef?.nativeElement;
     if (!svg || !contenedor) return;
-  
+
     this.configurarSVG(svg, contenedor);
     const d3svg = d3.select(svg);
-  
+
     const salidasGlobal = new Map<string, string[]>();
     const llegadasGlobal = new Map<string, string[]>();
-  
+
     // Materias faltantes
     this.materiasFaltantes.forEach(grupo => {
       grupo.materias.forEach(faltante => {
         let requisitos: string[] = [];
-  
+
         if ((faltante as PensumDTO).requisitos) {
           requisitos = (faltante as PensumDTO).requisitos;
         } else if ((faltante as any).requisitosJson) {
@@ -551,36 +557,65 @@ export class PensumView implements OnInit, AfterViewInit {
             requisitos = [];
           }
         }
-  
+
         const codigoFaltante = String(this.getCodigo(faltante)).padStart(6, "0").trim();
-  
+
         requisitos.forEach(requisitoCodigo => {
           const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
-  
+
           // conexión requisito → faltante
           if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
           salidasGlobal.get(reqCode)!.push(codigoFaltante);
-  
+
           if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
           llegadasGlobal.get(codigoFaltante)!.push(reqCode);
         });
       });
     });
-  
+
     console.log("Llegadas:", llegadasGlobal);
     console.log("Salidas:", salidasGlobal);
-  
+
     const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
-  
+
     // Dibujar todas las curvas
     this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor);
-  
+
     // Recalcular al hacer scroll o resize
-    window.addEventListener("scroll", () => 
+    window.addEventListener("scroll", () =>
       this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
     );
-    window.addEventListener("resize", () => 
+    window.addEventListener("resize", () =>
       this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
     );
+  }
+
+  /**
+   * Inicializar el estado visual del toggle
+   */
+  inicializarEstadoToggle(): void {
+    const planLabel = document.getElementById('plan-label');
+    planLabel?.classList.add('active');
+  }
+
+  /**
+   * Método para cambiar entre vista histórica y vista por plan de estudios
+   */
+  cambiarVista(): void {
+    this.vistaHistorico = !this.vistaHistorico;
+
+    const historicoLabel = document.getElementById('historico-label');
+    const planLabel = document.getElementById('plan-label');
+
+    if (this.vistaHistorico) {
+      historicoLabel?.classList.add('active');
+      planLabel?.classList.remove('active');
+    } else {
+      // Vista "Según plan de estudios" activa
+      historicoLabel?.classList.remove('active');
+      planLabel?.classList.add('active');
+    }
+
+    console.log(`Vista cambiada a: ${this.vistaHistorico ? 'Tu histórico' : 'Según plan de estudios'}`);
   }
 }
