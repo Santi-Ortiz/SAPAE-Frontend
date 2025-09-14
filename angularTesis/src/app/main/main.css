@@ -596,6 +596,16 @@ button:hover {
   text-align: center;
 }
 
+.benefits h2::after {
+  content: '';
+  display: block;
+  width: 170px;
+  height: 4px;
+  background: linear-gradient(90deg, #0077B6, #00B4D8);
+  margin: 12px auto 0;
+  border-radius: 2px;
+}
+
 .benefits-container {
   max-width: 1000px;
   margin: 0 auto;
@@ -620,23 +630,7 @@ button:hover {
   padding-left: 60px;
 }
 
-.benefit-card::after {
-  content: '';
-  position: absolute;
-  width: 2px;
-  height: 60px;
-  background: linear-gradient(to bottom, #90CAF9, transparent);
-  top: 100%;
-  z-index: 1;
-}
 
-.benefit-card.left::after {
-  right: 30px;
-}
-
-.benefit-card.right::after {
-  left: 30px;
-}
 
 .benefit-card:last-child::after {
   display: none;
@@ -716,6 +710,140 @@ button:hover {
   line-height: 1.5;
 }
 
+.side-decoration {
+  position: absolute;
+  width: 200px;
+  height: 100%;
+  top: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.side-decoration.decoration-right {
+  right: -220px;
+}
+
+.side-decoration.decoration-left {
+  left: -220px;
+}
+
+.benefit-card:hover .side-decoration {
+  opacity: 0.6;
+}
+
+.floating-element {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, rgba(0, 119, 182, 0.1), rgba(0, 180, 216, 0.1));
+  border: 2px solid rgba(0, 119, 182, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0077B6;
+}
+
+.floating-element i {
+  font-size: 16px;
+}
+
+.element-1 {
+  top: 20%;
+  left: 30px;
+  animation-delay: 0s;
+}
+
+.element-2 {
+  top: 50%;
+  left: 80px;
+  animation-delay: 1.3s;
+}
+
+.element-3 {
+  top: 75%;
+  left: 50px;
+  animation-delay: 2.6s;
+}
+
+.decorative-circles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.circle {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(144, 202, 249, 0.2), rgba(0, 119, 182, 0.1));
+  border-radius: 50%;
+}
+
+.circle-1 {
+  width: 20px;
+  height: 20px;
+  top: 30%;
+  left: 120px;
+}
+
+.circle-2 {
+  width: 15px;
+  height: 15px;
+  top: 60%;
+  left: 140px;
+}
+
+.circle-3 {
+  width: 25px;
+  height: 25px;
+  top: 80%;
+  left: 110px;
+}
+
+@keyframes floatSide {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.4;
+  }
+
+  25% {
+    transform: translateY(-8px) scale(1.05);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translateY(-12px) scale(1.1);
+    opacity: 0.9;
+  }
+
+  75% {
+    transform: translateY(-6px) scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+@keyframes circleFloat {
+
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.2;
+  }
+
+  33% {
+    transform: translateY(-10px) translateX(5px) scale(1.2);
+    opacity: 0.4;
+  }
+
+  66% {
+    transform: translateY(-5px) translateX(-3px) scale(1.1);
+    opacity: 0.3;
+  }
+}
+
 @keyframes slideInUp {
   from {
     opacity: 0;
@@ -766,6 +894,11 @@ button:hover {
 
   .benefit-info p {
     font-size: 15px;
+  }
+
+  /* Ocultar elementos decorativos laterales en móvil */
+  .side-decoration {
+    display: none;
   }
 }
 
