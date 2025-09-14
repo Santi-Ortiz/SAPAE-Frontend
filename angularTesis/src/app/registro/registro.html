@@ -1,98 +1,71 @@
 <div class="contenedor-autenticacion">
+  <!-- Elementos decorativos de fondo (sin animaciones) -->
+  <div class="decorative-background">
+    <div class="floating-icon icon-1"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="floating-icon icon-2"><i class="fa-solid fa-book"></i></div>
+    <div class="floating-icon icon-3"><i class="fa-solid fa-user-graduate"></i></div>
+    <div class="floating-icon icon-4"><i class="fa-solid fa-star"></i></div>
+    <div class="floating-icon icon-5"><i class="fa-solid fa-lightbulb"></i></div>
+    <div class="floating-icon icon-6"><i class="fa-solid fa-trophy"></i></div>
+    <div class="floating-icon icon-7"><i class="fa-solid fa-chart-line"></i></div>
+    <div class="floating-icon icon-8"><i class="fa-solid fa-calendar-days"></i></div>
+
+    <div class="geometric-shape shape-1"></div>
+    <div class="geometric-shape shape-2"></div>
+    <div class="geometric-shape shape-3"></div>
+    <div class="geometric-shape shape-4"></div>
+    <div class="geometric-shape shape-5"></div>
+    <div class="geometric-shape shape-6"></div>
+
+    <div class="floating-circle circle-1"></div>
+    <div class="floating-circle circle-2"></div>
+    <div class="floating-circle circle-3"></div>
+    <div class="floating-circle circle-4"></div>
+  </div>
+
   <div class="tarjeta-autenticacion">
     <h2 class="titulo">Registrarse</h2>
 
     <form>
       <label>Primer nombre*</label>
-      <input
-        type="text"
-        name="primerNombre"
-        class="input-estilizado"
-        placeholder="Ingrese su primer nombre"
-        [(ngModel)]="primerNombre"
-        required
-      />
+      <input type="text" name="primerNombre" class="input-estilizado" placeholder="Ingrese su primer nombre"
+        [(ngModel)]="primerNombre" required />
 
       <label>Segundo nombre (Opcional)</label>
-      <input
-        type="text"
-        name="segundoNombre"
-        class="input-estilizado"
-        placeholder="Ingrese su segundo nombre"
-        [(ngModel)]="segundoNombre"
-      />
+      <input type="text" name="segundoNombre" class="input-estilizado" placeholder="Ingrese su segundo nombre"
+        [(ngModel)]="segundoNombre" />
 
       <label>Primer apellido*</label>
-      <input
-        type="text"
-        name="primerApellido"
-        class="input-estilizado"
-        placeholder="Ingrese su primer apellido"
-        [(ngModel)]="primerApellido"
-        required
-      />
+      <input type="text" name="primerApellido" class="input-estilizado" placeholder="Ingrese su primer apellido"
+        [(ngModel)]="primerApellido" required />
 
       <label>Segundo apellido*</label>
-      <input
-        type="text"
-        name="segundoApellido"
-        class="input-estilizado"
-        placeholder="Ingrese su segundo apellido"
-        [(ngModel)]="segundoApellido"
-        required
-      />
+      <input type="text" name="segundoApellido" class="input-estilizado" placeholder="Ingrese su segundo apellido"
+        [(ngModel)]="segundoApellido" required />
 
       <label>Correo electrónico institucional*</label>
-      <input
-        type="email"
-        name="correo"
-        class="input-estilizado"
-        placeholder="ejemplo@javeriana.edu.co"
-        [(ngModel)]="correo"
-        (input)="validarCorreo()"
-        required
-      />
+      <input type="email" name="correo" class="input-estilizado" placeholder="ejemplo@javeriana.edu.co"
+        [(ngModel)]="correo" (input)="validarCorreo()" required />
       <small *ngIf="mensajeCorreo" class="mensaje-error">{{ mensajeCorreo }}</small>
 
       <label>Contraseña*</label>
       <div class="grupo-input">
         <i class="fa-solid fa-lock icono"></i>
-        <input
-          [type]="mostrarLaContrasena ? 'text' : 'password'"
-          name="clave"
-          class="input-estilizado"
-          placeholder="Ingrese al menos 8 caracteres"
-          [(ngModel)]="clave"
-          (input)="validarClave()"
-          required
-        />
-        <i
-          class="fa-solid icono icono-ojo"
-          [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
-          (click)="mostrarContrasena()"
-          title="Mostrar/Ocultar contraseña"
-        ></i>
+        <input [type]="mostrarLaContrasena ? 'text' : 'password'" name="clave" class="input-estilizado"
+          placeholder="Ingrese al menos 8 caracteres" [(ngModel)]="clave" (input)="validarClave()" required />
+        <i class="fa-solid icono icono-ojo" [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
+          (click)="mostrarContrasena()" title="Mostrar/Ocultar contraseña"></i>
       </div>
       <small *ngIf="mensajeClave" class="mensaje-error">{{ mensajeClave }}</small>
 
       <label>Confirme su contraseña*</label>
       <div class="grupo-input">
         <i class="fa-solid fa-lock icono"></i>
-        <input
-          [type]="mostrarLaConfirmarContrasena ? 'text' : 'password'"
-          name="confirmarClave"
-          class="input-estilizado"
-          placeholder="Confirme la contraseña"
-          [(ngModel)]="confirmarClave"
-          (input)="validarConfirmarClave()"
-          required
-        />
-        <i
-          class="fa-solid icono icono-ojo"
-          [ngClass]="mostrarLaConfirmarContrasena ? 'fa-eye' : 'fa-eye-slash'"
-          (click)="mostrarConfirmarContrasena()"
-          title="Mostrar/Ocultar contraseña"
-        ></i>
+        <input [type]="mostrarLaConfirmarContrasena ? 'text' : 'password'" name="confirmarClave"
+          class="input-estilizado" placeholder="Confirme la contraseña" [(ngModel)]="confirmarClave"
+          (input)="validarConfirmarClave()" required />
+        <i class="fa-solid icono icono-ojo" [ngClass]="mostrarLaConfirmarContrasena ? 'fa-eye' : 'fa-eye-slash'"
+          (click)="mostrarConfirmarContrasena()" title="Mostrar/Ocultar contraseña"></i>
       </div>
       <small *ngIf="mensajeConfirmarClave" class="mensaje-error">{{ mensajeConfirmarClave }}</small>
       <small *ngIf="mensajeCampos" class="mensaje-error">{{ mensajeCampos }}</small>
@@ -104,11 +77,7 @@
 
       <p class="cambio-autenticacion">
         ¿Ya tiene una cuenta?
-        <button
-          type="button"
-          class="boton-secundario-link"
-          (click)="irALogin()"
-        >
+        <button type="button" class="boton-secundario-link" (click)="irALogin()">
           Inicie sesión
         </button>
       </p>
