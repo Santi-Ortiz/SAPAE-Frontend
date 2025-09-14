@@ -3,6 +3,23 @@
     <h1 class="logo">SAPAE</h1>
   </div>
 
+  <nav class="main-navigation">
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="#inicio" class="nav-link active" (click)="scrollToSection('inicio', $event)">Inicio</a>
+      </li>
+      <li class="nav-item">
+        <a href="#informe" class="nav-link" (click)="scrollToSection('historial-container', $event)">Cargar Informe Avance</a>
+      </li>
+      <li class="nav-item">
+        <a href="#funcionalidades" class="nav-link" (click)="scrollToSection('features', $event)">Funcionalidades</a>
+      </li>
+      <li class="nav-item">
+        <a href="#beneficios" class="nav-link" (click)="scrollToSection('benefits', $event)">Beneficios</a>
+      </li>
+    </ul>
+  </nav>
+
   <div class="user-menu">
     <i class="fa-solid fa-user-circle"></i>
     <ul class="dropdown">
@@ -12,7 +29,7 @@
 </header>
 
 
-<section class="inicio">
+<section class="inicio" id="inicio">
   <div class="inicio-content">
     <h1>Planifica tu carrera de forma inteligente</h1>
     <p class="description">
@@ -26,7 +43,8 @@
   </div>
 </section>
 
-<div class="historial-container">
+<div class="historial-container" id="historial-container">
+  <h2 class="historial-title">Carga tu Informe de Avance</h2>
   <p class="description">
     Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
     historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
@@ -97,7 +115,7 @@
 </div>
 
 
-<section class="features">
+<section class="features" id="features">
   <h2>Explora las funcionalidades</h2>
   <p class="description">
     Estas herramientas han sido desarrolladas para facilitar el seguimiento de tu
@@ -132,7 +150,7 @@
 
 </section>
 
-<section class="benefits">
+<section class="benefits" id="benefits">
   <h2>Beneficios</h2>
   <div class="benefits-container">
     <div *ngFor="let benefit of benefits; let i = index" class="benefit-card" [class.left]="i % 2 === 0"

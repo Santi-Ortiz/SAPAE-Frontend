@@ -27,7 +27,6 @@ section {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Icono usuario */
 .user-menu {
   position: relative;
   margin-right: 20px;
@@ -64,12 +63,78 @@ section {
   display: block;
 }
 
-.dropdown:hover {
-  background: #00B4D8;
-  transform: scale(1.03);
+.barra-inicio {
+  flex: 1;
 }
 
-/* INICIO */
+.logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: #CAF0F8;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.main-navigation {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 40px;
+  align-items: center;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  color: #CAF0F8;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  display: block;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-link.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #CAF0F8;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 80%;
+}
+
 .inicio {
   display: flex;
   align-items: center;
@@ -130,6 +195,26 @@ section {
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.historial-title {
+  font-size: 32px;
+  color: #0077B6;
+  margin-bottom: 50px;
+  text-align: center;
+  position: relative;
+}
+
+.historial-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 4px;
+  background: linear-gradient(90deg, #0077B6, #00B4D8);
+  border-radius: 2px;
 }
 
 /* Texto PDF */
@@ -548,6 +633,46 @@ button:hover {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+
+  .barra {
+    padding: 8px 15px;
+    flex-direction: column;
+    gap: 10px;
+    height: auto;
+  }
+
+  .main-navigation {
+    flex: none;
+    width: 100%;
+  }
+
+  .nav-menu {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+
+  .user-menu {
+    margin: 0;
+  }
+
+  .user-menu i {
+    font-size: 32px;
+  }
+
+  .inicio {
+    padding-top: 180px;
+  }
+
   .modern-carousel {
     padding: 0 20px;
   }
@@ -576,6 +701,24 @@ button:hover {
 }
 
 @media (max-width: 480px) {
+
+  .nav-menu {
+    gap: 8px;
+  }
+
+  .nav-link {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .inicio {
+    padding-top: 200px;
+  }
+
   .modern-carousel {
     padding: 0 10px;
   }

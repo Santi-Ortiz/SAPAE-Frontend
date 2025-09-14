@@ -221,4 +221,25 @@ export class Main implements AfterViewInit {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
+
+  scrollToSection(sectionId: string, event: Event): void {
+    event.preventDefault();
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+
+    (event.target as HTMLElement).classList.add('active');
+
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const headerHeight = 80;
+      const elementPosition = section.offsetTop;
+      const offsetPosition = elementPosition - headerHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }
 }
