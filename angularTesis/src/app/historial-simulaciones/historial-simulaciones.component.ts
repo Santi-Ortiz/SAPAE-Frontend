@@ -9,7 +9,7 @@ import { SimulacionService } from '../services/simulacion.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './historial-simulaciones.component.html',
-  styleUrl: './historial-simulaciones.component.css'
+  styleUrls: ['./historial-simulaciones.component.css']
 })
 export class HistorialSimulacionesComponent implements OnInit {
   simulacionesGuardadas: SimulacionGuardada[] = [];
@@ -23,14 +23,19 @@ export class HistorialSimulacionesComponent implements OnInit {
     private router: Router,
     private historialSimulacionesService: HistorialSimulacionesService,
     private simulacionService: SimulacionService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.cargarSimulacionesGuardadas();
   }
 
-  cargarSimulacionesGuardadas(): void {
-    this.simulacionesGuardadas = this.historialSimulacionesService.getSimulacionesGuardadas();
+  private cargarSimulacionesGuardadas(): void {
+    this.historialSimulacionesService.getSimulacionesGuardadas().subscribe({
+      next: (data) => {
+        this.simulacionesGuardadas = data;
+      },
+      error: (err) => console.error('Error al cargar simulaciones:', err)
+    });
   }
 
   verSimulacion(simulacion: SimulacionGuardada): void {
@@ -56,8 +61,12 @@ export class HistorialSimulacionesComponent implements OnInit {
 
   confirmarEliminacion(): void {
     if (this.simulacionAEliminar) {
-      this.historialSimulacionesService.eliminarSimulacion(this.simulacionAEliminar.id);
-      this.cargarSimulacionesGuardadas();
+      this.historialSimulacionesService.eliminarSimulacion(this.simulacionAEliminar.id).subscribe({
+        next: () => {
+          this.cargarSimulacionesGuardadas();
+        },
+        error: (err) => console.error('Error al eliminar simulación:', err)
+      });
     }
     this.mostrarModalEliminar = false;
     this.simulacionAEliminar = null;
@@ -68,9 +77,13 @@ export class HistorialSimulacionesComponent implements OnInit {
   }
 
   confirmarLimpiarHistorial(): void {
-    this.historialSimulacionesService.limpiarHistorial();
-    this.cargarSimulacionesGuardadas();
-    this.mostrarModalLimpiar = false;
+    this.historialSimulacionesService.limpiarHistorial().subscribe({
+      next: () => {
+        this.cargarSimulacionesGuardadas();
+        this.mostrarModalLimpiar = false;
+      },
+      error: (err) => console.error('Error al limpiar historial:', err)
+    });
   }
 
   volverSimulacion(): void {
@@ -87,7 +100,7 @@ export class HistorialSimulacionesComponent implements OnInit {
     });
   }
 
-  formatearPriorizaciones(priorizaciones: string[]): string {
-    return priorizaciones.join(', ');
+  formatearPriorizaciones(priorizaciones: string[] = []): string {
+    return priorizaciones.length ? priorizaciones.join(', ') : 'Ninguna';
   }
 }

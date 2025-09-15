@@ -1,129 +1,85 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { Materia } from '../models/materia.model';
 
 export interface SimulacionGuardada {
-  id: string;
-  jobId?: string; // JobId de la simulación
+  id: number;
+  jobId?: string;
   nombre: string;
   fechaCreacion: Date;
-  resultadoSimulacion: { [semestre: string]: { materias: Materia[] } };
+  resultadoSimulacion: any; 
   parametros: {
     semestres: number;
     tipoMatricula: string;
     creditos: number;
     materias: number;
-    priorizaciones?: string[]; // Agregamos las priorizaciones
+    priorizaciones?: string[];
   };
 }
-
-const STORAGE_KEY = 'simulacionesGuardadas';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HistorialSimulacionesService {
-  private simulacionesGuardadas: BehaviorSubject<SimulacionGuardada[]>;
+  private apiUrl = `${environment.SERVER_URL}/api/simulaciones`;
 
-  constructor() {
-    const data = this.loadFromStorage();
-    this.simulacionesGuardadas = new BehaviorSubject<SimulacionGuardada[]>(data);
-  }
+  constructor(private http: HttpClient) {}
 
-  get simulacionesGuardadas$() {
-    return this.simulacionesGuardadas.asObservable();
-  }
-
-  // Método para guardar en sessionStorage
-  private saveToStorage(simulaciones: SimulacionGuardada[]): void {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(simulaciones));
-  }
-
-  // Método para leer desde sessionStorage
-  private loadFromStorage(): SimulacionGuardada[] {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsedData = JSON.parse(raw);
-        // Convertir las fechas de string a Date
-        return parsedData.map((sim: any) => ({
-          ...sim,
-          fechaCreacion: new Date(sim.fechaCreacion)
-        }));
-      } catch (e) {
-        console.error('Error al parsear historial de simulaciones desde sessionStorage', e);
-      }
-    }
-    return [];
-  }
-
-  // Guardar una nueva simulación
+  // Guardar una simulación en BD
   guardarSimulacion(
     nombre: string,
-    resultadoSimulacion: { [semestre: string]: { materias: Materia[] } },
+    resultadoSimulacion: any,
     parametros: {
       semestres: number;
       tipoMatricula: string;
       creditos: number;
       materias: number;
-      priorizaciones: string[];
+      priorizaciones?: string[];
     },
     jobId?: string
-  ): void {
-    const simulacionesActuales = this.simulacionesGuardadas.value;
-    
-    const nuevaSimulacion: SimulacionGuardada = {
-      id: this.generarId(),
+  ): Observable<SimulacionGuardada> {
+    const nuevaSimulacion: Omit<SimulacionGuardada, 'id'> = {
       jobId,
       nombre,
       fechaCreacion: new Date(),
       resultadoSimulacion,
       parametros
     };
-
-    const simulacionesActualizadas = [...simulacionesActuales, nuevaSimulacion];
-    this.saveToStorage(simulacionesActualizadas);
-    this.simulacionesGuardadas.next(simulacionesActualizadas);
+    return this.http.post<SimulacionGuardada>(this.apiUrl, nuevaSimulacion);
   }
 
-  // Obtener todas las simulaciones guardadas
-  getSimulacionesGuardadas(): SimulacionGuardada[] {
-    return this.simulacionesGuardadas.value;
+  // Obtener todas las simulaciones
+  getSimulacionesGuardadas(): Observable<SimulacionGuardada[]> {
+    return this.http.get<SimulacionGuardada[]>(this.apiUrl);
   }
 
   // Obtener una simulación por ID
-  getSimulacionPorId(id: string): SimulacionGuardada | undefined {
-    return this.simulacionesGuardadas.value.find(sim => sim.id === id);
+  getSimulacionPorId(id: number): Observable<SimulacionGuardada> {
+    return this.http.get<SimulacionGuardada>(`${this.apiUrl}/${id}`);
   }
 
   // Eliminar una simulación
-  eliminarSimulacion(id: string): void {
-    const simulacionesActuales = this.simulacionesGuardadas.value;
-    const simulacionesActualizadas = simulacionesActuales.filter(sim => sim.id !== id);
-    this.saveToStorage(simulacionesActualizadas);
-    this.simulacionesGuardadas.next(simulacionesActualizadas);
+  eliminarSimulacion(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // Verificar si ya existe una simulación con el mismo jobId
-  existeSimulacionConJobId(jobId: string): boolean {
-    const existe = this.simulacionesGuardadas.value.some(sim => sim.jobId === jobId);
-    return existe;
+  // Verificar si existe por JobId
+  existeSimulacionConJobId(jobId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/existe/job/${jobId}`);
   }
 
-  // Verificar si ya existe una simulación con el mismo nombre
-  existeSimulacionConNombre(nombre: string): boolean {
-    const existe = this.simulacionesGuardadas.value.some(sim => sim.nombre === nombre);
-    return existe;
+  // Verificar si existe por nombre
+  existeSimulacionConNombre(nombre: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/existe/nombre/${nombre}`);
   }
 
   // Limpiar todas las simulaciones
-  limpiarHistorial(): void {
-    this.saveToStorage([]);
-    this.simulacionesGuardadas.next([]);
+  limpiarHistorial(): Observable<void> {
+    return this.http.delete<void>(this.apiUrl, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
   }
 
-  // Generar ID único
-  private generarId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
 }

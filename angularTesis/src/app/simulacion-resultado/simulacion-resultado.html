@@ -21,7 +21,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let materia of semestre.value.materias">
+                    <tr *ngFor="let materia of obtenerMaterias(semestre.value)">
                         <td>{{ materia.codigo }}</td>
                         <td>{{ materia.nombre }}</td>
                         <td>{{ materia.creditos }}</td>
@@ -46,18 +46,18 @@
                             <div class="stat-item">
                                 <i class="fas fa-book-open"></i>
                                 <span><strong>Materias a cursar:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalMaterias }}</span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value).totalMaterias }}</span>
                             </div>
                             <div class="stat-item">
                                 <i class="fas fa-star"></i>
                                 <span><strong>Total de créditos:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value).totalCreditos }}</span>
                             </div>
 
                             <div class="stat-item">
                                 <i class="fa-solid fa-clock"></i>
                                 <span><strong>Horas de estudio por día:</strong></span>
-                                <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
+                                <span class="stat-value">{{ calcularResumen(semestre.value).horasEstudio }}</span>
                             </div>
                             <div class="stat-item">
                                 <i class="fa-solid fa-circle-exclamation"></i>

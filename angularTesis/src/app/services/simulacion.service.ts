@@ -1,6 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, timer, switchMap, takeWhile, of, forkJoin, catchError, Subscription } from 'rxjs';
+import {
+  Observable,
+  BehaviorSubject,
+  timer,
+  switchMap,
+  takeWhile,
+  of,
+  forkJoin,
+  catchError,
+  Subscription,
+} from 'rxjs';
 import { SimulacionDTO } from '../dtos/simulacion-dto';
 import { Simulacion } from '../models/simulacion.model';
 import { environment } from '../../environments/environment';
@@ -9,206 +19,180 @@ import { SimulacionJobResponse } from '../dtos/simulacion-job-response.dto';
 import { SimulacionJobStatus } from '../dtos/simulacion-job-status.dto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SimulacionService {
-
   private apiUrl = `${environment.SERVER_URL}`;
   private readonly STORAGE_KEY = 'resultadoSimulacion';
   private readonly JOBS_STORAGE_KEY = 'simulacionJobs';
   private readonly NOMBRE_SIMULACION_KEY = 'nombreSimulacionActual';
   private readonly PARAMETROS_SIMULACION_KEY = 'parametrosSimulacionActual';
   private readonly JOB_ID_ACTUAL_KEY = 'jobIdSimulacionActual';
+
   public resultadoSimulacion!: Record<string, { materias: Materia[] }>;
 
-  // Subject para la simulación organizada por semestres
   private simulacionSubject = new BehaviorSubject<any>(null);
   simulacion$ = this.simulacionSubject.asObservable();
 
-  generarSimulacion(simulacionDTO: SimulacionDTO): Observable<Simulacion> {
-    return this.http.post<Simulacion>(`${environment.SERVER_URL}/api/simulaciones/generar`, simulacionDTO);
-  }
-  // Subject para las materias planas (todas juntas)
+  private simulacion: { [semestre: string]: { materias: Materia[] } } = {};
+
+  // Materias planas y agrupadas
   private materiasSimuladasSubject = new BehaviorSubject<Materia[]>([]);
   materiasSimuladas$ = this.materiasSimuladasSubject.asObservable();
 
-  // Subject para las materias agrupadas por key (semestre)
-  private materiasSimuladasPorKeySubject = new BehaviorSubject<Record<string, Materia[]>>({});
-  materiasSimuladasPorKey$ = this.materiasSimuladasPorKeySubject.asObservable();
+  private materiasSimuladasPorKeySubject = new BehaviorSubject<
+    Record<string, Materia[]>
+  >({});
+  materiasSimuladasPorKey$ =
+    this.materiasSimuladasPorKeySubject.asObservable();
 
-  // Subject para notificaciones de simulaciones
+  // Notificaciones
   private notificacionesSubject = new BehaviorSubject<string[]>([]);
   notificaciones$ = this.notificacionesSubject.asObservable();
 
-  // Subject para jobs activos
+  // Jobs
   private jobsActivosSubject = new BehaviorSubject<SimulacionJobStatus[]>([]);
   jobsActivos$ = this.jobsActivosSubject.asObservable();
 
-  // Subscription para el polling
   private intervalSubscription?: Subscription;
 
   constructor(private http: HttpClient) {
-    // Si existe en sessionStorage, la cargamos
     const stored = sessionStorage.getItem(this.STORAGE_KEY);
     if (stored) {
       this.resultadoSimulacion = JSON.parse(stored);
       this.simulacionSubject.next(this.resultadoSimulacion);
     }
-
-    // Cargar jobs activos del sessionStorage
     this.cargarJobsActivos();
-    
-    // Monitorear jobs activos
     this.monitorearJobsActivos();
   }
 
-  // Método para iniciar simulación asíncrona
-  iniciarSimulacion(simulacionDTO: SimulacionDTO): Observable<SimulacionJobResponse> {
-    return this.http.post<SimulacionJobResponse>(`${environment.SERVER_URL}/api/simulaciones/iniciar`, simulacionDTO);
+  generarSimulacion(
+    simulacionDTO: SimulacionDTO
+  ): Observable<Record<string, { materias: Materia[] }>> {
+    return this.http.post<Record<string, { materias: Materia[] }>>(
+      `${environment.SERVER_URL}/api/simulaciones/generar`,
+      simulacionDTO
+    );
   }
 
-  // Método para consultar estado de un job
+  iniciarSimulacion(
+    simulacionDTO: SimulacionDTO
+  ): Observable<SimulacionJobResponse> {
+    return this.http.post<SimulacionJobResponse>(
+      `${environment.SERVER_URL}/api/simulaciones/iniciar`,
+      simulacionDTO
+    );
+  }
+
   consultarEstadoJob(jobId: string): Observable<SimulacionJobStatus> {
-    return this.http.get<SimulacionJobStatus>(`${environment.SERVER_URL}/api/simulaciones/estado/${jobId}`);
+    return this.http.get<SimulacionJobStatus>(
+      `${environment.SERVER_URL}/api/simulaciones/estado/${jobId}`
+    );
   }
 
-  // Método para obtener resultado de un job completado
   obtenerResultadoJob(jobId: string): Observable<any> {
-    return this.http.get<any>(`${environment.SERVER_URL}/api/simulaciones/resultado/${jobId}`);
+    return this.http.get<any>(
+      `${environment.SERVER_URL}/api/simulaciones/resultado/${jobId}`
+    );
   }
 
-  // Agregar job al monitoreo
-  agregarJobAlMonitoreo(jobId: string, descripcion: string, nombre: string): void {
+  agregarJobAlMonitoreo(jobId: string, descripcion: string, nombre: string) {
     const jobsActivos = this.getJobsActivos();
     const nuevoJob: SimulacionJobStatus = {
-      jobId: jobId,
+      jobId,
       estado: 'PENDIENTE',
       mensaje: descripcion,
-      nombre: nombre
+      nombre,
     };
-    
     jobsActivos.push(nuevoJob);
     this.guardarJobsActivos(jobsActivos);
     this.jobsActivosSubject.next(jobsActivos);
   }
 
-  // Monitorear jobs activos
   private monitorearJobsActivos(): void {
-    console.log('Iniciando monitoreo de jobs activos...');
-    
-    this.intervalSubscription = timer(0, 5000) // Revisar cada 5 segundos
+    this.intervalSubscription = timer(0, 5000)
       .pipe(
         switchMap(() => {
           const jobsActivos = this.getJobsActivos();
-          
-          const jobsPendientes = jobsActivos.filter(job => 
-            job.estado === 'PENDIENTE' || job.estado === 'EN_PROGRESO' || job.estado === 'EN_PROCESO'
+          const jobsPendientes = jobsActivos.filter(
+            (job) =>
+              job.estado === 'PENDIENTE' ||
+              job.estado === 'EN_PROGRESO' ||
+              job.estado === 'EN_PROCESO'
           );
-          
-          
-          if (jobsPendientes.length === 0) {
-            return of([]);
-          }
 
-          // Consultar estado de cada job pendiente - CORREGIDO
-          const consultas = jobsPendientes.map(job => 
-            this.consultarEstadoJob(job.jobId).pipe(
-              catchError(error => {
-                return of(null);
-              })
-            )
+          if (jobsPendientes.length === 0) return of([]);
+
+          const consultas = jobsPendientes.map((job) =>
+            this.consultarEstadoJob(job.jobId).pipe(catchError(() => of(null)))
           );
-          
           return consultas.length > 0 ? forkJoin(consultas) : of([]);
         })
       )
-      .subscribe(resultados => {
-        if (resultados && resultados.length > 0) {
-          resultados.forEach(status => {
-            if (status) { // Solo procesar si no es null (error)
-              this.actualizarEstadoJob(status);
-            }
-          });
-        }
+      .subscribe((resultados) => {
+        resultados.forEach((status) => {
+          if (status) this.actualizarEstadoJob(status);
+        });
       });
   }
 
-  // Actualizar estado de un job específico
   private actualizarEstadoJob(status: SimulacionJobStatus): void {
-    
     const jobsActivos = this.getJobsActivos();
-    const index = jobsActivos.findIndex(job => job.jobId === status.jobId);
-    
+    const index = jobsActivos.findIndex((job) => job.jobId === status.jobId);
+
     if (index !== -1) {
-      const estadoAnterior = jobsActivos[index].estado;
-      const nombreOriginal = jobsActivos[index].nombre; 
-      
-      jobsActivos[index] = {
-        ...status,
-        nombre: nombreOriginal
-      };
-      
-      // Si el job está completado, obtener el resultado
+      const nombreOriginal = jobsActivos[index].nombre;
+      jobsActivos[index] = { ...status, nombre: nombreOriginal };
+
       if (status.estado === 'COMPLETADA') {
         this.obtenerResultadoJob(status.jobId).subscribe({
           next: (resultado) => {
             this.setSimulacion(resultado);
-            this.setJobIdSimulacionActual(status.jobId); // Guardar el jobId de la simulación completada
+            this.setJobIdSimulacionActual(status.jobId);
             this.agregarNotificacion(`Simulación completada: ${nombreOriginal}`);
-            
           },
-          error: (error) => {
-            console.error('Error obteniendo resultado:', error);
-          }
         });
       } else if (status.estado === 'ERROR') {
-        this.agregarNotificacion(`Error en simulación: ${status.error || 'Error desconocido'}`);
-        
-        setTimeout(() => {
-          this.removerJobDelMonitoreo(status.jobId);
-        }, 60000); // 1 minuto
+        this.agregarNotificacion(
+          `Error en simulación: ${status.error || 'Error desconocido'}`
+        );
+        setTimeout(() => this.removerJobDelMonitoreo(status.jobId), 60000);
       }
-      
-      // Actualizar sessionStorage y notificar cambios
+
       this.guardarJobsActivos(jobsActivos);
       this.jobsActivosSubject.next([...jobsActivos]);
-    } else {
-      console.warn(`Job ${status.jobId} no encontrado en la lista activa`);
     }
   }
 
-  // Remover job del monitoreo
-  removerJobDelMonitoreo(jobId: string): void {
-    const jobsActivos = this.getJobsActivos();
-    const jobsFiltrados = jobsActivos.filter(job => job.jobId !== jobId);
-    this.guardarJobsActivos(jobsFiltrados);
-    this.jobsActivosSubject.next(jobsFiltrados);
+  removerJobDelMonitoreo(jobId: string) {
+    const jobsActivos = this.getJobsActivos().filter(
+      (job) => job.jobId !== jobId
+    );
+    this.guardarJobsActivos(jobsActivos);
+    this.jobsActivosSubject.next(jobsActivos);
   }
 
-  // Métodos para manejar sessionStorage de jobs
   private getJobsActivos(): SimulacionJobStatus[] {
     const stored = sessionStorage.getItem(this.JOBS_STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   }
 
-  private guardarJobsActivos(jobs: SimulacionJobStatus[]): void {
+  private guardarJobsActivos(jobs: SimulacionJobStatus[]) {
     sessionStorage.setItem(this.JOBS_STORAGE_KEY, JSON.stringify(jobs));
   }
 
-  private cargarJobsActivos(): void {
-    const jobs = this.getJobsActivos();
-    this.jobsActivosSubject.next(jobs);
+  private cargarJobsActivos() {
+    this.jobsActivosSubject.next(this.getJobsActivos());
   }
 
-  // Métodos para notificaciones
-  agregarNotificacion(mensaje: string): void {
+  agregarNotificacion(mensaje: string) {
     const notificaciones = this.getNotificaciones();
     notificaciones.push(mensaje);
     this.guardarNotificaciones(notificaciones);
     this.notificacionesSubject.next(notificaciones);
   }
 
-  limpiarNotificaciones(): void {
+  limpiarNotificaciones() {
     this.guardarNotificaciones([]);
     this.notificacionesSubject.next([]);
   }
@@ -218,86 +202,88 @@ export class SimulacionService {
     return stored ? JSON.parse(stored) : [];
   }
 
-  private guardarNotificaciones(notificaciones: string[]): void {
-    sessionStorage.setItem('simulacion-notificaciones', JSON.stringify(notificaciones));
+  private guardarNotificaciones(notificaciones: string[]) {
+    sessionStorage.setItem(
+      'simulacion-notificaciones',
+      JSON.stringify(notificaciones)
+    );
   }
 
-  // Métodos existentes
   postSimulacion(simulacionDTO: SimulacionDTO): Observable<any> {
-    return this.http.post(`${environment.SERVER_URL}/api/simulaciones`, simulacionDTO);
+    return this.http.post(
+      `${environment.SERVER_URL}/api/simulaciones`,
+      simulacionDTO
+    );
   }
 
   setSimulacion(simulacion: any): void {
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(simulacion));
-    this.resultadoSimulacion = simulacion;
-    this.simulacionSubject.next(simulacion);
-
-    const todasLasMaterias: Materia[] = [];
-    const gruposPorKey: Record<string, Materia[]> = {};
-    
-    for (const semestre in simulacion) {
-      if (simulacion[semestre] && simulacion[semestre].materias) {
-        const materiasDelSemestre = simulacion[semestre].materias;
-        todasLasMaterias.push(...materiasDelSemestre);
-        gruposPorKey[semestre] = materiasDelSemestre;
-      }
+    if (simulacion?.materiasAsociadas) {
+      const normalizada: { [semestre: string]: { materias: Materia[] } } = {};
+      simulacion.materiasAsociadas.forEach((m: Materia) => {
+        const semestre = m.semestre?.toString() || '0';
+        if (!normalizada[semestre]) {
+          normalizada[semestre] = { materias: [] };
+        }
+        normalizada[semestre].materias.push(m);
+      });
+      this.simulacion = normalizada;
+    } else {
+      this.simulacion = simulacion;
     }
-    
-    this.materiasSimuladasSubject.next(todasLasMaterias);
-    this.materiasSimuladasPorKeySubject.next(gruposPorKey);
-  }
-
-  // Método para establecer materias agrupadas por key
-  setMateriasSimuladasPorKey(grupos: Record<string, Materia[]>): void {
-    this.materiasSimuladasPorKeySubject.next(grupos);
-    
-    // También actualizar las materias planas
-    const todasLasMaterias: Materia[] = Object.values(grupos).flatMap(arr => arr);
-    this.materiasSimuladasSubject.next(todasLasMaterias);
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.simulacion));
+    this.simulacionSubject.next(this.simulacion);
   }
 
   getSimulacion(): any {
-    return this.resultadoSimulacion;
+    if (!this.simulacion) {
+      const data = sessionStorage.getItem(this.STORAGE_KEY);
+      if (data) this.simulacion = JSON.parse(data);
+    }
+    return this.simulacion;
   }
 
-  setNombreSimulacionActual(nombre: string): void {
+  setMateriasSimuladasPorKey(grupos: Record<string, Materia[]>) {
+    this.materiasSimuladasPorKeySubject.next(grupos);
+    const todasLasMaterias = Object.values(grupos).flat();
+    this.materiasSimuladasSubject.next(todasLasMaterias);
+  }
+
+  setNombreSimulacionActual(nombre: string) {
     sessionStorage.setItem(this.NOMBRE_SIMULACION_KEY, nombre);
   }
 
   getNombreSimulacionActual(): string | null {
     return sessionStorage.getItem(this.NOMBRE_SIMULACION_KEY);
   }
-
-  limpiarNombreSimulacionActual(): void {
+  limpiarNombreSimulacionActual() {
     sessionStorage.removeItem(this.NOMBRE_SIMULACION_KEY);
   }
 
-  setParametrosSimulacionActual(parametros: any): void {
-    sessionStorage.setItem(this.PARAMETROS_SIMULACION_KEY, JSON.stringify(parametros));
+  setParametrosSimulacionActual(parametros: any) {
+    sessionStorage.setItem(
+      this.PARAMETROS_SIMULACION_KEY,
+      JSON.stringify(parametros)
+    );
   }
-
   getParametrosSimulacionActual(): any | null {
     const parametros = sessionStorage.getItem(this.PARAMETROS_SIMULACION_KEY);
     return parametros ? JSON.parse(parametros) : null;
   }
-
-  limpiarParametrosSimulacionActual(): void {
+  limpiarParametrosSimulacionActual() {
     sessionStorage.removeItem(this.PARAMETROS_SIMULACION_KEY);
   }
 
-  setJobIdSimulacionActual(jobId: string): void {
+  setJobIdSimulacionActual(jobId: string) {
     sessionStorage.setItem(this.JOB_ID_ACTUAL_KEY, jobId);
   }
-
   getJobIdSimulacionActual(): string | null {
     return sessionStorage.getItem(this.JOB_ID_ACTUAL_KEY);
   }
-
-  limpiarJobIdSimulacionActual(): void {
+  limpiarJobIdSimulacionActual() {
     sessionStorage.removeItem(this.JOB_ID_ACTUAL_KEY);
   }
 
-  resetearSimulacion(): void {
+  resetearSimulacion() {
     sessionStorage.removeItem(this.STORAGE_KEY);
     this.limpiarNombreSimulacionActual();
     this.limpiarParametrosSimulacionActual();
@@ -308,18 +294,16 @@ export class SimulacionService {
     this.materiasSimuladasPorKeySubject.next({});
   }
 
-  ngOnDestroy(): void {
-    if (this.intervalSubscription) {
-      this.intervalSubscription.unsubscribe();
-    }
+  ngOnDestroy() {
+    this.intervalSubscription?.unsubscribe();
   }
 
-  getSimulaciones() {
-    return this.http.get(this.apiUrl);
+  getSimulaciones(): Observable<Simulacion[]> {
+    return this.http.get<Simulacion[]>(`${this.apiUrl}/api/simulaciones`);
   }
 
-  getSimulacionById(id: number) {
-    return this.http.get(`${this.apiUrl}/${id}`);
+  getSimulacionById(id: number): Observable<Simulacion> {
+    return this.http.get<Simulacion>(`${this.apiUrl}/api/simulaciones/${id}`);
   }
 
   addSimulacion(simulacion: Simulacion) {
@@ -329,5 +313,4 @@ export class SimulacionService {
   deleteSimulacion(id: number) {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
-
 }
