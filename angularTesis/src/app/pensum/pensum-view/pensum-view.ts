@@ -40,8 +40,7 @@ export class PensumView implements OnInit, AfterViewInit {
   soloMaterias: MateriaDTO[] = [];
   requisitosMap = new Map<string, string[]>();
 
-  // Propiedades para el toggle de vista
-  vistaHistorico: boolean = false; // false = "Según plan de estudios", true = "Tu histórico"
+  vistaHistorico: boolean = true;
 
 
   @ViewChild('svgRef') svgRef!: ElementRef<SVGSVGElement>;
@@ -594,8 +593,8 @@ export class PensumView implements OnInit, AfterViewInit {
    * Inicializar el estado visual del toggle
    */
   inicializarEstadoToggle(): void {
-    const planLabel = document.getElementById('plan-label');
-    planLabel?.classList.add('active');
+    const historicoLabel = document.getElementById('historico-label');
+    historicoLabel?.classList.add('active');
   }
 
   /**

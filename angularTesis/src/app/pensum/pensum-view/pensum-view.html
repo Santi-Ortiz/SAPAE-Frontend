@@ -7,31 +7,29 @@
       Además, en las <strong>materias faltantes</strong> al hacerle click podrás consultar sus
       requisitos y las materias que se habilitan al aprobarlas.
     </p>
+
+    <div class="vista-controls">
+        <div class="vista-toggle-block">
+          <h4 class="vista-title">Tipo de vista de malla curricular</h4>
+          <div class="vista-toggle">
+            <span class="toggle-label left-label" id="historico-label">Tu histórico</span>
+            <div class="toggle-container">
+              <input type="checkbox" id="vistaToggle" class="toggle-input" (change)="cambiarVista()" />
+              <label for="vistaToggle" class="toggle-slider">
+                <span class="toggle-button"></span>
+              </label>
+            </div>
+            <span class="toggle-label right-label" id="plan-label">Según plan de estudios</span>
+          </div>
+        </div>
+      </div>
+
     <div class="contenedor-leyenda">
       <div class="leyenda-colores">
         <div class="item"><span class="color perdida"></span> Materia Perdida</div>
         <div class="item"><span class="color bloqueada"></span> Materia Cursada</div>
         <div class="item"><span class="color actual"></span> Materia Actual</div>
         <div class="item"><span class="color faltante"></span> Materia Faltante</div>
-        <div class="item"><span class="color faltante"></span> Materia Faltante</div>
-      </div>
-
-      <div class="vista-controls">
-        <div class="vista-section">
-          <h4 class="vista-title">Tipo de vista de malla curricular</h4>
-          <div class="vista-toggle-block">
-            <div class="vista-toggle">
-              <span class="toggle-label left-label" id="historico-label">Tu histórico</span>
-              <div class="toggle-container">
-                <input type="checkbox" id="vistaToggle" class="toggle-input" (change)="cambiarVista()" />
-                <label for="vistaToggle" class="toggle-slider">
-                  <span class="toggle-button"></span>
-                </label>
-              </div>
-              <span class="toggle-label right-label" id="plan-label">Según plan de estudios</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
