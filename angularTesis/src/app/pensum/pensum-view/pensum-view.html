@@ -22,7 +22,7 @@
             <span class="toggle-label right-label" id="plan-label">Según plan de estudios</span>
           </div>
         </div>
-      </div>
+    </div>
 
     <div class="contenedor-leyenda">
       <div class="leyenda-colores">
@@ -33,8 +33,8 @@
       </div>
     </div>
 
-    <div class="semestres">
-
+    <!-- Vista histórica -->
+    <div class="semestres" *ngIf="vistaHistorico">
       <!-- Materias cursadas (ORÍGENES) -->
       <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(soloMaterias)">
         <h3>Semestre {{ grupo.semestre }}</h3>
@@ -61,6 +61,22 @@
         </div>
       </div>
     </div>
+    <!-- Vista Pensum -->
+    <div class="semestres" *ngIf="!vistaHistorico">
+      <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestrePensum(allPensum, progreso)">
+        <h3>Semestre {{ grupo.semestre }}</h3>
+        <div class="caja" *ngFor="let materia of grupo.materias"
+          [attr.id]="getCodigo(materia).toString().padStart(6,'0')"
+          [attr.data-semestre]="grupo.semestre"
+          (click)="seleccionarMateria(getCodigo(materia))"
+          [ngClass]="materia.cssClass">
+          <strong>{{ materia.nombre }}</strong>
+          <span class="codigo">{{ getCodigo(materia) }}</span>
+          <span class="creditos">{{ materia.creditos }} créditos</span>
+        </div>
+      </div>
+    </div>
+
     <svg #svgRef class="svg-lines"></svg>
   </div>
 

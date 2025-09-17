@@ -6,7 +6,7 @@ import {
   OnInit,
   HostListener
 } from '@angular/core';
-import { NgFor, NgClass } from '@angular/common';
+import { NgIf, NgFor, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PensumDTO } from '../../dtos/pensum-dto';
 import { MateriaDTO } from '../../dtos/materia-dto';
@@ -20,7 +20,7 @@ import * as d3 from 'd3';
 @Component({
   selector: 'app-pensum-view',
   standalone: true,
-  imports: [RouterModule, NgFor, NgClass],
+  imports: [RouterModule, NgFor, NgIf, NgClass],
   templateUrl: './pensum-view.html',
   styleUrl: './pensum-view.css',
 })
@@ -39,7 +39,6 @@ export class PensumView implements OnInit, AfterViewInit {
   mensajeY: number = 0;
   soloMaterias: MateriaDTO[] = [];
   requisitosMap = new Map<string, string[]>();
-
   vistaHistorico: boolean = true;
 
 
@@ -57,7 +56,7 @@ export class PensumView implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.progreso = this.historialService.getHistorial()!;
-
+    console.log("Progreso:", this.progreso);
     this.pensumService.obtenerPensum().pipe(
       catchError(err => {
         console.error('Error cargando pensum', err);
@@ -85,7 +84,6 @@ export class PensumView implements OnInit, AfterViewInit {
         this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, this.allPensum);
         this.cdr.detectChanges();
         this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
-
       }
 
 
@@ -96,6 +94,11 @@ export class PensumView implements OnInit, AfterViewInit {
     return (m as any).codigo ?? (m as any).curso;
   }
 
+  private normCodigo(c: any): string {
+    const s = String(c ?? '').trim();
+    return /^\d+$/.test(s) ? s.padStart(6, '0') : s;
+  }  
+
   getRequisitosJson(codigoDestino: string): string {
     const req = this.requisitosMap.get(String(codigoDestino)) || [];
     return JSON.stringify(req);
@@ -104,7 +107,7 @@ export class PensumView implements OnInit, AfterViewInit {
   agruparPorSemestre(materias: MateriaDTO[]) {
     const ordenSemestres = ["PrimPe", "SegPe", "TerPe"];
     const semestreMap = new Map<number, (MateriaDTO & { cssClass: string })[]>();
-
+  
     // ordenar ciclos
     const ciclosOrdenados = Array.from(
       new Set(
@@ -121,10 +124,10 @@ export class PensumView implements OnInit, AfterViewInit {
       if (anioA !== anioB) return parseInt(anioA) - parseInt(anioB);
       return ordenSemestres.indexOf(cicloA) - ordenSemestres.indexOf(cicloB);
     });
-
+  
     let semestreCounter = 1;
     const cicloToSemestre = new Map<string, number>();
-
+  
     for (let i = 0; i < ciclosOrdenados.length; i++) {
       const [ciclo, anio] = ciclosOrdenados[i].split("-");
       if (ciclo === "SegPe") {
@@ -134,36 +137,87 @@ export class PensumView implements OnInit, AfterViewInit {
         semestreCounter++;
       }
     }
-
+  
     // último semestre cursado
     const ultimoSemestre = Math.max(...Array.from(cicloToSemestre.values()));
-
+  
     materias.forEach(m => {
       const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
-      if (match && m.cred > 0) {
+      if (match) {
         const clave = `${match[1]}-${match[2]}`;
         const semestre = cicloToSemestre.get(clave) ?? 0;
         if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
-
+  
+        // normalizar créditos
+        const cred = parseFloat((m.cred ?? "0").toString().replace(",", "."));
+  
+        // normalizar calificación
         const califNum = Number(m.calif);
-
-        // asignar clases según condición
         let clase = "bloqueada"; // por defecto
         if (!isNaN(califNum) && califNum < 3) {
           clase = "perdida";
         } else if (semestre === ultimoSemestre) {
           clase = "actual";
         }
-        semestreMap.get(semestre)!.push({ ...m, cssClass: clase });
+  
+        // incluir solo materias con créditos válidos (>0)
+        if (cred > 0) {
+          semestreMap.get(semestre)!.push({ ...m, cred, cssClass: clase });
+        }
       }
     });
-
+  
     return Array.from(semestreMap.entries()).map(([semestre, materias]) => ({
       semestre,
       materias
     }));
   }
 
+  agruparPorSemestrePensum(pensum: PensumDTO[], progreso: Progreso) {
+    const semestreMap = new Map<number, (PensumDTO & { cssClass: string })[]>();
+  
+    // Normalizar todos los códigos
+    const todas = progreso.materias.map(m => ({
+      codigo: this.normCodigo(m.curso),
+      calif: m.calif
+    }));
+  
+    // separar
+    const cursandoSet = new Set(
+      todas.filter(m => m.calif === 'SIN CALIFICACIÓN').map(m => m.codigo)
+    );
+    const cursadasSet = new Set(
+      todas.filter(m => m.calif !== 'SIN CALIFICACIÓN').map(m => m.codigo)
+    );
+  
+    pensum.forEach(m => {
+      if (!semestreMap.has(m.semestre)) semestreMap.set(m.semestre, []);
+  
+      let clase = "faltante";
+      const codigoNorm = this.normCodigo(m.codigo);
+  
+      if (cursandoSet.has(codigoNorm)) {
+        // 🔄 En curso
+        clase = "actual";
+      } else if (cursadasSet.has(codigoNorm)) {
+        // ✅ Ya cursada → ver nota
+        const materiaHist = progreso.materias.find(x => this.normCodigo(x.curso) === codigoNorm);
+        const califNum = Number(materiaHist?.calif);
+        if (!isNaN(califNum) && califNum < 3) {
+          clase = "perdida";
+        } else {
+          clase = "bloqueada"; // aprobada
+        }
+      }
+  
+      semestreMap.get(m.semestre)!.push({ ...m, cssClass: clase });
+    });
+  
+    return Array.from(semestreMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([semestre, materias]) => ({ semestre, materias }));
+  }  
+  
   agruparMateriasFaltantes(progreso: Progreso, pensum: PensumDTO[]) {
     if (!progreso || !pensum || pensum.length === 0) return [];
 
@@ -298,7 +352,6 @@ export class PensumView implements OnInit, AfterViewInit {
   onScroll() {
     this.dibujarConexiones();
   }
-
 
   private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
     const { scrollWidth: width, scrollHeight: height } = contenedor;

@@ -57,6 +57,7 @@ section {
 .dropdown li a {
   text-decoration: none;
   color: white;
+  text-shadow: 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-menu:hover .dropdown {

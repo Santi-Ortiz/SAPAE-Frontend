@@ -35,41 +35,50 @@ p {
 }
 
 .semestre-columna {
-  width: 120px;
-  padding: 2px;
+  width: 126px;
+  padding-right: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .semestre-columna h3 {
   text-align: center;
   border-radius: 8px;
-  padding: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   font-weight: bold;
   background-color: white;
   border: 2px solid #0077B6;
   color: #0077B6;
+  box-shadow: 0 4px 12px rgba(0, 83, 216, 0.1);
   margin-bottom: 15px;
-  font-size: 16px;
+  font-size: 14px;
+  width: 105px; 
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .caja {
   background-color: #ffffff;
   border: 1px solid #0077B6;
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 2px;
-  width: 110px;
+  width: 105px;
+  line-height: 1.1;
   margin-bottom: 50px;
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 12.4px;
+  font-weight: 400;
   position: relative;
   cursor: pointer;
   z-index: 5;
-  height: 75px;
+  height: 90px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.257);
 }
 
 .caja:hover {

@@ -134,67 +134,73 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
     return salida;
   }
 
-    agruparPorSemestre(materias: MateriaDTO[]) {
-      const ordenSemestres = ["PrimPe", "SegPe", "TerPe"]; 
-      const semestreMap = new Map<number, (MateriaDTO & { cssClass: string })[]>();
-    
-      // ordenar ciclos
-      const ciclosOrdenados = Array.from(
-        new Set(
-          materias
-            .map(m => {
-              const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
-              return match ? `${match[1]}-${match[2]}` : "";
-            })
-            .filter(c => c !== "")
-        )
-      ).sort((a, b) => {
-        const [cicloA, anioA] = a.split("-");
-        const [cicloB, anioB] = b.split("-");
-        if (anioA !== anioB) return parseInt(anioA) - parseInt(anioB);
-        return ordenSemestres.indexOf(cicloA) - ordenSemestres.indexOf(cicloB);
-      });
-    
-      let semestreCounter = 1;
-      const cicloToSemestre = new Map<string, number>();
-    
-      for (let i = 0; i < ciclosOrdenados.length; i++) {
-        const [ciclo, anio] = ciclosOrdenados[i].split("-");
-        if (ciclo === "SegPe") {
-          cicloToSemestre.set(`${ciclo}-${anio}`, semestreCounter);
-        } else {
-          cicloToSemestre.set(`${ciclo}-${anio}`, semestreCounter);
-          semestreCounter++;
+  agruparPorSemestre(materias: MateriaDTO[]) {
+    const ordenSemestres = ["PrimPe", "SegPe", "TerPe"];
+    const semestreMap = new Map<number, (MateriaDTO & { cssClass: string })[]>();
+  
+    // ordenar ciclos
+    const ciclosOrdenados = Array.from(
+      new Set(
+        materias
+          .map(m => {
+            const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
+            return match ? `${match[1]}-${match[2]}` : "";
+          })
+          .filter(c => c !== "")
+      )
+    ).sort((a, b) => {
+      const [cicloA, anioA] = a.split("-");
+      const [cicloB, anioB] = b.split("-");
+      if (anioA !== anioB) return parseInt(anioA) - parseInt(anioB);
+      return ordenSemestres.indexOf(cicloA) - ordenSemestres.indexOf(cicloB);
+    });
+  
+    let semestreCounter = 1;
+    const cicloToSemestre = new Map<string, number>();
+  
+    for (let i = 0; i < ciclosOrdenados.length; i++) {
+      const [ciclo, anio] = ciclosOrdenados[i].split("-");
+      if (ciclo === "SegPe") {
+        cicloToSemestre.set(`${ciclo}-${anio}`, semestreCounter);
+      } else {
+        cicloToSemestre.set(`${ciclo}-${anio}`, semestreCounter);
+        semestreCounter++;
+      }
+    }
+  
+    // último semestre cursado
+    const ultimoSemestre = Math.max(...Array.from(cicloToSemestre.values()));
+  
+    materias.forEach(m => {
+      const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
+      if (match) {
+        const clave = `${match[1]}-${match[2]}`;
+        const semestre = cicloToSemestre.get(clave) ?? 0;
+        if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
+  
+        // 🔹 normalizar créditos
+        const cred = parseFloat((m.cred ?? "0").toString().replace(",", "."));
+  
+        // 🔹 normalizar calificación
+        const califNum = Number(m.calif);
+        let clase = "bloqueada"; // por defecto
+        if (!isNaN(califNum) && califNum < 3) {
+          clase = "perdida";
+        } else if (semestre === ultimoSemestre) {
+          clase = "actual";
+        }
+  
+        // incluir solo materias con créditos válidos (>0)
+        if (cred > 0) {
+          semestreMap.get(semestre)!.push({ ...m, cred, cssClass: clase });
         }
       }
-    
-      // último semestre cursado
-      const ultimoSemestre = Math.max(...Array.from(cicloToSemestre.values()));
-    
-      materias.forEach(m => {
-        const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
-        if (match && m.cred > 0) {
-          const clave = `${match[1]}-${match[2]}`;
-          const semestre = cicloToSemestre.get(clave) ?? 0;
-          if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
-          
-          const califNum = Number(m.calif);
-    
-          // asignar clases según condición
-          let clase = "bloqueada"; // por defecto
-          if (!isNaN(califNum) && califNum < 3) {
-            clase = "perdida";
-          } else if (semestre === ultimoSemestre) {
-            clase = "actual";
-          }
-          semestreMap.get(semestre)!.push({ ...m, cssClass: clase });
-        }
-      });
-    
-      return Array.from(semestreMap.entries()).map(([semestre, materias]) => ({
-        semestre,
-        materias
-      }));
+    });
+  
+    return Array.from(semestreMap.entries()).map(([semestre, materias]) => ({
+      semestre,
+      materias
+    }));
   }
 
   esMateriaBloqueada(materia: Materia): boolean {
