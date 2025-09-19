@@ -124,15 +124,18 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
     const salida: GrupoMaterias[] = [];
   
     for (const key of Object.keys(grupos)) {
-      const materias = (grupos[key] || []).map(m => ({
-        ...m,
-        cssClass: this.materiasCursadasCodigos.has(m.codigo) ? 'bloqueada' : 'faltante'
-      }));
+      const materias = (grupos[key] || []).map(m => {
+        let cssClass = this.materiasCursadasCodigos.has(m.codigo) 
+          ? 'bloqueada' 
+          : 'simulada'; 
+        return { ...m, cssClass };
+      });
       salida.push({ key, materias });
     }
   
     return salida;
   }
+  
 
   agruparPorSemestre(materias: MateriaDTO[]) {
     const ordenSemestres = ["PrimPe", "SegPe", "TerPe"];
@@ -245,7 +248,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
 
     // Resaltar origen con el MISMO id del HTML
     const origenBox = document.getElementById(codSel);
-    if (origenBox) {
+    if (origenBox && origenBox.classList.contains('simulada')) {
       origenBox.classList.add('resaltada');
     }
 
@@ -309,11 +312,12 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         gapCentersX.push(rightEdge + (nextLeft - rightEdge) / 2);
       }
     
-      const offsetHorizBase = 16;
-      const laneSpacingY = 12;
-      const laneSpacingX = 16;
-      const offsetLlegada = 12;
-      const shortRun = 14;
+      // parámetros ajustados (canales más pegados)
+      const offsetHorizBase = 12;
+      const laneSpacingY = 8;
+      const laneSpacingX = 6;
+      const offsetLlegada = 10;
+      const shortRun = 10;
     
       const colGapCentersY: Array<number[]> = columnas.map(col => {
         const cajasEnCol = Array.from(col.querySelectorAll<HTMLElement>(".caja"))
@@ -333,16 +337,43 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         .y(d => d[1])
         .curve(d3.curveStep);
     
+      // --- GRID & ocupación de CAJAS ---
       const cellSize = Math.max(7, Math.round(Math.max(laneSpacingX, laneSpacingY) * 0.1));
       const occupied: Set<string> = new Set();
       const keyOf = (gx: number, gy: number) => `${gx},${gy}`;
     
       function toGridCoord(x: number, y: number): [number, number] {
+        // índices de celda
         return [Math.round(x / cellSize), Math.round(y / cellSize)];
       }
     
       function fromGridCoord(gx: number, gy: number): [number, number] {
-        return [gx * cellSize, gy * cellSize];
+        // centro de la celda
+        return [gx * cellSize + cellSize / 2, gy * cellSize + cellSize / 2];
+      }
+    
+      function occupySegmentGrid(x1: number, y1: number, x2: number, y2: number) {
+        const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+        const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+        const [gx1] = toGridCoord(minX, minY);
+        const [gx2] = toGridCoord(maxX, minY);
+        const [, gy1] = toGridCoord(minX, minY);
+        const [, gy2] = toGridCoord(minX, maxY);
+    
+        for (let gx = Math.min(gx1, gx2); gx <= Math.max(gx1, gx2); gx++) {
+          for (let gy = Math.min(gy1, gy2); gy <= Math.max(gy1, gy2); gy++) {
+            occupied.add(keyOf(gx, gy));
+          }
+        }
+      }
+    
+      // NO marcamos líneas como ocupadas para que se puedan sobreescribir,
+      // pero sí usaremos la grid para detectar cajas y desplazar canales.
+      function reservarEnGridNoOccupy(x: number, y: number): [number, number] {
+        const [gx0, gy0] = toGridCoord(x, y);
+        // buscamos la celda más cercana (sin marcarla)
+        const free = findFreeCellNear(gx0, gy0, 6) || [gx0, gy0];
+        return fromGridCoord(free[0], free[1]);
       }
     
       function findFreeCellNear(gx0: number, gy0: number, maxRadius = 8): [number, number] | null {
@@ -367,7 +398,8 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         return null;
       }
     
-      function occupySegmentGrid(x1: number, y1: number, x2: number, y2: number) {
+      // Verifica si algún bloque de celdas en el rectángulo (x1,y1)-(x2,y2) está ocupado
+      function rectIntersectsOccupied(x1: number, y1: number, x2: number, y2: number): boolean {
         const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
         const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
         const [gx1] = toGridCoord(minX, minY);
@@ -377,17 +409,37 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
     
         for (let gx = Math.min(gx1, gx2); gx <= Math.max(gx1, gx2); gx++) {
           for (let gy = Math.min(gy1, gy2); gy <= Math.max(gy1, gy2); gy++) {
-            occupied.add(keyOf(gx, gy));
+            if (occupied.has(keyOf(gx, gy))) return true;
           }
         }
+        return false;
       }
     
-      function reservarEnGrid(x: number, y: number): [number, number] {
-        const [gx0, gy0] = toGridCoord(x, y);
-        const free = findFreeCellNear(gx0, gy0, 12) || [gx0, gy0];
-        occupied.add(keyOf(free[0], free[1]));
-        return fromGridCoord(free[0], free[1]);
+      // Busca un Y libre alrededor de yDeseado en la columna de grid correspondiente a x
+      function findFreeY(x: number, yDeseado: number, maxSearch = 30): number {
+        const [gx, gyStart] = toGridCoord(x, yDeseado);
+        if (!occupied.has(keyOf(gx, gyStart))) return fromGridCoord(gx, gyStart)[1];
+    
+        for (let r = 1; r <= maxSearch; r++) {
+          // priorizar dirección del destino: primero hacia afuera del rectángulo central
+          const up = gyStart - r;
+          const down = gyStart + r;
+          if (!occupied.has(keyOf(gx, up))) return fromGridCoord(gx, up)[1];
+          if (!occupied.has(keyOf(gx, down))) return fromGridCoord(gx, down)[1];
+        }
+        // fallback: devolver yDeseado sin cambiar (no ideal, pero evita bloqueo infinito)
+        return yDeseado;
       }
+    
+      // --- Reservar las áreas ocupadas por las cajas en el grid (con padding) ---
+      const padding = 4; // ajustable
+      cajas.forEach(caja => {
+        const left = caja.offsetLeft - padding;
+        const right = caja.offsetLeft + caja.offsetWidth + padding;
+        const top = caja.offsetTop - padding;
+        const bottom = caja.offsetTop + caja.offsetHeight + padding;
+        occupySegmentGrid(left, top, right, bottom);
+      });
     
       const verticalLaneCounters: Map<string, number> = new Map();
     
@@ -406,7 +458,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
           const yOrigen = origen.offsetTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origen.offsetHeight;
           const xDestino = destino.offsetLeft;
     
-          // --- distribuir flechas verticalmente ---
+          // --- distribuir flechas verticalmente (slot dentro de la caja destino) ---
           if (!verticalLaneCounters.has(destino.id)) verticalLaneCounters.set(destino.id, 0);
           const slotIndex = verticalLaneCounters.get(destino.id)!;
           const marginY = 4;
@@ -422,6 +474,30 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
           const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
           const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
     
+          // --- Caso especial: columnas adyacentes y cajas cercanas (línea recta) ---
+          const distanciaX = Math.abs(xDestino - xOrigen);
+          const distanciaY = Math.abs(yDestino - yOrigen);
+          if (colOriIdx !== colDestIdx && distanciaX < 70 && distanciaY < 25) {
+            const capa = esActiva ? capaLineasResaltadas : capaLineas;
+            const path = capa.append("path")
+              .attr("d", `M ${xOrigen} ${yOrigen} L ${xDestino} ${yDestino}`)
+              .attr("fill", "none")
+              .attr("stroke", colorLinea)
+              .attr("stroke-width", esActiva ? 2 : 1.6)
+              .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
+    
+            if (esActiva) {
+              path.classed("resaltada", true);
+              destino.classList.add("resaltada");
+              origen.classList.add("resaltada");
+              path.raise();
+            }
+    
+            // no ocupamos celdas por la línea: permitimos solapamiento
+            return;
+          }
+    
+          // --- calcular canal X base (canales pequeños) ---
           let rawXChannel: number;
           if (colOriIdx < colDestIdx) {
             const gapX = gapCentersX[colOriIdx] ?? (xOrigen + shortRun);
@@ -433,6 +509,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
             rawXChannel = xOrigen + Math.min(shortRun, offsetHorizBase ?? 30) + salidaIndex * laneSpacingX;
           }
     
+          // calcular Y candidato y ajustarlo con la grid para no pasar por cajas
           const channelYraw = (function chooseChannelY() {
             const gaps = colGapCentersY[colDestIdx] || [];
             for (let i = 0; i < gaps.length; i++) {
@@ -451,40 +528,53 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
             return yOrigen + (yDestino - yOrigen) * 0.2;
           })();
     
-          const [xChannelGrid, channelYGrid] = reservarEnGrid(rawXChannel, channelYraw);
+          // Snap al grid (sin ocupar) y forzar Y libre si cae sobre caja
+          const [snapX, snapY] = reservarEnGridNoOccupy(rawXChannel, channelYraw);
+          const channelYGrid = findFreeY(snapX, snapY);
     
-          occupySegmentGrid(xOrigen, yOrigen, xChannelGrid, yOrigen);
-          occupySegmentGrid(xChannelGrid, yOrigen, xChannelGrid, channelYGrid);
-          occupySegmentGrid(xChannelGrid, channelYGrid, xDestino - offsetLlegada, channelYGrid);
-          occupySegmentGrid(xDestino - offsetLlegada, channelYGrid, xDestino - offsetLlegada, yDestino);
-    
-          const puntosRuta: [number, number][] = [
-            [xOrigen, yOrigen],
-            [xChannelGrid, yOrigen],
-            [xChannelGrid, channelYGrid],
-            [xDestino - offsetLlegada, channelYGrid],
-            [xDestino - offsetLlegada, yDestino],
-            [xDestino, yDestino]
-          ];
-    
+          // Si origen y destino casi comparten Y, forzamos un pequeño quiebre (no recta) salvo caso cercano
+          let puntosRuta: [number, number][];
           if (Math.abs(yDestino - yOrigen) < 20 && colOriIdx !== colDestIdx) {
-            const puntosDirectos: [number, number][] = [
+            // comprobar si la recta horizontal entre xOrigen->xDestino cruza alguna caja;
+            // si no, se puede usar la ruta directa corta; si sí, forzamos quiebre mínimo.
+            const horizontalCrosses = rectIntersectsOccupied(xOrigen, yOrigen - 1, xDestino, yOrigen + 1);
+            if (!horizontalCrosses && distanciaX < 90) {
+              // usar una ruta corta con pequeño salto al canal
+              puntosRuta = [
+                [xOrigen, yOrigen],
+                [snapX, yOrigen],
+                [xDestino - offsetLlegada, yDestino],
+                [xDestino, yDestino]
+              ];
+            } else {
+              // forzar pequeño quiebre para que no atraviese cajas
+              puntosRuta = [
+                [xOrigen, yOrigen],
+                [snapX, yOrigen],
+                [snapX, channelYGrid - 4],
+                [xDestino - offsetLlegada, channelYGrid - 4],
+                [xDestino - offsetLlegada, yDestino],
+                [xDestino, yDestino]
+              ];
+            }
+          } else {
+            puntosRuta = [
               [xOrigen, yOrigen],
-              [xChannelGrid, yOrigen],
+              [snapX, yOrigen],
+              [snapX, channelYGrid],
+              [xDestino - offsetLlegada, channelYGrid],
               [xDestino - offsetLlegada, yDestino],
               [xDestino, yDestino]
             ];
-            if (Math.abs(puntosDirectos[2][1] - yOrigen) < Math.abs(channelYGrid - yOrigen)) {
-              puntosRuta.splice(0, puntosRuta.length, ...puntosDirectos);
-            }
           }
     
+          // dibujar la ruta — no marcamos esas celdas como ocupadas para permitir solapamiento
           const capa = esActiva ? capaLineasResaltadas : capaLineas;
           const path = capa.append("path")
             .attr("d", lineGenerator(puntosRuta)!)
             .attr("fill", "none")
             .attr("stroke", colorLinea)
-            .attr("stroke-width", esActiva ? 2 : 2)
+            .attr("stroke-width", esActiva ? 2 : 1.6)
             .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
     
           if (esActiva) {

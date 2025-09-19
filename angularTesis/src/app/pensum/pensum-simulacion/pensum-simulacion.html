@@ -6,20 +6,20 @@
         Además, en las <strong>materias simuladas</strong> al hacerle click podrás consultar sus
         requisitos y las materias que se habilitan al aprobarlas.
       </p>
-        <div class="leyenda-colores">
-          <div class="item"><span class="color perdida"></span> Materia Perdida</div>
-          <div class="item"><span class="color bloqueada"></span> Materia Cursada</div>
-          <div class="item"><span class="color actual"></span> Materia Actual</div>
-          <div class="item"><span class="color faltante"></span> Materia Simulada</div>
-          <button class="volver-simulacion" (click)="volverSimulacion()">Volver a Simulación</button>
-        </div>      
-  
+      <div class="leyenda-colores">
+        <div class="item"><span class="color perdida"></span> Materia Perdida</div>
+        <div class="item"><span class="color bloqueada"></span> Materia Cursada</div>
+        <div class="item"><span class="color actual"></span> Materia Actual</div>
+        <div class="item"><span class="color faltante"></span> Materia Simulada</div>
+        <div class="item"><span class="color simulado"></span> Semestres Simulados</div>
+        <button class="volver-simulacion" (click)="volverSimulacion()">Volver a Simulación</button>
+      </div>
+      
       <div class="semestres">
-        
-        <!-- Materias cursadas (ORÍGENES) -->
+      
+        <!-- Materias cursadas (orígenes) -->
         <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(soloMaterias)">
           <h3>Semestre {{ grupo.semestre }}</h3>
-  
           <div
             class="caja"
             *ngFor="let materia of grupo.materias"
@@ -34,23 +34,28 @@
             <span class="creditos">{{ materia.cred }} créditos</span>
           </div>
         </div>
-  
-        <!-- Materias simuladas (DESTINOS) -->
-        <div class="semestre-columna" *ngFor="let grupo of materiasAgrupadas">
+      
+        <!-- Semestres simulados (todos juntos en un bloque amarillo) -->
+        <div class="contenedor-simulados">
+          <div class="semestre-columna" *ngFor="let grupo of materiasAgrupadas">
             <h3>Semestre {{ grupo.key }}</h3>
             <div class="caja" *ngFor="let materia of grupo.materias"
-                 [attr.id]="materia.codigo.toString().padStart(6,'0')"
-                 [attr.data-semestre]="grupo.key"
-                 (click)="seleccionarMateria(materia.codigo)"
-                 [attr.data-requisitos]="getRequisitosJson(materia.codigo)"
-                 [ngClass]="materia.cssClass">
+                [attr.id]="materia.codigo.toString().padStart(6,'0')"
+                [attr.data-semestre]="grupo.key"
+                (click)="seleccionarMateria(materia.codigo)"
+                [attr.data-requisitos]="getRequisitosJson(materia.codigo)"
+                [ngClass]="materia.cssClass">
               <strong>{{ materia.nombre }}</strong>
               <span class="codigo">{{ materia.codigo }}</span>
               <span class="creditos">{{ materia.creditos }} créditos</span>
             </div>
-        </div>          
-      <svg #svgRef class="svg-lines"></svg>   
-    </div>
+          </div>  
+        </div>
+         
+      
+        <svg #svgRef class="svg-lines"></svg>   
+      </div>
+      
   
   </div>
   
