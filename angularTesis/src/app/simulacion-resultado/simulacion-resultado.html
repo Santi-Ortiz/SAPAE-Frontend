@@ -1,6 +1,14 @@
 <body>
   <h1>Simulación de Escenarios Académicos</h1>
 
+  <!-- Toast de confirmación -->
+  <div *ngIf="showToast" class="toast"
+       [class.success]="toast?.kind === 'success'"
+       [class.info]="toast?.kind === 'info'"
+       [class.error]="toast?.kind === 'error'">
+    {{ toast?.text }}
+  </div>
+
   <section class="simulacion-intro">
     <h2>Resultados de la Simulación</h2>
     <h3><span class="nombre">{{ nombreSimulacion }}</span></h3>
@@ -11,7 +19,10 @@
   </section>
 
   <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
-    <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre">
+    <!-- Ancla para scroll: id="sem-<número>" -->
+    <div *ngFor="let semestre of resultadoSimulacion | keyvalue"
+         class="resultado-semestre"
+         [attr.id]="'sem-' + semestre.key">
       <h2>Semestre {{ semestre.key }}</h2>
 
       <table class="materias-table">

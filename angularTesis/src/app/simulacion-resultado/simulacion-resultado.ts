@@ -32,6 +32,10 @@ export class SimulacionResultado implements OnInit {
     semestreMayorCarga: ''
   };
 
+  // === Toast ===
+  toast?: { kind: 'success'|'info'|'error', text: string };
+  showToast = false;
+
   constructor(
     private router: Router,
     private simulacionService: SimulacionService,
@@ -54,6 +58,21 @@ export class SimulacionResultado implements OnInit {
       this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConJobId(this.jobIdActual);
     } else {
       this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion);
+    }
+
+    // === Leer estado de navegación (toast + foco) si venimos del selector ===
+    const nav = this.router.getCurrentNavigation();
+    const st = (nav?.extras?.state as any) || null;
+    if (st?.toast) {
+      this.toast = st.toast;
+      this.showToast = true;
+      setTimeout(() => this.showToast = false, 3000);
+    }
+    if (st?.focus?.sem != null) {
+      setTimeout(() => {
+        const el = document.getElementById('sem-' + String(st.focus.sem));
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
     }
 
     this.calcularEstadisticasGenerales();

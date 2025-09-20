@@ -96,7 +96,7 @@ export class RecomendacionesSelectorComponent implements OnInit {
     });
   }
 
-  // Selección → reemplazo en simulación y vuelta a resultados
+  // Selección → reemplazo en simulación y vuelta a resultados (con toast)
   seleccionar(m: any) {
     const selec = {
       tipo: this.tipo,                       // electivas | complementarias | énfasis
@@ -107,17 +107,39 @@ export class RecomendacionesSelectorComponent implements OnInit {
       id: m?.id || m?.ID || m?.codigo || ''
     };
 
+    const okMsg = `Se actualizó "${selec.nombre}" en el semestre ${this.semestre}.`;
+
     this.bridge.applySelection(selec).subscribe({
       next: () => {
-        // vuelve a la pantalla de resultados de simulación
-        this.router.navigate(['/pensum/simulacion-resultado']).catch(() => {
-          this.router.navigate(['/simulacion-resultado']);
+        // vuelve a la pantalla de resultados de simulación con notificación y foco
+        this.router.navigate(['/pensum/simulacion-resultado'], {
+          state: {
+            toast: { kind: 'success', text: okMsg },
+            focus: { sem: this.semestre, idx: this.index }
+          }
+        }).catch(() => {
+          this.router.navigate(['/simulacion-resultado'], {
+            state: {
+              toast: { kind: 'success', text: okMsg },
+              focus: { sem: this.semestre, idx: this.index }
+            }
+          });
         });
       },
       error: () => {
         // si falla el backend igual actualizamos localmente (el servicio ya lo hace)
-        this.router.navigate(['/pensum/simulacion-resultado']).catch(() => {
-          this.router.navigate(['/simulacion-resultado']);
+        this.router.navigate(['/pensum/simulacion-resultado'], {
+          state: {
+            toast: { kind: 'info', text: 'Se actualizó localmente, pero no se pudo guardar en el servidor.' },
+            focus: { sem: this.semestre, idx: this.index }
+          }
+        }).catch(() => {
+          this.router.navigate(['/simulacion-resultado'], {
+            state: {
+              toast: { kind: 'info', text: 'Se actualizó localmente, pero no se pudo guardar en el servidor.' },
+            focus: { sem: this.semestre, idx: this.index }
+            }
+          });
         });
       }
     });
