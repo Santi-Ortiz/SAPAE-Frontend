@@ -245,6 +245,7 @@ button:hover { background-color: #00B4D8; }
 .hint {
   margin-top: 2px;
   font-size: 13px;
+  margin-bottom: 5px;
   color: #4a6072;
 }
 
@@ -381,26 +382,65 @@ button:hover { background-color: #00B4D8; }
   transform: translateX(100%);
 }
 
-/* ===== Créditos en modo RANGO ===== */
+/* === Centrado y ancho correcto del bloque de RANGO === */
+.creditos-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centra label + grid */
+  gap: 6px;
+  margin: 14px 0 8px;
+  width: 100%;
+}
+
+.creditos-control label {
+  width: 100%;
+  text-align: center;
+}
+
+/* El grid del rango ahora puede alojar 2 chips (≈340px c/u) sin desbordar */
 .creditos-range {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin: 14px 0 8px;
-  align-items: start;
+  gap: 16px;
+  width: 100%;
+  max-width: 760px;       /* <-- antes 600px; así no “empuja” a la derecha */
+  margin: 0 auto;         /* centra el grid en la página */
+  box-sizing: border-box;
+  justify-items: center;  /* centra el contenido de cada columna */
 }
 
-.creditos-range .range-col label {
-  font-weight: 700;
-  color: #0f3b57;
-  letter-spacing: .2px;
-  display: inline-block;
+.creditos-range .range-col {
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: center;  /* etiqueta y chip centrados */
+}
+
+.creditos-range .range-label {
+  width: 100%;
+  text-align: center;
   margin-bottom: 6px;
 }
 
-/* Responsivo: en pantallas estrechas, apilar columnas */
-@media (max-width: 640px) {
-  .creditos-range {
-    grid-template-columns: 1fr;
-  }
+/* El texto de ayuda ocupa las 2 columnas y queda centrado */
+.creditos-range .hint {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* Ajustes de ancho para el botón "Cualquiera" dentro del chip */
+.chip-any {
+  min-width: 132px;     /* <-- un poco más ancho para que no corte en 2 líneas */
+  white-space: nowrap;  /* evita saltos de línea ("✓ Cualquiera") */
+}
+
+/* (Opcional) un pelín más de separación visual */
+.creditos-chip {
+  gap: 12px;            /* antes 10px; da aire sin crecer demasiado el total */
+}
+
+/* En móviles, reduce apenas para que no desborde */
+@media (max-width: 540px) {
+  .chip-any { min-width: 116px; }
 }
