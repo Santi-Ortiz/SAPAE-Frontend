@@ -33,6 +33,9 @@ export class RecomendacionesSelectorComponent implements OnInit {
   error = '';
   tried = false;                     // para no mostrar mensajes hasta que se haga la 1ª consulta
 
+  // NUEVO: bandera para desactivar botones Seleccionar tras primer clic
+  selecting = false;
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -96,8 +99,11 @@ export class RecomendacionesSelectorComponent implements OnInit {
     });
   }
 
-  // Selección → reemplazo en simulación y vuelta a resultados (con toast)
+  // Selección → reemplazo en simulación y vuelta inmediata a /simulacion/mostrar
   seleccionar(m: any) {
+    if (this.selecting) return;         // evita doble clic
+    this.selecting = true;              // desactiva botones "Seleccionar"
+
     const selec = {
       tipo: this.tipo,                       // electivas | complementarias | énfasis
       semestre: this.semestre,              // semestre del bloque
@@ -107,41 +113,24 @@ export class RecomendacionesSelectorComponent implements OnInit {
       id: m?.id || m?.ID || m?.codigo || ''
     };
 
-    const okMsg = `Se actualizó "${selec.nombre}" en el semestre ${this.semestre}.`;
-
+    // 1) aplicar en memoria (el servicio ya lo hace sincrónicamente)
     this.bridge.applySelection(selec).subscribe({
-      next: () => {
-        // vuelve a la pantalla de resultados de simulación con notificación y foco
-        this.router.navigate(['/pensum/simulacion-resultado'], {
-          state: {
-            toast: { kind: 'success', text: okMsg },
-            focus: { sem: this.semestre, idx: this.index }
-          }
-        }).catch(() => {
-          this.router.navigate(['/simulacion-resultado'], {
-            state: {
-              toast: { kind: 'success', text: okMsg },
-              focus: { sem: this.semestre, idx: this.index }
-            }
-          });
-        });
-      },
-      error: () => {
-        // si falla el backend igual actualizamos localmente (el servicio ya lo hace)
-        this.router.navigate(['/pensum/simulacion-resultado'], {
-          state: {
-            toast: { kind: 'info', text: 'Se actualizó localmente, pero no se pudo guardar en el servidor.' },
-            focus: { sem: this.semestre, idx: this.index }
-          }
-        }).catch(() => {
-          this.router.navigate(['/simulacion-resultado'], {
-            state: {
-              toast: { kind: 'info', text: 'Se actualizó localmente, pero no se pudo guardar en el servidor.' },
-            focus: { sem: this.semestre, idx: this.index }
-            }
-          });
-        });
+      // navegamos igual aunque falle el POST (persistencia) porque el estado local ya se actualizó
+      next: () => {},
+      error: () => {}
+    });
+
+    // 2) navegar de inmediato a la visualización real de la simulación
+    const navState = {
+      state: {
+        toast: { kind: 'success', text: `Se actualizó "${selec.nombre}" en el semestre ${this.semestre}.` },
+        focus: { sem: this.semestre, idx: this.index }
       }
+    };
+
+    this.router.navigate(['/simulacion/mostrar'], navState).catch(() => {
+      // último fallback (por si la app no reconoce la ruta via router)
+      window.location.href = '/simulacion/mostrar';
     });
   }
 }
