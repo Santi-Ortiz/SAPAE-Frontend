@@ -307,3 +307,100 @@ button:hover { background-color: #00B4D8; }
   color: #274b63;
   text-align: justify;
 }
+
+/* ===== Toggle Modo de Créditos ===== */
+.switch-modo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 2px;
+}
+
+.switch-label {
+  font-weight: 700;
+  color: #0f3b57;
+  letter-spacing: .2px;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 220px;
+  height: 44px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f2faff 100%);
+  border: 1px solid #d6e6f3;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  box-shadow:
+    0 8px 24px rgba(0,119,182,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.toggle-option {
+  text-align: center;
+  font-weight: 700;
+  color: #0b3550;
+  z-index: 2;
+  user-select: none;
+  transition: color .15s ease;
+  font-size: 14px;
+}
+
+.toggle-option.active {
+  color: #005a8e;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 8px);
+  border-radius: 999px;
+  background: #00B4D8;
+  box-shadow: 0 6px 14px rgba(0,180,216,0.25);
+  transition: transform .2s ease;
+  z-index: 1;
+}
+
+/* mover el thumb cuando está en modo "rango" (checkbox checked) */
+.toggle input:checked + .toggle-track .toggle-thumb {
+  transform: translateX(100%);
+}
+
+/* ===== Créditos en modo RANGO ===== */
+.creditos-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0 8px;
+  align-items: start;
+}
+
+.creditos-range .range-col label {
+  font-weight: 700;
+  color: #0f3b57;
+  letter-spacing: .2px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+/* Responsivo: en pantallas estrechas, apilar columnas */
+@media (max-width: 640px) {
+  .creditos-range {
+    grid-template-columns: 1fr;
+  }
+}

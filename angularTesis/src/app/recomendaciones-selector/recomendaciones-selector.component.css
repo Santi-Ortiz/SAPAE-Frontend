@@ -320,7 +320,7 @@ button:hover { background-color: #00B4D8; }
 .btn-select:hover{ background-color:#009fc0; }
 .subcopy{ color:#4a6072; margin:8px 0 16px; }
 .disclaimer{
-  margin-top:6px;
+  margin-top:1px;
   margin-bottom:10px;
   font-size:13px;
   color:#4a6072;
