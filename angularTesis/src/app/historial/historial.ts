@@ -31,7 +31,7 @@ export class Historial implements OnInit, AfterViewInit {
         { titulo: 'Énfasis validado como Complementaria (IA)', lista: this.historial.cursosIA },
         { titulo: 'Énfasis Computación', lista: this.historial.cursosDesarrolloComputacion },
         { titulo: 'Énfasis Gestión', lista: this.historial.cursosDesarrolloGestion },
-        { titulo: 'Énfasis Visual', lista: this.historial.cursosComputacionVisual },
+        { titulo: 'Énfasis Computación Visual', lista: this.historial.cursosComputacionVisual },
         { titulo: 'CV validado como IA', lista: this.historial.cursosCVtoIA },
         { titulo: 'SIG validado como IA', lista: this.historial.cursosSIGtoIA },
         { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas },

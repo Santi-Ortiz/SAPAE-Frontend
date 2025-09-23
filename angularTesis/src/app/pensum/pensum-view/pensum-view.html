@@ -63,7 +63,7 @@
     </div>
     <!-- Vista Pensum -->
     <div class="semestres" *ngIf="!vistaHistorico">
-      <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestrePensum(allPensum, progreso)">
+      <div class="semestre-columna" *ngFor="let grupo of materiasFaltantes">
         <h3>Semestre {{ grupo.semestre }}</h3>
         <div class="caja" *ngFor="let materia of grupo.materias"
           [attr.id]="getCodigo(materia).toString().padStart(6,'0')"
@@ -76,6 +76,7 @@
         </div>
       </div>
     </div>
+
 
     <svg #svgRef class="svg-lines"></svg>
   </div>
