@@ -397,50 +397,53 @@ button:hover { background-color: #00B4D8; }
   text-align: center;
 }
 
-/* El grid del rango ahora puede alojar 2 chips (≈340px c/u) sin desbordar */
+/* === RANGO: centrar estrictamente el bloque Min/Máx por contenido === */
 .creditos-range {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(2, max-content); /* columnas al ancho del chip */
+  justify-content: center;                       /* centramos todo el grid */
+  align-items: start;
+  column-gap: 20px;
+  row-gap: 8px;
   width: 100%;
-  max-width: 760px;       /* <-- antes 600px; así no “empuja” a la derecha */
-  margin: 0 auto;         /* centra el grid en la página */
-  box-sizing: border-box;
-  justify-items: center;  /* centra el contenido de cada columna */
+  margin: 0 auto;                                /* por si el padre se estira */
 }
 
 .creditos-range .range-col {
-  width: 100%;
   display: grid;
-  grid-template-rows: auto auto;
-  justify-items: center;  /* etiqueta y chip centrados */
+  grid-auto-rows: max-content;
+  justify-items: center;     /* etiqueta y chip centrados en su columna */
+  align-items: start;
 }
 
-.creditos-range .range-label {
+/* la etiqueta (Mín/Máx) centrada sobre su chip */
+.creditos-range .range-col > label {
   width: 100%;
   text-align: center;
   margin-bottom: 6px;
 }
 
-/* El texto de ayuda ocupa las 2 columnas y queda centrado */
+/* el texto de ayuda ocupa ambas columnas y queda centrado */
 .creditos-range .hint {
-  grid-column: 1 / -1;
+  grid-column: 1 / 3;
   text-align: center;
   margin-top: 6px;
 }
 
-/* Ajustes de ancho para el botón "Cualquiera" dentro del chip */
+/* Botón “Cualquiera” ligeramente más ancho para que no rompa línea */
 .chip-any {
-  min-width: 132px;     /* <-- un poco más ancho para que no corte en 2 líneas */
-  white-space: nowrap;  /* evita saltos de línea ("✓ Cualquiera") */
+  min-width: 132px;
+  white-space: nowrap;
 }
 
-/* (Opcional) un pelín más de separación visual */
-.creditos-chip {
-  gap: 12px;            /* antes 10px; da aire sin crecer demasiado el total */
-}
+/* (opcional) un pelín más de espacio entre elementos del chip */
+.creditos-chip { gap: 12px; }
 
-/* En móviles, reduce apenas para que no desborde */
 @media (max-width: 540px) {
+  .creditos-range {
+    grid-template-columns: 1fr;  /* en móvil, uno debajo del otro */
+    justify-content: center;
+  }
+  .creditos-range .hint { grid-column: 1 / 2; }
   .chip-any { min-width: 116px; }
 }
