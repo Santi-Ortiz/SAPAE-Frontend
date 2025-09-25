@@ -16,6 +16,7 @@ export class Progreso {
   faltanElectiva?: number;
   faltanComplementaria?: number;
   faltanEnfasis?: number;
+  faltanEnfasisTesis?: number;
   faltanElectivaBasicas?: number;
   lineasRequisitosGrado?: string[];
   listaMateriasFaltantes?: Materia[] = [];

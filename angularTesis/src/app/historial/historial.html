@@ -26,11 +26,11 @@
       </div>      
       <h3>Créditos Faltantes</h3>
       <!-- Créditos y gráfico -->
-      <div class="resumen-grid">
+       <div class="resumen-grid">
         <div class="creditos-grid">
           <div class="cuadro-credito">
             <h3>NÚCLEO</h3>
-            <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0) }} créditos</p>
+            <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0) -  (historial.faltanEnfasisTesis || 0)}} créditos</p>
           </div>
           <div class="cuadro-credito">
             <h3>ELECTIVAS</h3>
@@ -42,7 +42,7 @@
           </div>
           <div class="cuadro-credito">
             <h3>ÉNFASIS</h3>
-            <p>{{ historial.faltanEnfasis }} créditos</p>
+            <p>{{ (historial.faltanEnfasis || 0) + (historial.faltanEnfasisTesis || 0) }} créditos</p>
           </div>
           <div class="cuadro-credito">
             <h3>ELECTIVA CIENCIAS BÁSICAS</h3>
