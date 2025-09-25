@@ -33,8 +33,6 @@ export class AuthService {
       observe: 'response'
     }).pipe(
       map(response => {
-        //console.log('Login response headers:', response.headers);
-        //console.log('Login response body:', response.body);
 
         if (response.body) {
           this.currentUserSubject.next(true);
@@ -42,7 +40,7 @@ export class AuthService {
         return response.body!;
       }),
       catchError(error => {
-        console.error('❌ Error en login:', error);
+        console.error('Error en login:', error);
         this.currentUserSubject.next(false);
         return throwError(() => error);
       })
@@ -53,14 +51,14 @@ export class AuthService {
 
     return this.http.post(`${this.apiUrl}/api/auth/register`, registerDTO, {
       withCredentials: true,
-      responseType: 'text' // Importante: especificar que esperamos texto, no JSON
+      responseType: 'text' 
     }).pipe(
       map(response => {
-        console.log('✅ Registro response:', response);
+        console.log('Registro response:', response);
         return response;
       }),
       catchError(error => {
-        console.error('❌ Error en registro:', error);
+        console.error('Error en registro:', error);
         let errorMessage = 'Error al registrar usuario';
 
         if (error.error && typeof error.error === 'string') {
@@ -82,7 +80,6 @@ export class AuthService {
       // Después del registro exitoso, hacer login automático
       map(registerResponse => {
         console.log('Registro exitoso:', registerResponse);
-        // Es necesario crear LoginDTO con los datos del registro
         const loginDto: LoginDTO = {
           correo: registerDTO.correo,
           contrasenia: registerDTO.contrasenia
@@ -105,7 +102,8 @@ export class AuthService {
   logout(): Observable<string> {
 
     return this.http.post<string>(`${this.apiUrl}/api/auth/logout`, {}, {
-      withCredentials: true
+      withCredentials: true,
+      responseType: 'text' as 'json' 
     }).pipe(
       map(response => {
         console.log('Logout exitoso');
@@ -137,24 +135,6 @@ export class AuthService {
 
   isAuthenticatedSync(): boolean {
     return this.currentUserValue;
-  }
-
-  // Método para debugging
-  debugCookies(): void {
-    console.log('Cookies:', document.cookie);
-
-    this.testCookieRequest();
-  }
-
-  private testCookieRequest(): void {
-    this.isAuthenticated().subscribe({
-      next: (result) => {
-        console.log('Test de cookie exitoso:', result);
-      },
-      error: (error) => {
-        console.log('Test de cookie falló:', error);
-      }
-    });
   }
 
   private checkAuthenticationStatus(): void {

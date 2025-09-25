@@ -55,7 +55,6 @@ export class Login implements OnInit {
       .subscribe({
         next: () => {
           console.log('Login exitoso');
-          this.authService.debugCookies();
           this.router.navigate(['/main']);
         },
         error: error => {

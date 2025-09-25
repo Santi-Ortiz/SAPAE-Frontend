@@ -104,7 +104,6 @@ export class Registro implements OnInit {
       .subscribe({
         next: () => {
           console.log('Registro y login exitoso');
-          this.authService.debugCookies();
           this.router.navigate(['/main']);
         },
         error: error => {
