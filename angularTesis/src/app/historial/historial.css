@@ -113,6 +113,13 @@ h3 {
 
 /*  CRÉDITOS Y GRÁFICO  */
 .resumen-grid {
+  display: grid;
+  grid-template-columns: 60% 40%; 
+  gap: 40px;
+  align-items: start;
+}
+
+.resumen-grid1 {
   display: flex;
   justify-content: space-between;
   gap: 15px;
@@ -149,42 +156,6 @@ h3 {
   margin: 4px 0 0;
   font-size: 20px;
   margin-top: 25px;
-}
-
-/* GRÁFICO */
-.grafico-d3 {
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1.1;
-}
-
-.grafico-contenido {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.grafico-svg-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-
-
-#graficoSVG {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Leyenda */
@@ -336,4 +307,67 @@ button {
 button:hover {
   background-color: #00B4D8;
   transform: scale(1.03);
+}
+
+.disclaimer {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+
+
+/**/
+.creditos-box {
+  width: 400px; /* un poco más ancho */
+  border: 2px solid #0077B6;
+  border-radius: 14px;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.fila {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 22px; /* más padding */
+  font-size: 17px;
+  border-top: 1px solid #e0f4f9;
+}
+
+.fila-cursados {
+  background: #CAF0F8; /* un celeste MUY suave */
+  font-weight: bold;
+}
+
+.fila-faltantes {
+  background: #dbe9f0; /* un celeste MUY suave */
+  font-weight: bold;
+}
+
+.subfila {
+  padding-left: 32px;
+  background: #f8fcfd; 
+  font-size: 16px;
+}
+
+.label {
+  color: #0B1215;
+}
+
+.valor1 {
+  font-weight: bold;
+  font-size: 22px;
+  color: #0B1215;
+  text-align: right;
+  min-width: 40px;
+}
+
+.valor2 {
+  font-size: 19px;
+  color: #0B1215 ;
+  text-align: right;
+  min-width: 40px;
 }
