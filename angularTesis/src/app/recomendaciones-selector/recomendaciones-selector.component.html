@@ -1,0 +1,123 @@
+<section class="recomendaciones-container">
+  <h1 class="titulo-principal">Recomendación de Materias</h1>
+  <p class="descripcion-seccion">
+    Teniendo en cuenta tus gustos, preferencias y requerimientos específicos,
+    el sistema te ofrecerá una recomendación personalizada de materias.
+  </p>
+
+  <div class="formulario">
+    <textarea [(ngModel)]="pregunta" name="pregunta"
+      placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+
+    <div class="disclaimer">
+      La información proporcionada por el modelo debe ser validada por el estudiante.
+    </div>
+
+    <div class="tipo-materia">
+      <label for="tipo">Tipo de materia</label>
+      <select id="tipo" name="tipo" [(ngModel)]="tipo">
+        <option value="cualquiera">Cualquiera</option>
+        <option value="énfasis">Énfasis</option>
+        <option value="enfasis">Énfasis</option>
+        <option value="electivas">Electivas</option>
+        <option value="complementarias">Complementarias</option>
+      </select>
+    </div>
+
+    <div class="creditos-control">
+      <label for="creditos">Créditos de la materia</label>
+      <div class="creditos-chip pretty">
+        <button type="button" class="chip-btn chip-btn--minus"
+          (click)="decCreditos()" [disabled]="cargando || creditos === 'cualquiera'">−</button>
+
+        <div class="chip-value">
+          {{ creditos === 'cualquiera' ? 'Cualquiera' : creditos }}
+        </div>
+
+        <button type="button" class="chip-btn chip-btn--plus"
+          (click)="incCreditos()" [disabled]="cargando">+</button>
+
+        <button type="button" class="chip-any"
+          (click)="setCualquieraCreditos()" [disabled]="cargando"
+          [attr.aria-pressed]="(creditos === 'cualquiera') ? 'true' : 'false'">
+          Cualquiera
+        </button>
+      </div>
+    </div>
+
+    <button (click)="consultarIA()" [disabled]="cargando">Generar Recomendación</button>
+  </div>
+
+  <div *ngIf="cargando" class="mensaje-cargando">
+    <div class="spinner"></div>
+    <p>Consultando, un momento por favor...</p>
+  </div>
+
+  <!-- ERRORES -->
+  <div *ngIf="error && !cargando" class="respuesta-box">
+    <h3 class="titulo-respuesta">Error:</h3>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- ALTA AFINIDAD -->
+  <div *ngIf="!cargando && materias.length > 0" class="respuesta-box">
+    <h3 class="titulo-respuesta">Materias recomendadas (alta afinidad)</h3>
+    <table class="tabla-materias">
+      <thead>
+        <tr>
+          <th>Nombre</th><th>Grado</th><th>ID</th><th>Créditos</th><th>N° Catálogo</th><th>N° Oferta</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of materias">
+          <td>{{ m.nombre }}</td>
+          <td>{{ m.grado }}</td>
+          <td>{{ m.id }}</td>
+          <td>{{ m.creditos }}</td>
+          <td>{{ m.numero_catalogo }}</td>
+          <td>{{ m.numero_oferta }}</td>
+          <td>
+            <button class="btn-select" (click)="seleccionar(m)" [disabled]="selecting">Seleccionar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="explicacion" class="explicacion-texto"><strong>Explicación:</strong> {{ explicacion }}</p>
+  </div>
+
+  <!-- SUGERENCIAS -->
+  <div *ngIf="!cargando && sugerencias.length > 0" class="respuesta-box">
+    <h3 class="titulo-respuesta">También podrían interesarte</h3>
+    <p class="subcopy">
+      Estas asignaturas no coinciden exactamente con todos tus filtros, pero presentan una afinidad temática relevante con tus intereses.
+    </p>
+    <table class="tabla-materias">
+      <thead>
+        <tr>
+          <th>Nombre</th><th>Grado</th><th>ID</th><th>Créditos</th><th>N° Catálogo</th><th>N° Oferta</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of sugerencias">
+          <td>{{ m.nombre }}</td>
+          <td>{{ m.grado }}</td>
+          <td>{{ m.id }}</td>
+          <td>{{ m.creditos }}</td>
+          <td>{{ m.numero_catalogo }}</td>
+          <td>{{ m.numero_oferta }}</td>
+          <td>
+            <button class="btn-select" (click)="seleccionar(m)" [disabled]="selecting">Seleccionar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SIN RESULTADOS (solo tras intentar) -->
+  <div *ngIf="!cargando && tried && materias.length === 0 && sugerencias.length === 0 && !error" class="respuesta-box">
+    <h3 class="titulo-respuesta">No se encontraron materias con suficiente afinidad para los intereses proporcionados.</h3>
+    <p>Intente ser más específico o pruebe con otros términos.</p>
+  </div>
+</section>

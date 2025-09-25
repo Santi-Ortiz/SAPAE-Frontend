@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { SimulacionService } from '../services/simulacion.service';
 import { CommonModule, KeyValuePipe, NgFor, NgIf, ViewportScroller } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Materia } from '../models/materia.model';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
+
+import { SimulacionService } from '../services/simulacion.service';
 import { HistorialService } from '../services/historial.service';
 import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
+import { Materia } from '../models/materia.model';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -31,50 +32,97 @@ export class SimulacionResultado implements OnInit {
     semestreMayorCarga: ''
   };
 
+  // === Toast ===
+  toast?: { kind: 'success'|'info'|'error', text: string };
+  showToast = false;
+
   constructor(
-    private router: Router, 
-    private simulacionService: SimulacionService, 
-    private historialService: HistorialService, 
+    private router: Router,
+    private simulacionService: SimulacionService,
+    private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
     private historialSimulacionesService: HistorialSimulacionesService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
+
+    // Traer el estado actual desde el servicio (si volviste del selector, ya viene actualizado)
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
     this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
-    
-    // Verificar si la simulación ya está guardada usando jobId si está disponible, sino usar nombre
+
+    // Verificar si la simulación ya está guardada
     if (this.jobIdActual) {
       this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConJobId(this.jobIdActual);
     } else {
       this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion);
     }
-    
-    this.calcularEstadisticasGenerales();
-    setTimeout(() => {
-      this.crearGraficos();
-    }, 0);
 
+    // === Leer estado de navegación (toast + foco) si venimos del selector ===
+    const nav = this.router.getCurrentNavigation();
+    const st = (nav?.extras?.state as any) || null;
+    if (st?.toast) {
+      this.toast = st.toast;
+      this.showToast = true;
+      setTimeout(() => this.showToast = false, 3000);
+    }
+    if (st?.focus?.sem != null) {
+      setTimeout(() => {
+        const el = document.getElementById('sem-' + String(st.focus.sem));
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
+    }
+
+    this.calcularEstadisticasGenerales();
+    setTimeout(() => this.crearGraficos(), 0);
   }
+
+  /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
+
+  public esReemplazable(materia: Materia): boolean {
+    const t = (materia?.tipo || '').toLowerCase();
+    return t === 'electiva' || t === 'enfasis' || t === 'complementaria';
+  }
+
+  private mapTipoToQuery(tipoMateria: string): 'electivas' | 'énfasis' | 'complementarias' {
+    const t = (tipoMateria || '').toLowerCase();
+    if (t === 'electiva') return 'electivas';
+    if (t === 'enfasis' || t === 'énfasis') return 'énfasis';
+    return 'complementarias';
+  }
+
+  public irARecomendaciones(materia: Materia, semestreKey: string, index: number): void {
+    const tipoQuery = this.mapTipoToQuery(materia.tipo || '');
+    // Enviamos al componente selector (el que muestra el botón "Seleccionar")
+    this.router.navigate(
+      ['/recomendar-seleccion'],
+      {
+        queryParams: {
+          tipo: tipoQuery,
+          semestre: Number(semestreKey),
+          index
+        }
+      }
+    );
+  }
+
+  /* ======= Utilidades ya existentes ======= */
 
   public calcularCreditosFaltantesPorSemestre(semestreKey: string): number {
     let totalCursados = 0;
-    // Suma los créditos de todos los semestres hasta el actual
     for (const key in this.resultadoSimulacion) {
       if (parseInt(key) <= parseInt(semestreKey)) {
         totalCursados += this.resultadoSimulacion[key].materias.reduce((sum, m) => sum + m.creditos, 0);
       }
     }
     return Math.max(this.creditosFaltantesTotales - totalCursados, 0);
-  } 
+  }
 
   public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number} {
     const totalCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
     const horasEstudio = (totalCreditos * 48 / 18 / 5);
-
     return {
       totalCreditos,
       totalMaterias: materias.length,
@@ -98,14 +146,12 @@ export class SimulacionResultado implements OnInit {
       totalMaterias += materias.length;
       totalCreditos += sumaCreditos;
 
-      // Semestre con mayor carga
       if (sumaCreditos > maxCreditos) {
         maxCreditos = sumaCreditos;
         semestreMayorCarga = key;
       }
     });
 
-    // Créditos faltantes hasta última simulación
     creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos, 0);
 
     this.estadisticasGenerales = {
@@ -132,18 +178,15 @@ export class SimulacionResultado implements OnInit {
 
   crearGraficos(): void {
     if (!this.resultadoSimulacion) return;
-
     for (const key in this.resultadoSimulacion) {
       if (this.resultadoSimulacion.hasOwnProperty(key)) {
         const semestreData = this.resultadoSimulacion[key];
-        // Llama al método de dibujo para cada semestre
         this.dibujarPieChart(semestreData.materias, key);
       }
     }
   }
 
   private dibujarPieChart(materias: Materia[], semestreKey: string): void {
-    // --- PASO 1: Procesar los datos ---
     const conteoPorTipo = materias.reduce((acc, materia) => {
       const tipo = this.obtenerNombre(materia.tipo!);
       acc[tipo] = (acc[tipo] || 0) + 1;
@@ -156,17 +199,15 @@ export class SimulacionResultado implements OnInit {
 
     if (dataParaGrafico.length === 0) return;
 
-    // Calcular el total para los porcentajes
     const totalMaterias = d3.sum(dataParaGrafico, d => d.cantidad);
 
-    // --- PASO 2: Configurar el lienzo (SVG) ---
     const chartId = `#pie-chart-semestre-${semestreKey}`;
-    d3.select(`${chartId} svg`).remove(); // Limpiar gráfico anterior
+    d3.select(`${chartId} svg`).remove();
 
-    const width = 700; // Más ancho para dar espacio a la leyenda
+    const width = 700;
     const height = 280;
     const radius = Math.min(height, height) / 2;
-    const chartCenterX = radius; // El gráfico se centrará en la mitad izquierda del SVG
+    const chartCenterX = radius;
     const chartCenterY = height / 2;
 
     const svg = d3.select(chartId)
@@ -177,20 +218,18 @@ export class SimulacionResultado implements OnInit {
     const chartGroup = svg.append('g')
       .attr('transform', `translate(${chartCenterX}, ${chartCenterY})`);
 
-    // --- PASO 3: Definir colores y arcos ---
     const color = d3.scaleOrdinal<string>()
       .domain(dataParaGrafico.map(d => d.tipo))
-      .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4"]); // Paleta de azules
+      .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4"]);
 
     const pie = d3.pie<{ tipo: string, cantidad: number }>()
       .value(d => d.cantidad)
       .sort(null);
 
     const arc = d3.arc<d3.PieArcDatum<{ tipo: string, cantidad: number }>>()
-      .innerRadius(radius * 0.5) // Gráfico de dona
+      .innerRadius(radius * 0.5)
       .outerRadius(radius * 0.9);
 
-    // --- PASO 4: Dibujar las porciones del gráfico ---
     chartGroup.selectAll('path')
       .data(pie(dataParaGrafico))
       .enter()
@@ -200,60 +239,50 @@ export class SimulacionResultado implements OnInit {
       .attr('stroke', 'white')
       .style('stroke-width', '3px');
 
-    // --- PASO 5: Añadir etiquetas de porcentaje sobre las porciones ---
     chartGroup.selectAll('text.percentage')
       .data(pie(dataParaGrafico))
       .enter()
       .append('text')
       .attr('class', 'percentage')
-      .text(d => {
-        let percentage = (d.data.cantidad / totalMaterias);
-        return d3.format(".0%")(percentage);
-      })
+      .text(d => (d.data.cantidad / totalMaterias * 100).toFixed(0) + '%')
       .attr('transform', d => `translate(${arc.centroid(d)})`)
       .style('text-anchor', 'middle')
       .style('font-size', '15px')
       .style('font-weight', 'bold')
-      .style('fill', 'white'); // Color blanco para que contraste con los azules
+      .style('fill', 'white');
 
-    // --- PASO 6: Crear la leyenda al lado del gráfico ---
     const legendGroup = svg.append('g')
       .attr('class', 'legend-group')
-      .attr('transform', `translate(${radius * 2 + 40}, 40)`); // Posicionar a la derecha
+      .attr('transform', `translate(${radius * 2 + 40}, 40)`);
 
     const legendItems = legendGroup.selectAll('.legend-item')
       .data(dataParaGrafico)
       .enter()
       .append('g')
       .attr('class', 'legend-item')
-      .attr('transform', (d, i) => `translate(0, ${i * 30})`); // Espaciado vertical
+      .attr('transform', (_d, i) => `translate(0, ${i * 30})`);
 
-    // Cuadrado de color para la leyenda
     legendItems.append('rect')
       .attr('width', 20)
       .attr('height', 20)
-      .attr('rx', 5) // Bordes redondeados
+      .attr('rx', 5)
       .attr('fill', d => color(d.tipo));
 
-    // Texto de la leyenda
     legendItems.append('text')
-      .attr('x', 28) // Espacio desde el cuadrado
+      .attr('x', 28)
       .attr('y', 10)
-      .attr('dy', '0.35em') // Alineación vertical
+      .attr('dy', '0.35em')
       .text(d => `${d.tipo} (${d.cantidad} materias)`)
       .style('font-size', '14px')
       .style('fill', '#333');
   }
 
-
   public volverFormSimulacion(): void {
     this.router.navigate(["/simulacion"]);
   }
 
-
   public visualizarSimulacion(): void {
     this.simulacionService.setSimulacion(this.resultadoSimulacion);
-    
     const currentUrl = this.router.url;
     if (currentUrl === '/pensum/simulacion') {
       this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
@@ -266,7 +295,7 @@ export class SimulacionResultado implements OnInit {
 
   public guardarSimulacion(): void {
     const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual();
-    
+
     const parametrosSimulacion = parametrosGuardados || {
       semestres: Object.keys(this.resultadoSimulacion).length,
       tipoMatricula: 'No especificado',

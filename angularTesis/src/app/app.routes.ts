@@ -8,6 +8,7 @@ import { SimulacionComponent } from './simulacion/simulacion';
 import { Main } from './main/main';
 import { BusquedasComponent } from './busquedas/busquedas.component';
 import { RecomendacionesComponent } from './recomendaciones/recomendaciones.component';
+import { RecomendacionesSelectorComponent } from './recomendaciones-selector/recomendaciones-selector.component';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'historial-simulaciones', component: HistorialSimulacionesComponent },
   { path: 'busquedas', component: BusquedasComponent},
   { path: 'recomendaciones', component: RecomendacionesComponent},
+  { path: 'recomendar-seleccion', component: RecomendacionesSelectorComponent},
   { path: 'main', component: Main },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];
