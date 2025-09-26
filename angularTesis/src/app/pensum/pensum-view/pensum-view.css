@@ -96,6 +96,26 @@ p {
   background-color: #b3e3fe;
 }
 
+.caja.repetida {
+  border: 1px solid #00B4D8;
+  background-color: #CAF0F8;
+  position: relative;
+}
+
+.caja.repetida::before {
+  content: "Repetida";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  background:#005F8F;
+  color: white;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+
 .caja.bloqueada {
   border: 1px solid #00B4D8;
   background-color: #CAF0F8;
