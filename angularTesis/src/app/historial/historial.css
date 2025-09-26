@@ -24,19 +24,7 @@ h3 {
   text-shadow: 2px 2px 4px #CAF0F8;
 }
 
-.seccion-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 0 20px;
-}
 
-.descripcion-seccion {
-  font-size: 16px;
-  color: #444;
-  max-width: 700px;
-  margin: 10px auto 0;
-  line-height: 1.6;
-}
 
 /* INFORMACIÓN RESUMIDA */
 .resumen-info {
@@ -58,20 +46,6 @@ h3 {
 }
 
 /* BARRA DE PROGRESO */
-.progress-title {
-  text-align: center;
-  margin: 12px 0; 
-  font-weight: bold;
-  font-size: 16px;
-  color:#0077B6;
-  text-shadow: 2px 2px 4px #CAF0F8;
-}
-
-.barra-container {
-  padding: 0 20px;
-  max-width: 700px;
-  margin: 0 auto 30px;
-}
 
 .progress-bar-section {
   width: 100%;
@@ -115,7 +89,7 @@ h3 {
 .resumen-grid {
   display: grid;
   grid-template-columns: 60% 40%; 
-  gap: 40px;
+  gap: 32px;
   align-items: start;
 }
 
@@ -157,18 +131,6 @@ h3 {
   font-size: 20px;
   margin-top: 25px;
 }
-
-/* Leyenda */
-.leyenda-d3 {
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-left: 10px;
-  align-items: flex-start;
-}
-
 
 /*  REQUISITOS */
 .requisitos-container {
@@ -312,62 +274,79 @@ button:hover {
 .disclaimer {
   font-size: 0.85rem;
   color: #555;
-  margin-top: 0.5rem;
+  margin-top: 20px;
   font-style: italic;
+  font-size: 17px;
 }
 
 
 
-/**/
-.creditos-box {
-  width: 400px; /* un poco más ancho */
-  border: 2px solid #0077B6;
-  border-radius: 14px;
-  font-family: Arial, sans-serif;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+/* CREDITOS CARDS - NUEVOS CUADRADOS COLORIDOS */
+.creditos-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 30px auto;
+  flex-wrap: wrap;
+}
+
+.credit-square {
+  width: 180px;
+  height: 180px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
   overflow: hidden;
 }
 
-.fila {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 22px; /* más padding */
-  font-size: 17px;
-  border-top: 1px solid #e0f4f9;
+.credit-square:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
 }
 
-.fila-cursados {
-  background: #CAF0F8; /* un celeste MUY suave */
+.credit-square::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.credit-value {
+  font-size: 36px;
   font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.fila-faltantes {
-  background: #dbe9f0; /* un celeste MUY suave */
-  font-weight: bold;
+.credit-label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  opacity: 0.95;
 }
 
-.subfila {
-  padding-left: 32px;
-  background: #f8fcfd; 
-  font-size: 16px;
+/* Colores específicos para cada cuadrado */
+.credit-square.cursados {
+  background:  #0077B6;
 }
 
-.label {
-  color: #0B1215;
+.credit-square.faltantes {
+  background: #00B4D8;
 }
 
-.valor1 {
-  font-weight: bold;
-  font-size: 22px;
-  color: #0B1215;
-  text-align: right;
-  min-width: 40px;
-}
-
-.valor2 {
-  font-size: 19px;
-  color: #0B1215 ;
-  text-align: right;
-  min-width: 40px;
+.credit-square.cursando {
+  background: #82e0f3;
 }
