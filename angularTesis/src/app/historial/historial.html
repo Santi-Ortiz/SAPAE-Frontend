@@ -30,7 +30,7 @@
           <div class="creditos-grid">
             <div class="cuadro-credito">
               <h3>NÚCLEO</h3>
-              <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0) -  (historial.faltanEnfasisTesis || 0)}} créditos</p>
+              <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0)}} créditos</p>
             </div>
             <div class="cuadro-credito">
               <h3>ELECTIVAS</h3>
@@ -42,7 +42,7 @@
             </div>
             <div class="cuadro-credito">
               <h3>ÉNFASIS</h3>
-              <p>{{ (historial.faltanEnfasis || 0) + (historial.faltanEnfasisTesis || 0) }} créditos</p>
+              <p>{{ historial.faltanEnfasis }} créditos</p>
             </div>
             <div class="cuadro-credito">
               <h3>ELECTIVA CIENCIAS BÁSICAS</h3>
@@ -75,7 +75,7 @@
 
       <div>
         <p class="disclaimer">
-          <strong>💡 Importante:</strong> Las materias que tienes <strong>en curso</strong> aparecen en los créditos faltantes hasta que las apruebes. Una vez aprobadas, sus créditos se descontarán automáticamente del total faltante.
+          <strong>💡 Importante:</strong> Los créditos de las materias que tienes <strong>en curso</strong> aparecen sumados en los créditos faltantes hasta que las apruebes. Una vez aprobadas, sus créditos se descontarán automáticamente del total faltante.
         </p>
       </div>
   
