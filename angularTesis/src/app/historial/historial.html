@@ -52,29 +52,25 @@
         </div>
 
         <div class="creditos-seccion">
-          <h3>Resumen de Créditos</h3>
-          <div class="creditos-box">
-            <div class="fila fila-cursados">
-              <span class="label">Créditos Cursados</span>
-              <span class="valor1">{{ historial.creditosCursados }}</span>
-            </div>
+  <h3>Resumen de Créditos</h3>
+  <div class="creditos-cards">
+    <div class="credit-square cursados">
+      <div class="credit-value">{{ historial.creditosCursados }}</div>
+      <div class="credit-label">Créditos Cursados</div>
+    </div>
 
-            <div class="fila fila-faltantes">
-              <span class="label">Créditos Faltantes</span>
-              <span class="valor1">{{ historial.creditosFaltantes }}</span>
-            </div>
+    <div class="credit-square faltantes">
+      <div class="credit-value">{{ historial.creditosFaltantes }}</div>
+      <div class="credit-label">Créditos Faltantes</div>
+    </div>
 
-            <div class="fila subfila">
-              <span class="label">En curso</span>
-              <span class="valor2">{{ historial.creditosCursando }}</span>
-            </div>
+    <div class="credit-square cursando">
+      <div class="credit-value">{{ historial.creditosCursando }}</div>
+      <div class="credit-label">Créditos en Curso</div>
+    </div>
+  </div>
+</div>
 
-            <div class="fila subfila">
-              <span class="label">Por ver</span>
-              <span class="valor2">{{ (historial.creditosFaltantes || 0) - (historial.creditosCursando || 0) }}</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div>
