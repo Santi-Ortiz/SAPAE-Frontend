@@ -208,7 +208,7 @@ export class PensumView implements OnInit, AfterViewInit {
         const materiaHist = (progreso?.materias ?? []).find(x => this.normCodigo(x.curso) === codigoNorm);
         const califNum = Number(materiaHist?.calif);
         if (!isNaN(califNum) && califNum < 3) {
-          clase = "perdida";
+          clase = "repetida";
         } else {
           clase = "bloqueada";
         }
@@ -225,33 +225,75 @@ export class PensumView implements OnInit, AfterViewInit {
   }
    
   
-  agruparMateriasFaltantes(progreso: Progreso, pensum: PensumDTO[]): { semestre: number; materias: PensumItem[] }[] {
+  agruparMateriasFaltantes(progreso: any,pensum: PensumDTO[]): { semestre: number; materias: PensumItem[] }[] {
     if (!progreso || !pensum || pensum.length === 0) return [];
   
-    const semestreActual = progreso.semestre ?? 0;
-    const materiasCursadasCodigos = new Set((progreso.materias ?? []).map(m => m.curso));
-    const agrupadoPorSemestre = new Map<number, PensumItem[]>();
+    const semestreActual: number = progreso.semestre ?? 0;
+    const proximoSemestre = semestreActual + 1;
   
-    const materiasFaltantes = (progreso.listaMateriasFaltantes?.length
-      ? progreso.listaMateriasFaltantes.map(m => m.nombre)
-      : pensum
-          .filter(materia => !materiasCursadasCodigos.has(materia.codigo))
-          .map(m => m.nombre)
+    // Conjunto de códigos ya cursados (en tu código usas m.curso como código)
+    const materiasCursadasCodigos = new Set<string>(
+      (progreso.materias ?? []).map((m: any) => String(m.curso))
     );
   
-    materiasFaltantes.forEach(nombreMateria => {
-      const materiaPensum = pensum.find(p => p.nombre === nombreMateria);
-      if (materiaPensum && materiaPensum.semestre > semestreActual) {
-        if (!agrupadoPorSemestre.has(materiaPensum.semestre)) {
-          agrupadoPorSemestre.set(materiaPensum.semestre, []);
-        }
-        const item: PensumItem = { ...materiaPensum, cssClass: 'faltante' };
-        agrupadoPorSemestre.get(materiaPensum.semestre)!.push(item);
-      }
-    });
+    const agrupadoPorSemestre = new Map<number, PensumItem[]>();
+    const addedCodes = new Set<string>();
   
+    // Normalizar string para comparar sin case y sin acentos si quieres (aquí solo lowercase)
+    const normalize = (s?: string) => (s || "").toLowerCase().trim();
+  
+    // Construir lista de pensum items faltantes
+    const faltantesPensumItems: PensumDTO[] = [];
+  
+    if (progreso.listaMateriasFaltantes && progreso.listaMateriasFaltantes.length > 0) {
+      // Si el progreso trae una lista explícita de faltantes intentamos mapearla al pensum
+      for (const lf of progreso.listaMateriasFaltantes) {
+        // lf puede ser string o objeto { nombre: ... } según tu implementación
+        const textoLF: string = typeof lf === "string" ? lf : (lf.nombre ?? lf.codigo ?? "");
+        const textoNorm = normalize(textoLF);
+  
+        // Buscar por codigo exacto primero, luego por nombre exacto, luego por contains
+        let match = pensum.find(p => String(p.codigo) === textoLF || normalize(p.codigo) === textoNorm);
+        if (!match) {
+          match = pensum.find(p => normalize(p.nombre) === textoNorm);
+        }
+        if (!match) {
+          match = pensum.find(p => normalize(p.nombre).includes(textoNorm));
+        }
+  
+        if (match && !addedCodes.has(String(match.codigo))) {
+          faltantesPensumItems.push(match);
+          addedCodes.add(String(match.codigo));
+        }
+      }
+    } else {
+      // Tomar todas las del pensum que no están cursadas
+      for (const p of pensum) {
+        if (!materiasCursadasCodigos.has(String(p.codigo)) && !addedCodes.has(String(p.codigo))) {
+          faltantesPensumItems.push(p);
+          addedCodes.add(String(p.codigo));
+        }
+      }
+    }
+  
+    // Asignar cada materia faltante a su semestre destino:
+    // - si pensum.semestre > semestreActual => target = pensum.semestre
+    // - si pensum.semestre <= semestreActual => target = semestreActual + 1 
+    for (const p of faltantesPensumItems) {
+      const semOriginal = Number(p.semestre ?? proximoSemestre);
+      const semestreDestino = semOriginal > semestreActual ? semOriginal : proximoSemestre;
+  
+      if (!agrupadoPorSemestre.has(semestreDestino)) {
+        agrupadoPorSemestre.set(semestreDestino, []);
+      }
+  
+      const item: PensumItem = { ...(p as PensumDTO), cssClass: "faltante" };
+      agrupadoPorSemestre.get(semestreDestino)!.push(item);
+    }
+  
+    // Ordenar semestres ascendente y devolver en el formato esperado
     return Array.from(agrupadoPorSemestre.entries())
-      .sort(([a], [b]) => a - b)
+      .sort((a, b) => a[0] - b[0])
       .map(([semestre, materias]) => ({ semestre, materias }));
   }
   
