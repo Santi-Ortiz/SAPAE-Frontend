@@ -27,8 +27,27 @@
       </select>
     </div>
 
-    <!-- Créditos -->
-    <div class="creditos-control">
+    <!-- ===== Switch de modo de créditos ===== -->
+    <div class="switch-modo">
+      <span class="switch-label">Modo de créditos</span>
+      <label class="toggle">
+        <!-- FIX: usar variable de plantilla #modeChk -->
+        <input
+          type="checkbox"
+          #modeChk
+          [checked]="modoCreditos === 'rango'"
+          (change)="onToggleModo(modeChk.checked)"
+        />
+        <span class="toggle-track">
+          <span class="toggle-option" [class.active]="modoCreditos === 'exacto'">Exacto</span>
+          <span class="toggle-option" [class.active]="modoCreditos === 'rango'">Rango</span>
+          <span class="toggle-thumb"></span>
+        </span>
+      </label>
+    </div>
+
+    <!-- ===== Créditos: EXACTO ===== -->
+    <div class="creditos-control" *ngIf="modoCreditos === 'exacto'">
       <label for="creditos">Créditos de la materia</label>
 
       <div class="creditos-chip pretty">
@@ -66,6 +85,62 @@
       <!-- Hint de créditos -->
       <div class="hint" *ngIf="creditos === 'cualquiera'">
         Sin restricción de créditos.
+      </div>
+    </div>
+
+    <!-- ===== Créditos: RANGO ===== -->
+    <div class="creditos-range" *ngIf="modoCreditos === 'rango'">
+      <div class="range-col">
+        <label>Mín</label>
+        <div class="creditos-chip pretty">
+          <button type="button" class="chip-btn chip-btn--minus"
+                  (click)="decMin()"
+                  [disabled]="cargando || creditosMin === 'cualquiera'">−</button>
+
+          <div class="chip-value">
+            {{ creditosMin === 'cualquiera' ? 'Cualquiera' : creditosMin }}
+          </div>
+
+          <button type="button" class="chip-btn chip-btn--plus"
+                  (click)="incMin()"
+                  [disabled]="cargando">+</button>
+
+          <button type="button" class="chip-any"
+                  (click)="setAnyMin()"
+                  [disabled]="cargando"
+                  [attr.aria-pressed]="(creditosMin === 'cualquiera') ? 'true' : 'false'">
+            Cualquiera
+          </button>
+        </div>
+      </div>
+
+      <div class="range-col">
+        <label>Máx</label>
+        <div class="creditos-chip pretty">
+          <button type="button" class="chip-btn chip-btn--minus"
+                  (click)="decMax()"
+                  [disabled]="cargando || creditosMax === 'cualquiera'">−</button>
+
+          <div class="chip-value">
+            {{ creditosMax === 'cualquiera' ? 'Cualquiera' : creditosMax }}
+          </div>
+
+          <button type="button" class="chip-btn chip-btn--plus"
+                  (click)="incMax()"
+                  [disabled]="cargando">+</button>
+
+          <button type="button" class="chip-any"
+                  (click)="setAnyMax()"
+                  [disabled]="cargando"
+                  [attr.aria-pressed]="(creditosMax === 'cualquiera') ? 'true' : 'false'">
+            Cualquiera
+          </button>
+        </div>
+      </div>
+
+      <div class="hint">
+        Puedes dejar alguno de los límites en “Cualquiera” para indicar un rango abierto.
+        Mantenemos el rango consistente (mín ≤ máx) automáticamente.
       </div>
     </div>
 

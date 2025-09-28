@@ -421,3 +421,52 @@ h1 {
   background-color: #005f8a;
   transform: translateY(-2px);
 }
+
+/* --- Columna y botones de Recomendación --- */
+.col-recom {
+  width: 120px;
+}
+
+.btn-recom,
+.btn-bloqueado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform .06s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.btn-recom {
+  background: #00B4D8;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 180, 216, 0.25);
+}
+.btn-recom:hover { background: #00a3c4; }
+.btn-recom:active { transform: translateY(1px) scale(.98); }
+
+.btn-bloqueado {
+  background: #e9ecef;
+  color: #8a8a8a;
+  cursor: not-allowed;
+}
+/* Toast flotante */
+.toast {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 9999;
+  background: #eaf6ff;
+  color: #0b3550;
+  border-left: 4px solid #00B4D8;
+  box-shadow: 0 8px 24px rgba(0,119,182,0.15);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.toast.success { border-left-color: #2ecc71; }
+.toast.info    { border-left-color: #00B4D8; }
+.toast.error   { border-left-color: #e74c3c; }

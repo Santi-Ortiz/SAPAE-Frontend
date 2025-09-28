@@ -245,7 +245,6 @@ button:hover { background-color: #00B4D8; }
 .hint {
   margin-top: 2px;
   font-size: 13px;
-  margin-bottom: 5px;
   color: #4a6072;
 }
 
@@ -309,141 +308,23 @@ button:hover { background-color: #00B4D8; }
   text-align: justify;
 }
 
-/* ===== Toggle Modo de Créditos ===== */
-.switch-modo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 8px 0 2px;
+.btn-select{
+  background-color:#00B4D8;
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
 }
-
-.switch-label {
-  font-weight: 700;
-  color: #0f3b57;
-  letter-spacing: .2px;
-}
-
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 220px;
-  height: 44px;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-track {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #ffffff 0%, #f2faff 100%);
-  border: 1px solid #d6e6f3;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  box-shadow:
-    0 8px 24px rgba(0,119,182,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.8);
-}
-
-.toggle-option {
-  text-align: center;
-  font-weight: 700;
-  color: #0b3550;
-  z-index: 2;
-  user-select: none;
-  transition: color .15s ease;
-  font-size: 14px;
-}
-
-.toggle-option.active {
-  color: #005a8e;
-}
-
-.toggle-thumb {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc(50% - 8px);
-  border-radius: 999px;
-  background: #00B4D8;
-  box-shadow: 0 6px 14px rgba(0,180,216,0.25);
-  transition: transform .2s ease;
-  z-index: 1;
-}
-
-/* mover el thumb cuando está en modo "rango" (checkbox checked) */
-.toggle input:checked + .toggle-track .toggle-thumb {
-  transform: translateX(100%);
-}
-
-/* === Centrado y ancho correcto del bloque de RANGO === */
-.creditos-control {
-  display: flex;
-  flex-direction: column;
-  align-items: center;   /* centra label + grid */
-  gap: 6px;
-  margin: 14px 0 8px;
-  width: 100%;
-}
-
-.creditos-control label {
-  width: 100%;
-  text-align: center;
-}
-
-/* === RANGO: centrar estrictamente el bloque Min/Máx por contenido === */
-.creditos-range {
-  display: grid;
-  grid-template-columns: repeat(2, max-content); /* columnas al ancho del chip */
-  justify-content: center;                       /* centramos todo el grid */
-  align-items: start;
-  column-gap: 20px;
-  row-gap: 8px;
-  width: 100%;
-  margin: 0 auto;                                /* por si el padre se estira */
-}
-
-.creditos-range .range-col {
-  display: grid;
-  grid-auto-rows: max-content;
-  justify-items: center;     /* etiqueta y chip centrados en su columna */
-  align-items: start;
-}
-
-/* la etiqueta (Mín/Máx) centrada sobre su chip */
-.creditos-range .range-col > label {
-  width: 100%;
-  text-align: center;
-  margin-bottom: 6px;
-}
-
-/* el texto de ayuda ocupa ambas columnas y queda centrado */
-.creditos-range .hint {
-  grid-column: 1 / 3;
-  text-align: center;
-  margin-top: 6px;
-}
-
-/* Botón “Cualquiera” ligeramente más ancho para que no rompa línea */
-.chip-any {
-  min-width: 132px;
-  white-space: nowrap;
-}
-
-/* (opcional) un pelín más de espacio entre elementos del chip */
-.creditos-chip { gap: 12px; }
-
-@media (max-width: 540px) {
-  .creditos-range {
-    grid-template-columns: 1fr;  /* en móvil, uno debajo del otro */
-    justify-content: center;
-  }
-  .creditos-range .hint { grid-column: 1 / 2; }
-  .chip-any { min-width: 116px; }
+.btn-select:hover{ background-color:#009fc0; }
+.subcopy{ color:#4a6072; margin:8px 0 16px; }
+.disclaimer{
+  margin-top:1px;
+  margin-bottom:10px;
+  font-size:13px;
+  color:#4a6072;
+  width:100%;
+  max-width:600px; /* mismo ancho que el textarea */
+  text-align:left;
 }

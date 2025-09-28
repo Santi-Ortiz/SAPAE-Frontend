@@ -8,14 +8,17 @@ import { SimulacionComponent } from './simulacion/simulacion';
 import { Main } from './main/main';
 import { BusquedasComponent } from './busquedas/busquedas.component';
 import { RecomendacionesComponent } from './recomendaciones/recomendaciones.component';
+import { RecomendacionesSelectorComponent } from './recomendaciones-selector/recomendaciones-selector.component';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { authInterceptor } from './interceptor/auth-interceptor';
+import { App } from './app';
 import { SimulacionResultado } from './simulacion-resultado/simulacion-resultado';
 import { AuthGuard } from './interceptor/auth-guard';
 import { HistorialSimulacionesComponent } from './historial-simulaciones/historial-simulaciones.component';
 
 export const routes: Routes = [
-    // Rutas públicas sin autenticación
-    { path: 'registro', component: Registro},
-    { path: 'login', component: Login },
 
     // Rutas protegidas que requieren autenticación
     { path: 'pensum/view', component: PensumView, canActivate: [AuthGuard] },

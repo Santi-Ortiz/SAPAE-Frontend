@@ -8,7 +8,6 @@ import {
   ViewportScroller,
 } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Materia } from '../models/materia.model';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
 import { HistorialService } from '../services/historial.service';
@@ -16,6 +15,7 @@ import { HistorialSimulacionesService } from '../services/historial-simulaciones
 import { MateriaService } from '../services/materia.service';
 import { Simulacion } from '../models/simulacion.model';
 import { Proyeccion } from '../models/proyeccion.model';
+import { Materia } from '../models/materia.model';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -39,6 +39,10 @@ export class SimulacionResultado implements OnInit {
     semestreMayorCarga: '',
   };
 
+  // === Toast ===
+  toast?: { kind: 'success'|'info'|'error', text: string };
+  showToast = false;
+
   constructor(
     private router: Router,
     private simulacionService: SimulacionService,
@@ -50,6 +54,8 @@ export class SimulacionResultado implements OnInit {
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
+
+    // Traer el estado actual desde el servicio (si volviste del selector, ya viene actualizado)
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
 
     console.log("ResultadoSimulacion:", this.resultadoSimulacion);
@@ -83,7 +89,8 @@ export class SimulacionResultado implements OnInit {
       this.simulacionService.getNombreSimulacionActual() ||
       "Simulación sin nombre";
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
-
+    
+    // Verificar si la simulación ya está guardada usando jobId si está disponible, sino usar nombre
     if (this.jobIdActual) {
       this.historialSimulacionesService
         .existeProyeccionConJobId(this.jobIdActual)
@@ -97,7 +104,22 @@ export class SimulacionResultado implements OnInit {
           this.simulacionGuardada = existe;
         });
     }
-    
+
+    // === Leer estado de navegación (toast + foco) si venimos del selector ===
+    const nav = this.router.getCurrentNavigation();
+    const st = (nav?.extras?.state as any) || null;
+    if (st?.toast) {
+      this.toast = st.toast;
+      this.showToast = true;
+      setTimeout(() => this.showToast = false, 3000);
+    }
+    if (st?.focus?.sem != null) {
+      setTimeout(() => {
+        const el = document.getElementById('sem-' + String(st.focus.sem));
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
+    }
+
     this.calcularEstadisticasGenerales();
     setTimeout(() => this.crearGraficos(), 0);
   }
@@ -109,8 +131,58 @@ export class SimulacionResultado implements OnInit {
     if (Array.isArray(value.materiasAsociadas)) {
       return value.materiasAsociadas.map((sm: any) => sm.materia).filter(Boolean);
     }
+
+    // === Leer estado de navegación (toast + foco) si venimos del selector ===
+    const nav = this.router.getCurrentNavigation();
+    const st = (nav?.extras?.state as any) || null;
+    if (st?.toast) {
+      this.toast = st.toast;
+      this.showToast = true;
+      setTimeout(() => this.showToast = false, 3000);
+    }
+    if (st?.focus?.sem != null) {
+      setTimeout(() => {
+        const el = document.getElementById('sem-' + String(st.focus.sem));
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
+    }
+
+    this.calcularEstadisticasGenerales();
+    setTimeout(() => this.crearGraficos(), 0);
+
     return [];
   }
+
+  /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
+
+  public esReemplazable(materia: Materia): boolean {
+    const t = (materia?.tipo || '').toLowerCase();
+    return t === 'electiva' || t === 'enfasis' || t === 'complementaria';
+  }
+
+  private mapTipoToQuery(tipoMateria: string): 'electivas' | 'énfasis' | 'complementarias' {
+    const t = (tipoMateria || '').toLowerCase();
+    if (t === 'electiva') return 'electivas';
+    if (t === 'enfasis' || t === 'énfasis') return 'énfasis';
+    return 'complementarias';
+  }
+
+  public irARecomendaciones(materia: Materia, semestreKey: string, index: number): void {
+    const tipoQuery = this.mapTipoToQuery(materia.tipo || '');
+    // Enviamos al componente selector (el que muestra el botón "Seleccionar")
+    this.router.navigate(
+      ['/recomendar-seleccion'],
+      {
+        queryParams: {
+          tipo: tipoQuery,
+          semestre: Number(semestreKey),
+          index
+        }
+      }
+    );
+  }
+
+  /* ======= Utilidades ya existentes ======= */
 
   public calcularCreditosFaltantesPorSemestre(semestreKey: string): number {
     let totalCursados = 0;
@@ -138,6 +210,7 @@ export class SimulacionResultado implements OnInit {
 
     const totalCreditos = materias.reduce((sum, m) => sum + (m?.creditos ?? 0), 0);
     const horasEstudio = (totalCreditos * 48) / 18 / 5;
+
 
     return {
       totalCreditos,
@@ -195,9 +268,12 @@ export class SimulacionResultado implements OnInit {
   }
 
   crearGraficos(): void {
+    if (!this.resultadoSimulacion) return;
     for (const key in this.resultadoSimulacion) {
-      const materias = this.obtenerMaterias(this.resultadoSimulacion[key]);
-      this.dibujarPieChart(materias, key);
+      if (this.resultadoSimulacion.hasOwnProperty(key)) {
+        const semestreData = this.resultadoSimulacion[key];
+        this.dibujarPieChart(semestreData.materias, key);
+      }
     }
   }
 
@@ -213,8 +289,19 @@ export class SimulacionResultado implements OnInit {
     );
     if (dataParaGrafico.length === 0) return;
 
+    const totalMaterias = d3.sum(dataParaGrafico, d => d.cantidad);
+
     const totalMaterias = d3.sum(dataParaGrafico, (d) => d.cantidad);
     const chartId = `#pie-chart-semestre-${semestreKey}`;
+    d3.select(`${chartId} svg`).remove();
+
+    const width = 700;
+    const height = 280;
+    const radius = Math.min(height, height) / 2;
+    const chartCenterX = radius;
+    const chartCenterY = height / 2;
+
+    const svg = d3.select(chartId)
     const width = 300,
       height = 300,
       radius = Math.min(width, height) / 2;
@@ -231,16 +318,24 @@ export class SimulacionResultado implements OnInit {
         'translate(' + width / 2 + ',' + height / 2 + ')'
       );
 
-    const pie = d3
-      .pie<any>()
-      .value((d: any) => d.cantidad)
+    const chartGroup = svg.append('g')
+      .attr('transform', `translate(${chartCenterX}, ${chartCenterY})`);
+
+    const color = d3.scaleOrdinal<string>()
+      .domain(dataParaGrafico.map(d => d.tipo))
+      .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4"]);
+
+    const pie = d3.pie<{ tipo: string, cantidad: number }>()
+      .value(d => d.cantidad)
       .sort(null);
 
+    const arc = d3.arc<d3.PieArcDatum<{ tipo: string, cantidad: number }>>()
+      .innerRadius(radius * 0.5)
+      .outerRadius(radius * 0.9);
     const arc = d3.arc<any>().innerRadius(0).outerRadius(radius);
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    const g = svg
-      .selectAll('.arc')
+    chartGroup.selectAll('path')
       .data(pie(dataParaGrafico))
       .enter()
       .append('g')
@@ -248,6 +343,46 @@ export class SimulacionResultado implements OnInit {
 
     g.append('path')
       .attr('d', arc)
+      .attr('fill', d => color(d.data.tipo))
+      .attr('stroke', 'white')
+      .style('stroke-width', '3px');
+
+    chartGroup.selectAll('text.percentage')
+      .data(pie(dataParaGrafico))
+      .enter()
+      .append('text')
+      .attr('class', 'percentage')
+      .text(d => (d.data.cantidad / totalMaterias * 100).toFixed(0) + '%')
+      .attr('transform', d => `translate(${arc.centroid(d)})`)
+      .style('text-anchor', 'middle')
+      .style('font-size', '15px')
+      .style('font-weight', 'bold')
+      .style('fill', 'white');
+
+    const legendGroup = svg.append('g')
+      .attr('class', 'legend-group')
+      .attr('transform', `translate(${radius * 2 + 40}, 40)`);
+
+    const legendItems = legendGroup.selectAll('.legend-item')
+      .data(dataParaGrafico)
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (_d, i) => `translate(0, ${i * 30})`);
+
+    legendItems.append('rect')
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('rx', 5)
+      .attr('fill', d => color(d.tipo));
+
+    legendItems.append('text')
+      .attr('x', 28)
+      .attr('y', 10)
+      .attr('dy', '0.35em')
+      .text(d => `${d.tipo} (${d.cantidad} materias)`)
+      .style('font-size', '14px')
+      .style('fill', '#333');
       .style('fill', (d: any) => color(d.data.tipo));
 
     g.append('title').text(
@@ -256,6 +391,69 @@ export class SimulacionResultado implements OnInit {
           (d.data.cantidad / totalMaterias) *
           100
         ).toFixed(1)}%)`
+    );
+  }
+
+  regresar(): void {
+    this.router.navigate(['/simulacion-parametros']);
+  }
+
+  mostrarGuardar(): void {
+    this.mostrarModalGuardar = true;
+  }
+
+  cancelarGuardar(): void {
+    this.mostrarModalGuardar = false;
+  }
+
+  public visualizarSimulacion(): void {
+    this.simulacionService.setSimulacion(this.resultadoSimulacion);
+    const currentUrl = this.router.url;
+    if (currentUrl === '/pensum/simulacion') {
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['/pensum/simulacion']);
+      });
+    } else {
+      this.router.navigate(['/pensum/simulacion']);
+    }
+  public visualizarSimulacion(): void { 
+    this.simulacionService.setSimulacion(this.resultadoSimulacion); 
+    const currentUrl = this.router.url; 
+    if (currentUrl === '/pensum/simulacion') { 
+      this.router.navigateByUrl('/', { skipLocationChange: true })
+      .then(() => { this.router.navigate(['/pensum/simulacion']); }); 
+    } else { this.router.navigate(['/pensum/simulacion']); } 
+  }
+
+  public volverFormSimulacion(): void { 
+    this.router.navigate(["/simulaciones"]); 
+  }
+
+  public guardarSimulacion(): void {
+    const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual();
+
+    const parametrosSimulacion = parametrosGuardados || {
+      semestres: Object.keys(this.resultadoSimulacion).length,
+      tipoMatricula: 'No especificado',
+      creditos: 0,
+      materias: 0,
+      priorizaciones: []
+    };
+  public guardarSimulacion(): void { 
+    const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual(); 
+    const parametrosSimulacion = parametrosGuardados || { 
+      semestres: Object.keys(this.resultadoSimulacion).length, 
+      tipoMatricula: 'No especificado', 
+      creditos: 0, 
+      materias: 0, 
+      priorizaciones: [] 
+    }; 
+
+    this.historialSimulacionesService.guardarSimulacion(
+      this.nombreSimulacion,
+      this.resultadoSimulacion,
+      parametrosSimulacion,
+      this.jobIdActual || undefined
     );
   }
 
