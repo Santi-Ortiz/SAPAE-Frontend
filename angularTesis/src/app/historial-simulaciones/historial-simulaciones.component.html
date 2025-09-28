@@ -1,82 +1,115 @@
-<body>
-  <div class="historial-container">
-    <section class="titulo-historial">
-      <h1>Historial de Simulaciones</h1>
-      <p>Aquí puedes ver todas las simulaciones que has guardado.</p>
-      
-    </section>
+<div class="historial-container">
+  <section class="titulo-historial">
+    <h1>Historial de Simulaciones</h1>
+    <p>Aquí puedes ver todas las simulaciones que has guardado.</p>
+  </section>
 
-    <section class="simulaciones-lista" *ngIf="simulacionesGuardadas.length > 0">
-      <div class="simulaciones-grid">
-        <div class="card" *ngFor="let simulacion of simulacionesGuardadas">
-          <div class="card-content">
-            <h3 class="card-title"><strong>{{ simulacion.nombre }}</strong></h3>
-            <span class="fecha">{{ formatearFecha(simulacion.fechaCreacion) }}</span>
-            
-            <div class="parametros-summary">
-              <p><strong>{{ simulacion.parametros.semestres }}</strong> semestres</p>
-              <p><strong>{{ simulacion.parametros.creditos }}</strong> créditos máx.</p>
-              <p><strong>{{ simulacion.parametros.materias }}</strong> materias máx.</p>
-              <p><strong>{{ simulacion.parametros.tipoMatricula }}</strong></p>
-              
-              <!-- Mostrar materias priorizadas si existen -->
-              <div class="priorizaciones" *ngIf="simulacion.parametros.priorizaciones && simulacion.parametros.priorizaciones.length > 0">
-                <p class="priorizaciones-label">Materias priorizadas:</p>
-                <ul class="priorizaciones-list">
-                  <li *ngFor="let materia of simulacion.parametros.priorizaciones">
-                    {{ materia }}
-                  </li>
-                </ul>
-              </div>
+  <!-- Lista de simulaciones -->
+  <section class="simulaciones-lista" *ngIf="simulacionesGuardadas.length > 0">
+    <div class="simulaciones-grid">
+      <div class="card" *ngFor="let simulacion of simulacionesGuardadas">
+        <div class="card-content">
+          <h3 class="card-title">
+            <strong>{{ simulacion.nombreSimulacion }}</strong>
+          </h3>
+          <span class="fecha">
+            {{ formatearFecha(simulacion.fechaCreacion) }}
+          </span>
+
+          <div class="parametros-summary">
+            <p><strong>{{ simulacion.semestre }}</strong> semestres</p>
+            <p><strong>{{ simulacion.numMaxCreditos }}</strong> créditos máx.</p>
+            <p><strong>{{ simulacion.numMaxMaterias }}</strong> materias máx.</p>
+            <p><strong>{{ simulacion.tipoMatricula }}</strong></p>
+            <p>
+              Práctica profesional:
+              <strong>{{ simulacion.practicaProfesional ? 'Sí' : 'No' }}</strong>
+            </p>
+
+            <!-- Mostrar priorizaciones si existen -->
+            <div
+              class="priorizaciones"
+              *ngIf="simulacion.priorizaciones && simulacion.priorizaciones.length > 0"
+            >
+              <p class="priorizaciones-label">Priorizaciones:</p>
+              <ul class="priorizaciones-list">
+                <li *ngFor="let prio of simulacion.priorizaciones; let i = index">
+                  {{ 'Criterio ' + (i+1) }}: {{ prio ? 'Sí' : 'No' }}
+                </li>
+              </ul>
             </div>
           </div>
-          
-          <div class="card-actions">
-            <button class="btn-ver" (click)="verSimulacion(simulacion)">Ver</button>
-            <button class="btn-eliminar" (click)="eliminarSimulacion(simulacion)">Eliminar</button>
-          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn-ver" (click)="verSimulacion(simulacion)">Ver</button>
+          <button class="btn-eliminar" (click)="eliminarSimulacion(simulacion)">Eliminar</button>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section> 
-      <div class="botones-navegacion">
-        <button class="btn-primario" (click)="volverSimulacion()"> Nueva Simulación</button>
-        <button class="btn-secundario" (click)="limpiarHistorial()" *ngIf="simulacionesGuardadas.length > 0">Limpiar Historial</button>
-      </div>
-    </section>
-    <section class="historial-vacio" *ngIf="simulacionesGuardadas.length === 0">
-      <div class="mensaje-vacio">
-        <i class="fas fa-history"></i>
-        <h2>No tienes simulaciones guardadas</h2>
-        <p>Cuando realices una simulación y la guardes, aparecerá aquí para que puedas revisarla cuando quieras.</p>
-      </div>
-    </section>
-  </div>
+  <!-- Botones de navegación -->
+  <section>
+    <div class="botones-navegacion">
+      <button class="btn-primario" (click)="volverSimulacion()">Nueva Simulación</button>
+      <button
+        class="btn-secundario"
+        (click)="limpiarHistorial()"
+        *ngIf="simulacionesGuardadas.length > 0"
+      >
+        Limpiar Historial
+      </button>
+    </div>
+  </section>
 
-  <!-- Modal para eliminar simulación -->
-  <div class="modal-backdrop" *ngIf="mostrarModalEliminar">
-    <div class="modal-custom">
-      <h3>Eliminar simulación</h3>
-      <p>¿Estás seguro de que deseas eliminar la simulación <strong>"{{ simulacionAEliminar?.nombre }}"</strong>?</p>
-      <p>Esta acción no se puede deshacer.</p>
-      <div class="modal-buttons">
-        <button class="btn-cancelar" (click)="mostrarModalEliminar = false">Cancelar</button>
-        <button class="btn-eliminar1" (click)="confirmarEliminacion()">Eliminar</button>
-      </div>
+  <!-- Mensaje si no hay simulaciones -->
+  <section class="historial-vacio" *ngIf="simulacionesGuardadas.length === 0">
+    <div class="mensaje-vacio">
+      <i class="fas fa-history"></i>
+      <h2>No tienes simulaciones guardadas</h2>
+      <p>
+        Cuando realices una simulación y la guardes, aparecerá aquí para que
+        puedas revisarla cuando quieras.
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- Modal para eliminar simulación -->
+<div class="modal-backdrop" *ngIf="mostrarModalEliminar">
+  <div class="modal-custom">
+    <h3>Eliminar simulación</h3>
+    <p>
+      ¿Estás seguro de que deseas eliminar la simulación
+      <strong>"{{ simulacionAEliminar?.nombreSimulacion }}"</strong>?
+    </p>
+    <p>Esta acción no se puede deshacer.</p>
+    <div class="modal-buttons">
+      <button class="btn-cancelar" (click)="mostrarModalEliminar = false">
+        Cancelar
+      </button>
+      <button class="btn-eliminar1" (click)="confirmarEliminacion()">Eliminar</button>
     </div>
   </div>
+</div>
 
-  <!-- Modal para limpiar historial -->
-  <div class="modal-backdrop" *ngIf="mostrarModalLimpiar">
-    <div class="modal-custom">
-      <h3>Limpiar historial</h3>
-      <p>¿Estás seguro de que deseas eliminar <strong>todas las simulaciones guardadas</strong>?</p>
-      <p>Esta acción no se puede deshacer.</p>
-      <div class="modal-buttons">
-        <button class="btn-cancelar" (click)="mostrarModalLimpiar = false">Cancelar</button>
-        <button class="btn-eliminar1" (click)="confirmarLimpiarHistorial()">Limpiar todo</button>
-      </div>
+<!-- Modal para limpiar historial -->
+<div class="modal-backdrop" *ngIf="mostrarModalLimpiar">
+  <div class="modal-custom">
+    <h3>Limpiar historial</h3>
+    <p>
+      ¿Estás seguro de que deseas eliminar
+      <strong>todas las simulaciones guardadas</strong>?
+    </p>
+    <p>Esta acción no se puede deshacer.</p>
+    <div class="modal-buttons">
+      <button class="btn-cancelar" (click)="mostrarModalLimpiar = false">
+        Cancelar
+      </button>
+      <button class="btn-eliminar1" (click)="confirmarLimpiarHistorial()">
+        Limpiar todo
+      </button>
     </div>
   </div>
-</body>
+</div>

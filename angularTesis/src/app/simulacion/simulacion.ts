@@ -75,56 +75,63 @@ export class SimulacionComponent implements OnInit {
       return;
     }
 
-    if (this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
-      this.nombreDuplicadoModal = true;
-      return;
-    }
+    this.historialSimulacionesService.existeProyeccionConNombre(this.nombreSimulacion)
+      .subscribe((existe: boolean) => {
+        if (existe) {
+          this.nombreDuplicadoModal = true;
+          return;
+        }
 
-    const proyeccionDTO = {
-      semestre: (this.semestreInput + this.progresoActual.semestre!),
-      numMaxCreditos: this.creditosInput,
-      numMaxMaterias: this.materiasInput
-    }
 
-    console.log('Proyección DTO:', proyeccionDTO);
 
-    const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
-    const nombresPriorizaciones = this.obtenerNombresPriorizacionesSeleccionadas();
+      const proyeccionDTO: Proyeccion = {
+        semestre: this.semestreInput! + this.progresoActual.semestre!,
+        numMaxCreditos: this.creditosInput!,
+        numMaxMaterias: this.materiasInput!,
+        nombreSimulacion: this.nombreSimulacion!,
+        tipoMatricula: this.tipoMatricula || 'No especificado',
+        practicaProfesional: this.practicaProfesional,
+        priorizaciones: this.obtenerPriorizacionesSeleccionadas()
+      };
+      
+        console.log('Proyección DTO:', proyeccionDTO);
 
-    this.simulacionDTO!.proyeccion = proyeccionDTO;
-    this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
-    this.simulacionDTO!.practicaProfesional = this.practicaProfesional;
+        const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();
+        const nombresPriorizaciones = this.obtenerNombresPriorizacionesSeleccionadas();
 
-    console.log('Simulación DTO completo:', this.simulacionDTO);
+        this.simulacionDTO!.proyeccion = proyeccionDTO;
+        this.simulacionDTO!.priorizaciones = priorizacionesSeleccionadas;
+        this.simulacionDTO!.practicaProfesional = this.practicaProfesional;
 
-    // Guardar parámetros de la simulación
-    const parametrosSimulacion = {
-      semestres: this.semestreInput,
-      tipoMatricula: this.tipoMatricula || 'No especificado',
-      creditos: this.creditosInput,
-      materias: this.materiasInput,
-      priorizaciones: nombresPriorizaciones,
-      practicaProfesional: this.practicaProfesional
-    };
+        console.log('Simulación DTO completo:', this.simulacionDTO);
 
-    this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
+        // Guardar parámetros de la simulación
+        const parametrosSimulacion = {
+          semestres: this.semestreInput,
+          tipoMatricula: this.tipoMatricula || 'No especificado',
+          creditos: this.creditosInput,
+          materias: this.materiasInput,
+          priorizaciones: nombresPriorizaciones,
+          practicaProfesional: this.practicaProfesional
+        };
 
-    this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
-      next: (respuesta) => {
-        
-        this.simulacionService.agregarJobAlMonitoreo(
-          respuesta.jobId, 
-          `Simulación para ${this.semestreInput} semestres con ${this.creditosInput} créditos`, 
-          this.nombreSimulacion!
-        );
-        
-        this.router.navigate(['/historial']);
-      },
-      error: (error) => {
-        console.error('Error al iniciar la simulación:', error);
-        alert('Error al iniciar la simulación. Por favor, intenta nuevamente.');
-      }
-    });
+        this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
+
+      this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
+          next: (respuesta) => {
+            this.simulacionService.agregarJobAlMonitoreo(
+              respuesta.jobId, 
+              `Simulación para ${this.semestreInput} semestres con ${this.creditosInput} créditos`, 
+              this.nombreSimulacion!
+            );
+            this.router.navigate(['/historial']);
+          },
+          error: (error) => {
+            console.error('Error al iniciar la simulación:', error);
+            alert('Error al iniciar la simulación. Por favor, intenta nuevamente.');
+          }
+        });
+      });
   }
 
   get maxCreditos(): any {
@@ -223,10 +230,11 @@ export class SimulacionComponent implements OnInit {
   }
 
   validarNombreSimulacion(): void {
-    if (this.nombreSimulacion && this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
+    if (this.nombreSimulacion && this.historialSimulacionesService.existeProyeccionConNombre(this.nombreSimulacion)) {
       this.nombreDuplicado = true;
     } else {
       this.nombreDuplicado = false;
     }
   }
+
 }

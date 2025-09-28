@@ -1,85 +1,52 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Materia } from '../models/materia.model';
-
-export interface SimulacionGuardada {
-  id: number;
-  jobId?: string;
-  nombre: string;
-  fechaCreacion: Date;
-  resultadoSimulacion: any; 
-  parametros: {
-    semestres: number;
-    tipoMatricula: string;
-    creditos: number;
-    materias: number;
-    priorizaciones?: string[];
-  };
-}
+import { Proyeccion } from '../models/proyeccion.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HistorialSimulacionesService {
-  private apiUrl = `${environment.SERVER_URL}/api/simulaciones`;
+  private apiUrl = `${environment.SERVER_URL}/api/proyecciones`;
 
   constructor(private http: HttpClient) {}
 
-  // Guardar una simulación en BD
-  guardarSimulacion(
-    nombre: string,
-    resultadoSimulacion: any,
-    parametros: {
-      semestres: number;
-      tipoMatricula: string;
-      creditos: number;
-      materias: number;
-      priorizaciones?: string[];
-    },
-    jobId?: string
-  ): Observable<SimulacionGuardada> {
-    const nuevaSimulacion: Omit<SimulacionGuardada, 'id'> = {
-      jobId,
-      nombre,
-      fechaCreacion: new Date(),
-      resultadoSimulacion,
-      parametros
-    };
-    return this.http.post<SimulacionGuardada>(this.apiUrl, nuevaSimulacion);
+  // Guardar una proyección en BD
+  guardarProyeccion(proyeccion: Proyeccion): Observable<Proyeccion> {
+    return this.http.post<Proyeccion>(this.apiUrl, proyeccion);
   }
 
-  // Obtener todas las simulaciones
-  getSimulacionesGuardadas(): Observable<SimulacionGuardada[]> {
-    return this.http.get<SimulacionGuardada[]>(this.apiUrl);
+  // Obtener todas las proyecciones del usuario
+  getMisProyecciones(): Observable<Proyeccion[]> {
+    return this.http.get<Proyeccion[]>(`${this.apiUrl}/mis-proyecciones`);
   }
 
-  // Obtener una simulación por ID
-  getSimulacionPorId(id: number): Observable<SimulacionGuardada> {
-    return this.http.get<SimulacionGuardada>(`${this.apiUrl}/${id}`);
+  // Obtener una proyección por ID
+  getProyeccionPorId(id: number): Observable<Proyeccion> {
+    return this.http.get<Proyeccion>(`${this.apiUrl}/${id}`);
   }
 
-  // Eliminar una simulación
-  eliminarSimulacion(id: number): Observable<void> {
+  // Verificar si existe por JobId 
+  existeProyeccionConJobId(jobId: string): Observable<boolean> { 
+    return this.http.get<boolean>(`${this.apiUrl}/existe/job/${jobId}`);
+
+  }
+
+  // Eliminar una proyección
+  eliminarProyeccion(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // Verificar si existe por JobId
-  existeSimulacionConJobId(jobId: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/existe/job/${jobId}`);
-  }
-
-  // Verificar si existe por nombre
-  existeSimulacionConNombre(nombre: string): Observable<boolean> {
+  // Verificar si existe una proyección por nombre
+  existeProyeccionConNombre(nombre: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/existe/nombre/${nombre}`);
   }
 
-  // Limpiar todas las simulaciones
-  limpiarHistorial(): Observable<void> {
+  // Eliminar todas las proyecciones del usuario
+  limpiarProyecciones(): Observable<void> {
     return this.http.delete<void>(this.apiUrl, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
   }
-
 }

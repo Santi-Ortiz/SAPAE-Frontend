@@ -299,7 +299,7 @@ export class SimulacionService {
   }
 
   getSimulaciones(): Observable<Simulacion[]> {
-    return this.http.get<Simulacion[]>(`${this.apiUrl}/api/simulaciones`);
+    return this.http.get<Simulacion[]>(`${this.apiUrl}/api/simulaciones/mis-simulaciones`);
   }
 
   getSimulacionById(id: number): Observable<Simulacion> {

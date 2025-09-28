@@ -11,7 +11,7 @@ export class ProyeccionService {
 
   private apiUrl = `${environment.SERVER_URL}/api/proyecciones`;
 
-  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0));
+  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0, '', '', false));
 
   constructor(private http: HttpClient) { }
 
@@ -24,7 +24,7 @@ export class ProyeccionService {
   }
 
   getProyecciones() {
-    return this.http.get(this.apiUrl);
+    return this.http.get(`${environment.SERVER_URL}/mis-proyecciones`);
   }
 
   getProyeccionById(id: number) {

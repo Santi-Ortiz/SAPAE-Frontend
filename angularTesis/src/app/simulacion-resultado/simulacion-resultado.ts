@@ -15,6 +15,7 @@ import { HistorialService } from '../services/historial.service';
 import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 import { MateriaService } from '../services/materia.service';
 import { Simulacion } from '../models/simulacion.model';
+import { Proyeccion } from '../models/proyeccion.model';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -85,13 +86,13 @@ export class SimulacionResultado implements OnInit {
 
     if (this.jobIdActual) {
       this.historialSimulacionesService
-        .existeSimulacionConJobId(this.jobIdActual)
+        .existeProyeccionConJobId(this.jobIdActual)
         .subscribe((existe: boolean) => {
           this.simulacionGuardada = existe;
         });
     } else {
       this.historialSimulacionesService
-        .existeSimulacionConNombre(this.nombreSimulacion)
+        .existeProyeccionConNombre(this.nombreSimulacion)
         .subscribe((existe: boolean) => {
           this.simulacionGuardada = existe;
         });
@@ -293,21 +294,27 @@ export class SimulacionResultado implements OnInit {
       priorizaciones: [] 
     }; 
 
-    this.historialSimulacionesService.guardarSimulacion(
-      this.nombreSimulacion, 
-      this.resultadoSimulacion, 
-      parametrosSimulacion, 
-      this.jobIdActual || undefined
-    ).subscribe({
+    // Crear objeto Proyeccion con la estructura del backend
+    const proyeccion: Proyeccion = new Proyeccion(
+      parametrosSimulacion.semestres,             // semestre
+      parametrosSimulacion.creditos,              // numMaxCreditos
+      parametrosSimulacion.materias,              // numMaxMaterias
+      this.nombreSimulacion,                      // nombreSimulacion
+      parametrosSimulacion.tipoMatricula,         // tipoMatricula
+      false,                                      // practicaProfesional (por defecto)
+      undefined,                                  // fechaCreacion (lo crea el backend)
+      parametrosSimulacion.priorizaciones || []   // priorizaciones
+    );
+
+    this.historialSimulacionesService.guardarProyeccion(proyeccion).subscribe({
       next: () => {
         this.simulacionGuardada = true; 
         this.mostrarModalGuardar = true;
-        console.log("Simulación guardada en la BD");
+        console.log("Proyección guardada en la BD:", proyeccion);
       },
       error: (err) => {
-        console.error("Error guardando simulación en BD", err);
+        console.error("Error guardando proyección en BD", err);
       }
     });
   }
-
 }

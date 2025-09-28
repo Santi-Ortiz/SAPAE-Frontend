@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HistorialSimulacionesService, SimulacionGuardada } from '../services/historial-simulaciones.service';
+import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 import { SimulacionService } from '../services/simulacion.service';
+import { Proyeccion } from '../models/proyeccion.model';
 
 @Component({
   selector: 'app-historial-simulaciones',
@@ -12,12 +13,12 @@ import { SimulacionService } from '../services/simulacion.service';
   styleUrls: ['./historial-simulaciones.component.css']
 })
 export class HistorialSimulacionesComponent implements OnInit {
-  simulacionesGuardadas: SimulacionGuardada[] = [];
+  simulacionesGuardadas: Proyeccion[] = [];
   
   // Variables para controlar los modales
   mostrarModalEliminar = false;
   mostrarModalLimpiar = false;
-  simulacionAEliminar: SimulacionGuardada | null = null;
+  simulacionAEliminar: Proyeccion | null = null;
 
   constructor(
     private router: Router,
@@ -30,7 +31,7 @@ export class HistorialSimulacionesComponent implements OnInit {
   }
 
   private cargarSimulacionesGuardadas(): void {
-    this.historialSimulacionesService.getSimulacionesGuardadas().subscribe({
+    this.historialSimulacionesService.getMisProyecciones().subscribe({
       next: (data) => {
         this.simulacionesGuardadas = data;
       },
@@ -38,14 +39,14 @@ export class HistorialSimulacionesComponent implements OnInit {
     });
   }
 
-  verSimulacion(simulacion: SimulacionGuardada): void {
-    // Cargar la simulación en el servicio de simulación
-    this.simulacionService.setSimulacion(simulacion.resultadoSimulacion);
-    this.simulacionService.setNombreSimulacionActual(simulacion.nombre);
+  verSimulacion(simulacion: Proyeccion): void {
+    // Cargar datos en el servicio de simulación
+    this.simulacionService.setSimulacion(simulacion); 
+    this.simulacionService.setNombreSimulacionActual(simulacion.nombreSimulacion);
     
     // Guardar el jobId si existe
-    if (simulacion.jobId) {
-      this.simulacionService.setJobIdSimulacionActual(simulacion.jobId);
+    if ((simulacion as any).jobId) {
+      this.simulacionService.setJobIdSimulacionActual((simulacion as any).jobId);
     } else {
       this.simulacionService.limpiarJobIdSimulacionActual();
     }
@@ -54,14 +55,15 @@ export class HistorialSimulacionesComponent implements OnInit {
     this.router.navigate(['/simulaciones/mostrar']);
   }
 
-  eliminarSimulacion(simulacion: SimulacionGuardada): void {
+  eliminarSimulacion(simulacion: Proyeccion): void {
     this.simulacionAEliminar = simulacion;
     this.mostrarModalEliminar = true;
   }
 
   confirmarEliminacion(): void {
     if (this.simulacionAEliminar) {
-      this.historialSimulacionesService.eliminarSimulacion(this.simulacionAEliminar.id).subscribe({
+      const id = (this.simulacionAEliminar as any).id; // id debe venir del backend
+      this.historialSimulacionesService.eliminarProyeccion(id).subscribe({
         next: () => {
           this.cargarSimulacionesGuardadas();
         },
@@ -77,7 +79,7 @@ export class HistorialSimulacionesComponent implements OnInit {
   }
 
   confirmarLimpiarHistorial(): void {
-    this.historialSimulacionesService.limpiarHistorial().subscribe({
+    this.historialSimulacionesService.limpiarProyecciones().subscribe({
       next: () => {
         this.cargarSimulacionesGuardadas();
         this.mostrarModalLimpiar = false;
@@ -90,7 +92,8 @@ export class HistorialSimulacionesComponent implements OnInit {
     this.router.navigate(['/simulaciones']);
   }
 
-  formatearFecha(fecha: Date): string {
+  formatearFecha(fecha?: Date | string): string {
+    if (!fecha) return 'Sin fecha';
     return new Date(fecha).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
@@ -100,7 +103,7 @@ export class HistorialSimulacionesComponent implements OnInit {
     });
   }
 
-  formatearPriorizaciones(priorizaciones: string[] = []): string {
-    return priorizaciones.length ? priorizaciones.join(', ') : 'Ninguna';
+  formatearPriorizaciones(priorizaciones: boolean[] = []): string {
+    return priorizaciones.some(p => p) ? priorizaciones.join(', ') : 'Ninguna';
   }
 }
