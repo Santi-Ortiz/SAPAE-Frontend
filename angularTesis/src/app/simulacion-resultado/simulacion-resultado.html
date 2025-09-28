@@ -2,10 +2,8 @@
   <h1>Simulación de Escenarios Académicos</h1>
 
   <!-- Toast de confirmación -->
-  <div *ngIf="showToast" class="toast"
-       [class.success]="toast?.kind === 'success'"
-       [class.info]="toast?.kind === 'info'"
-       [class.error]="toast?.kind === 'error'">
+  <div *ngIf="showToast" class="toast" [class.success]="toast?.kind === 'success'" [class.info]="toast?.kind === 'info'"
+    [class.error]="toast?.kind === 'error'">
     {{ toast?.text }}
   </div>
 
@@ -13,16 +11,18 @@
     <h2>Resultados de la Simulación</h2>
     <h3><span class="nombre">{{ nombreSimulacion }}</span></h3>
     <p>
-      Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.
+      Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con
+      las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente
+      y tomar decisiones informadas.
     </p>
-    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de Estudios</button>
+    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de
+      Estudios</button>
   </section>
 
   <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
     <!-- Ancla para scroll: id="sem-<número>" -->
-    <div *ngFor="let semestre of resultadoSimulacion | keyvalue"
-         class="resultado-semestre"
-         [attr.id]="'sem-' + semestre.key">
+    <div *ngFor="let semestre of resultadoSimulacion | keyvalue" class="resultado-semestre"
+      [attr.id]="'sem-' + semestre.key">
       <h2>Semestre {{ semestre.key }}</h2>
 
       <table class="materias-table">
@@ -37,20 +37,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let materia of semestre.value.materias; let i = index">
+          <tr *ngFor="let materia of obtenerMaterias(semestre.value); let i = index">
             <td>{{ materia.codigo }}</td>
             <td>{{ materia.nombre }}</td>
             <td>{{ materia.creditos }}</td>
             <td>{{ materia.semestre }}</td>
             <td>{{ obtenerNombre(materia.tipo!) }}</td>
             <td class="col-recom">
-              <button
-                *ngIf="esReemplazable(materia); else bloqueado"
-                class="btn-recom"
-                title="Elegir desde Recomendaciones"
-                (click)="irARecomendaciones(materia, semestre.key, i)"
-                aria-label="Elegir recomendación"
-              >
+              <button *ngIf="esReemplazable(materia); else bloqueado" class="btn-recom"
+                title="Elegir desde Recomendaciones" (click)="irARecomendaciones(materia, semestre.key, i)"
+                aria-label="Elegir recomendación">
                 <i class="fa-solid fa-check"></i>
               </button>
               <ng-template #bloqueado>
@@ -76,17 +72,17 @@
               <div class="stat-item">
                 <i class="fas fa-book-open"></i>
                 <span><strong>Materias a cursar:</strong></span>
-                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalMaterias }}</span>
+                <span class="stat-value">{{ calcularResumen(semestre.value).totalMaterias }}</span>
               </div>
               <div class="stat-item">
                 <i class="fas fa-star"></i>
                 <span><strong>Total de créditos:</strong></span>
-                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
+                <span class="stat-value">{{ calcularResumen(semestre.value).totalCreditos }}</span>
               </div>
               <div class="stat-item">
                 <i class="fa-solid fa-clock"></i>
                 <span><strong>Horas de estudio por día:</strong></span>
-                <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
+                <span class="stat-value">{{ calcularResumen(semestre.value).horasEstudio }}</span>
               </div>
               <div class="stat-item">
                 <i class="fa-solid fa-circle-exclamation"></i>
@@ -112,7 +108,8 @@
   <section class="resumen-general">
     <h2>Resumen General de Simulaciones</h2>
     <p>
-      Este resumen reúne las estadísticas más importantes de tu simulación académica. Úsalo para visualizar tu carga promedio, estimar tu ritmo de avance y planificar mejor tus próximos semestres.
+      Este resumen reúne las estadísticas más importantes de tu simulación académica. Úsalo para visualizar tu carga
+      promedio, estimar tu ritmo de avance y planificar mejor tus próximos semestres.
     </p>
 
     <table>
@@ -144,7 +141,8 @@
   </section>
 
   <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
-  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
+  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar
+    Simulación</button>
 
   <!-- Modal para confirmar que se guardó -->
   <div class="modal-backdrop" *ngIf="mostrarModalGuardar">
