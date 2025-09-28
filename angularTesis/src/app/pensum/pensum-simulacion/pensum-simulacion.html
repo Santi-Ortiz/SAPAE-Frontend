@@ -10,7 +10,7 @@
           <div class="item"><span class="color perdida"></span> Materia Perdida</div>
           <div class="item"><span class="color bloqueada"></span> Materia Cursada</div>
           <div class="item"><span class="color actual"></span> Materia Actual</div>
-          <div class="item"><span class="color faltante"></span> Materia Simulada</div>
+          <div class="item"><span class="color simulada"></span> Materia Simulada</div>
           <button class="volver-simulacion" (click)="volverSimulacion()">Volver a Simulación</button>
         </div>      
   
@@ -19,7 +19,6 @@
         <!-- Materias cursadas (ORÍGENES) -->
         <div class="semestre-columna" *ngFor="let grupo of agruparPorSemestre(soloMaterias)">
           <h3>Semestre {{ grupo.semestre }}</h3>
-  
           <div
             class="caja"
             *ngFor="let materia of grupo.materias"
@@ -35,9 +34,9 @@
           </div>
         </div>
   
-        <!-- Materias simuladas (DESTINOS) -->
-        <div class="semestre-columna" *ngFor="let grupo of materiasAgrupadas">
-            <h3>Semestre {{ grupo.key }}</h3>
+        <!-- Materias simuladas-->
+        <div class="semestre-columna simulado" *ngFor="let grupo of materiasAgrupadas">
+            <h3>S{{ grupo.key }} Simulado</h3>
             <div class="caja" *ngFor="let materia of grupo.materias"
                  [attr.id]="materia.codigo.toString().padStart(6,'0')"
                  [attr.data-semestre]="grupo.key"
