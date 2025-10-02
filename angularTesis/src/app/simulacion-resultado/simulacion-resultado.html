@@ -20,7 +20,7 @@
 
   <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
     <!-- Ancla para scroll: id="sem-<número>" -->
-    <div *ngFor="let semestre of resultadoSimulacion | keyvalue"
+    <div *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre"
          class="resultado-semestre"
          [attr.id]="'sem-' + semestre.key">
       <h2>Semestre {{ semestre.key }}</h2>

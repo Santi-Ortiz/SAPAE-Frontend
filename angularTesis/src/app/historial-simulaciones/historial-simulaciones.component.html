@@ -18,6 +18,7 @@
               <p><strong>{{ simulacion.parametros.creditos }}</strong> créditos máx.</p>
               <p><strong>{{ simulacion.parametros.materias }}</strong> materias máx.</p>
               <p><strong>{{ simulacion.parametros.tipoMatricula }}</strong></p>
+              <p *ngIf="simulacion.parametros.practicaProfesional"><strong>Práctica Profesional</strong></p>
               
               <!-- Mostrar materias priorizadas si existen -->
               <div class="priorizaciones" *ngIf="simulacion.parametros.priorizaciones && simulacion.parametros.priorizaciones.length > 0">

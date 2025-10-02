@@ -44,6 +44,13 @@ export class SimulacionResultado implements OnInit {
     private historialSimulacionesService: HistorialSimulacionesService
   ) {}
 
+  // Función para ordenar semestres numéricamente
+  orderByNumericSemestre = (a: any, b: any) => {
+    const numA = parseInt(a.key, 10);
+    const numB = parseInt(b.key, 10);
+    return numA - numB;
+  }
+
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
 
@@ -301,7 +308,8 @@ export class SimulacionResultado implements OnInit {
       tipoMatricula: 'No especificado',
       creditos: 0,
       materias: 0,
-      priorizaciones: []
+      priorizaciones: [],
+      practicaProfesional: false
     };
 
     this.historialSimulacionesService.guardarSimulacion(

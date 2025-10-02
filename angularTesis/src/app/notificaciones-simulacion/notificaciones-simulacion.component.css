@@ -117,3 +117,36 @@ h4 {
   font-size: 14px;
   color: #333;
 }
+
+/* Spinner para simulaciones en proceso */
+.spinner {
+  border: 4px solid #caf0f8;
+  border-top: 4px solid #00B4D8;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: girar 1s linear infinite;
+  margin: 5px auto 5px;
+}
+
+@keyframes girar {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.mensaje-cargando {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #0077B6;
+  font-style: italic;
+  text-align: center;
+}
+
+.mensaje-cargando p {
+  margin: 0;
+}

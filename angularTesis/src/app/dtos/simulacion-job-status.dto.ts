@@ -5,4 +5,5 @@ export interface SimulacionJobStatus {
   nombre: string;
   tiempoDuracion?: number;
   error?: string;
+  cargando?: boolean;
 }
