@@ -30,6 +30,8 @@ export const routes: Routes = [
     { path: 'busquedas', component: BusquedasComponent, canActivate: [AuthGuard] },
     { path: 'recomendaciones', component: RecomendacionesComponent, canActivate: [AuthGuard] },
     { path: 'main', component: Main, canActivate: [AuthGuard] },
+    { path: 'login', component: Login },
+    { path: 'registro', component: Registro },
 
     // Redirección por defecto
     { path: '', redirectTo: '/login', pathMatch: 'full' },

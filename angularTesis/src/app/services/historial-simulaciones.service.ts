@@ -13,40 +13,38 @@ export class HistorialSimulacionesService {
   constructor(private http: HttpClient) {}
 
   // Guardar una proyección en BD
-  guardarProyeccion(proyeccion: Proyeccion): Observable<Proyeccion> {
-    return this.http.post<Proyeccion>(this.apiUrl, proyeccion);
+  guardarProyeccion(proyeccion: Proyeccion): Observable<any> {
+    return this.http.post(this.apiUrl, proyeccion, { withCredentials: true });
   }
 
   // Obtener todas las proyecciones del usuario
   getMisProyecciones(): Observable<Proyeccion[]> {
-    return this.http.get<Proyeccion[]>(`${this.apiUrl}/mis-proyecciones`);
+    return this.http.get<Proyeccion[]>(`${this.apiUrl}/mis-proyecciones`, { withCredentials: true });
   }
 
   // Obtener una proyección por ID
   getProyeccionPorId(id: number): Observable<Proyeccion> {
-    return this.http.get<Proyeccion>(`${this.apiUrl}/${id}`);
+    return this.http.get<Proyeccion>(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 
   // Verificar si existe por JobId 
   existeProyeccionConJobId(jobId: string): Observable<boolean> { 
-    return this.http.get<boolean>(`${this.apiUrl}/existe/job/${jobId}`);
+    return this.http.get<boolean>(`${this.apiUrl}/existe/job/${jobId}`, { withCredentials: true });
 
   }
 
   // Eliminar una proyección
   eliminarProyeccion(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 
   // Verificar si existe una proyección por nombre
   existeProyeccionConNombre(nombre: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/existe/nombre/${nombre}`);
+    return this.http.get<boolean>(`${this.apiUrl}/existe/nombre/${nombre}`, { withCredentials: true });
   }
 
   // Eliminar todas las proyecciones del usuario
   limpiarProyecciones(): Observable<void> {
-    return this.http.delete<void>(this.apiUrl, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
+    return this.http.delete<void>(this.apiUrl, { withCredentials: true });
   }
 }

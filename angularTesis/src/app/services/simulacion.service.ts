@@ -71,7 +71,7 @@ export class SimulacionService {
   ): Observable<Record<string, { materias: Materia[] }>> {
     return this.http.post<Record<string, { materias: Materia[] }>>(
       `${environment.SERVER_URL}/api/simulaciones/generar`,
-      simulacionDTO
+      simulacionDTO, { withCredentials: true }
     );
   }
 
@@ -80,19 +80,19 @@ export class SimulacionService {
   ): Observable<SimulacionJobResponse> {
     return this.http.post<SimulacionJobResponse>(
       `${environment.SERVER_URL}/api/simulaciones/iniciar`,
-      simulacionDTO
+      simulacionDTO, { withCredentials: true }
     );
   }
 
   consultarEstadoJob(jobId: string): Observable<SimulacionJobStatus> {
     return this.http.get<SimulacionJobStatus>(
-      `${environment.SERVER_URL}/api/simulaciones/estado/${jobId}`
+      `${environment.SERVER_URL}/api/simulaciones/estado/${jobId}`, { withCredentials: true }
     );
   }
 
   obtenerResultadoJob(jobId: string): Observable<any> {
     return this.http.get<any>(
-      `${environment.SERVER_URL}/api/simulaciones/resultado/${jobId}`
+      `${environment.SERVER_URL}/api/simulaciones/resultado/${jobId}`, { withCredentials: true }
     );
   }
 
@@ -299,11 +299,11 @@ export class SimulacionService {
   }
 
   getSimulaciones(): Observable<Simulacion[]> {
-    return this.http.get<Simulacion[]>(`${this.apiUrl}/api/simulaciones/mis-simulaciones`);
+    return this.http.get<Simulacion[]>(`${this.apiUrl}/api/simulaciones/mis-simulaciones`, { withCredentials: true });
   }
 
   getSimulacionById(id: number): Observable<Simulacion> {
-    return this.http.get<Simulacion>(`${this.apiUrl}/api/simulaciones/${id}`);
+    return this.http.get<Simulacion>(`${this.apiUrl}/api/simulaciones/${id}`, { withCredentials: true });
   }
 
   addSimulacion(simulacion: Simulacion) {
@@ -311,6 +311,6 @@ export class SimulacionService {
   }
 
   deleteSimulacion(id: number) {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 }

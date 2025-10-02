@@ -90,19 +90,12 @@ export class SimulacionResultado implements OnInit {
       "Simulación sin nombre";
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
 
-    if (this.jobIdActual) {
-      this.historialSimulacionesService
-        .existeProyeccionConJobId(this.jobIdActual)
-        .subscribe((existe: boolean) => {
-          this.simulacionGuardada = existe;
-        });
-    } else {
-      this.historialSimulacionesService
+    
+    this.historialSimulacionesService
         .existeProyeccionConNombre(this.nombreSimulacion)
         .subscribe((existe: boolean) => {
           this.simulacionGuardada = existe;
-        });
-    }
+      });
     
     this.calcularEstadisticasGenerales();
     setTimeout(() => this.crearGraficos(), 0);
@@ -342,37 +335,25 @@ export class SimulacionResultado implements OnInit {
     this.router.navigate(["/simulaciones"]); 
   }
 
-  public guardarSimulacion(): void { 
-    const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual(); 
-    const parametrosSimulacion = parametrosGuardados || { 
-      semestres: Object.keys(this.resultadoSimulacion).length, 
-      tipoMatricula: 'No especificado', 
-      creditos: 0, 
-      materias: 0, 
-      priorizaciones: [] 
-    }; 
+  guardarSimulacion(): void {
+    const simulacionLocal = this.simulacionService.getSimulacion();
+    if (!simulacionLocal) {
+      console.error("No hay simulación generada para guardar");
+      return;
+    }
 
-    // Crear objeto Proyeccion con la estructura del backend
-    const proyeccion: Proyeccion = new Proyeccion(
-      parametrosSimulacion.semestres,             // semestre
-      parametrosSimulacion.creditos,              // numMaxCreditos
-      parametrosSimulacion.materias,              // numMaxMaterias
-      this.nombreSimulacion,                      // nombreSimulacion
-      parametrosSimulacion.tipoMatricula,         // tipoMatricula
-      false,                                      // practicaProfesional (por defecto)
-      undefined,                                  // fechaCreacion (lo crea el backend)
-      parametrosSimulacion.priorizaciones || []   // priorizaciones
-    );
+    const proyeccion: Proyeccion = simulacionLocal.proyeccion;
 
     this.historialSimulacionesService.guardarProyeccion(proyeccion).subscribe({
       next: () => {
-        this.simulacionGuardada = true; 
-        this.mostrarModalGuardar = true;
-        console.log("Proyección guardada en la BD:", proyeccion);
+        console.log("Proyección guardada correctamente");
+        this.simulacionGuardada = true;
+        this.mostrarModalGuardar = false;
+        this.router.navigate(['/historial-simulaciones']);
       },
-      error: (err) => {
-        console.error("Error guardando proyección en BD", err);
-      }
+      error: (err) => console.error("Error guardando proyección en BD", err)
     });
   }
+
+
 }
