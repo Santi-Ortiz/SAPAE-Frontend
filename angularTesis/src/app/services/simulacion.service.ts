@@ -79,12 +79,18 @@ export class SimulacionService {
       jobId: jobId,
       estado: 'PENDIENTE',
       mensaje: descripcion,
-      nombre: nombre
+      nombre: nombre,
+      cargando: true // Iniciar con spinner activo
     };
     
     jobsActivos.push(nuevoJob);
     this.guardarJobsActivos(jobsActivos);
     this.jobsActivosSubject.next(jobsActivos);
+
+    // Timeout de seguridad para evitar spinners colgados (10 minutos)
+    setTimeout(() => {
+      this.forzarDetenerCargando(jobId);
+    }, 600000); // 10 minutos
   }
 
   // Monitorear jobs activos
@@ -96,8 +102,11 @@ export class SimulacionService {
         switchMap(() => {
           const jobsActivos = this.getJobsActivos();
           
+          const estadosEnProceso = ['PENDIENTE', 'EN_PROGRESO', 'EN_PROCESO', 'INICIADA', 'PROCESANDO'];
+          const estadosFinales = ['COMPLETADA', 'ERROR', 'TERMINADA', 'FINALIZADA', 'CANCELADA'];
+          
           const jobsPendientes = jobsActivos.filter(job => 
-            job.estado === 'PENDIENTE' || job.estado === 'EN_PROGRESO' || job.estado === 'EN_PROCESO'
+            estadosEnProceso.includes(job.estado.toUpperCase()) && !estadosFinales.includes(job.estado.toUpperCase())
           );
           
           
@@ -138,9 +147,14 @@ export class SimulacionService {
       const estadoAnterior = jobsActivos[index].estado;
       const nombreOriginal = jobsActivos[index].nombre; 
       
+      // Determinar si debe mostrar el spinner de carga
+      const estadosEnProceso = ['PENDIENTE', 'EN_PROGRESO', 'EN_PROCESO', 'INICIADA', 'PROCESANDO'];
+      const estadosFinales = ['COMPLETADA', 'ERROR', 'TERMINADA', 'FINALIZADA', 'CANCELADA'];
+      
       jobsActivos[index] = {
         ...status,
-        nombre: nombreOriginal
+        nombre: nombreOriginal,
+        cargando: estadosEnProceso.includes(status.estado.toUpperCase()) && !estadosFinales.includes(status.estado.toUpperCase())
       };
       
       // Si el job está completado, obtener el resultado
@@ -178,6 +192,21 @@ export class SimulacionService {
     const jobsFiltrados = jobsActivos.filter(job => job.jobId !== jobId);
     this.guardarJobsActivos(jobsFiltrados);
     this.jobsActivosSubject.next(jobsFiltrados);
+  }
+
+  // Forzar detener el spinner de carga para un job específico
+  private forzarDetenerCargando(jobId: string): void {
+    const jobsActivos = this.getJobsActivos();
+    const index = jobsActivos.findIndex(job => job.jobId === jobId);
+    
+    if (index !== -1 && jobsActivos[index].cargando) {
+      console.warn(`Forzando detener spinner para job ${jobId} debido a timeout`);
+      jobsActivos[index].cargando = false;
+      jobsActivos[index].mensaje = jobsActivos[index].mensaje + ' (Timeout de carga)';
+      
+      this.guardarJobsActivos(jobsActivos);
+      this.jobsActivosSubject.next([...jobsActivos]);
+    }
   }
 
   // Métodos para manejar sessionStorage de jobs

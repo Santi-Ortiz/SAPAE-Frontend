@@ -14,6 +14,11 @@
         <div *ngIf="job.error" class="error-detail">
           <strong>Error:</strong> {{job.error}}
         </div>
+        
+        <div *ngIf="job.cargando" class="mensaje-cargando">
+          <div class="spinner"></div>
+          <p>Procesando simulación, un momento por favor...</p>
+        </div>
       </div>
       <div class="job-actions">
         <button *ngIf="job.estado === 'COMPLETADA'" 
