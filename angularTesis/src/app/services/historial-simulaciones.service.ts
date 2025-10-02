@@ -4,7 +4,7 @@ import { Materia } from '../models/materia.model';
 
 export interface SimulacionGuardada {
   id: string;
-  jobId?: string; // JobId de la simulación
+  jobId?: string;
   nombre: string;
   fechaCreacion: Date;
   resultadoSimulacion: { [semestre: string]: { materias: Materia[] } };
@@ -13,7 +13,8 @@ export interface SimulacionGuardada {
     tipoMatricula: string;
     creditos: number;
     materias: number;
-    priorizaciones?: string[]; // Agregamos las priorizaciones
+    priorizaciones?: string[]; 
+    practicaProfesional?: boolean; 
   };
 }
 
@@ -67,6 +68,7 @@ export class HistorialSimulacionesService {
       creditos: number;
       materias: number;
       priorizaciones: string[];
+      practicaProfesional?: boolean;
     },
     jobId?: string
   ): void {

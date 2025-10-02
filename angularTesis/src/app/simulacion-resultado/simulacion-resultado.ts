@@ -308,7 +308,8 @@ export class SimulacionResultado implements OnInit {
       tipoMatricula: 'No especificado',
       creditos: 0,
       materias: 0,
-      priorizaciones: []
+      priorizaciones: [],
+      practicaProfesional: false
     };
 
     this.historialSimulacionesService.guardarSimulacion(
