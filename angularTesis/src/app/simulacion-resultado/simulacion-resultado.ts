@@ -36,6 +36,9 @@ export class SimulacionResultado implements OnInit {
   toast?: { kind: 'success'|'info'|'error', text: string };
   showToast = false;
 
+  // ⛔ Códigos de énfasis que NO se pueden reemplazar
+  private readonly ENFASIS_NO_CAMBIABLES = new Set(['31339','34814']);
+
   constructor(
     private router: Router,
     private simulacionService: SimulacionService,
@@ -89,8 +92,20 @@ export class SimulacionResultado implements OnInit {
   /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
 
   public esReemplazable(materia: Materia): boolean {
-    const t = (materia?.tipo || '').toLowerCase();
-    return t === 'electiva' || t === 'enfasis' || t === 'complementaria';
+    const tipo = (materia?.tipo || '').toLowerCase();
+    const codigo = String(materia?.codigo ?? '').trim();
+
+    // Bloqueo explícito: si es énfasis y el código es uno de los no cambiables ⇒ NO
+    if ((tipo === 'enfasis' || tipo === 'énfasis') && this.ENFASIS_NO_CAMBIABLES.has(codigo)) {
+      return false;
+    }
+
+    // Reemplazables normales (placeholders u otras optativas)
+    return (
+      tipo === 'electiva' ||
+      tipo === 'enfasis' || tipo === 'énfasis' ||
+      tipo === 'complementaria'
+    );
   }
 
   private mapTipoToQuery(tipoMateria: string): 'electivas' | 'énfasis' | 'complementarias' {
