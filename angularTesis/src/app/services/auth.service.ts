@@ -107,6 +107,8 @@ export class AuthService {
     }).pipe(
       map(response => {
         console.log('Logout exitoso');
+        localStorage.clear();
+        sessionStorage.clear();
         this.currentUserSubject.next(false);
         return response;
       }),

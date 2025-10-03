@@ -78,6 +78,13 @@
         {{ getErrorMessage('segundoApellido') }}
       </small>
 
+      <label>Código estudiantil*</label>
+      <input type="text" formControlName="codigo" class="input-estilizado" placeholder="Ej: 12345678"
+        [class.input-error]="getErrorMessage('codigo')" />
+      <small *ngIf="getErrorMessage('codigo')" class="mensaje-error">
+        {{ getErrorMessage('codigo') }}
+      </small>
+
       <label>Carrera*</label>
       <select formControlName="carrera" class="input-estilizado select-estilizado"
         [class.input-error]="getErrorMessage('carrera')">

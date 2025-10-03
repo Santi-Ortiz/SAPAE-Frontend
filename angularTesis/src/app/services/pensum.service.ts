@@ -25,7 +25,7 @@ export class PensumService {
   constructor(private http: HttpClient) { }
 
   obtenerPensum(): Observable<PensumDTO[]> {
-    return this.http.get<PensumDTO[]>(`${environment.SERVER_URL}/api/pensum`).pipe(
+    return this.http.get<PensumDTO[]>(this.apiUrl).pipe(
       tap(pensum => this.allPensum = pensum)
     );
   }

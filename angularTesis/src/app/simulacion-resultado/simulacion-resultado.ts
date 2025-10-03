@@ -361,5 +361,8 @@ export class SimulacionResultado implements OnInit {
     });
   }
 
+  public volverFormSimulacion(): void {
+    this.router.navigate(["/simulaciones"]);
+  }
 
 }

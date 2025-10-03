@@ -21,6 +21,10 @@ export class EstudianteService {
     return this.http.get(`${this.apiUrl}/${id}`);
   }
 
+  getEstudianteByEmail(email: string) {
+    return this.http.get(`${this.apiUrl}/${email}`);
+  }
+
   addEstudiante(estudianteDTO: EstudianteDTO) {
     return this.http.post(this.apiUrl, estudianteDTO);
   }
