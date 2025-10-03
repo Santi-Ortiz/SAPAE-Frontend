@@ -117,11 +117,9 @@
         <input
           [type]="mostrarLaContrasena ? 'text' : 'password'"
           name="clave"
+          formControlName="contrasenia"
           class="input-estilizado"
           placeholder="Ingrese al menos 8 caracteres"
-          [(ngModel)]="clave"
-          (input)="validarClave()"
-          required
         />
         <i
           class="fa-solid icono icono-ojo"

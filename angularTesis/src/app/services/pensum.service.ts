@@ -5,6 +5,7 @@ import { PensumDTO } from '../dtos/pensum-dto';
 import { Progreso } from '../models/progreso.model';
 import { MateriaDTO } from '../dtos/materia-dto';
 import { Observable, tap } from 'rxjs';
+import { Pensum } from '../models/pensum.model';
 
 @Injectable({
   providedIn: 'root'

@@ -48,7 +48,8 @@ export class SimulacionResultado implements OnInit {
     private simulacionService: SimulacionService,
     private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
-    private historialSimulacionesService: HistorialSimulacionesService
+    private historialSimulacionesService: HistorialSimulacionesService,
+    private materiaService: MateriaService
   ) {}
 
   // Función para ordenar semestres numéricamente
@@ -349,7 +350,7 @@ export class SimulacionResultado implements OnInit {
       practicaProfesional: false
     };
 
-    this.historialSimulacionesService.guardarProyeccion(proyeccion).subscribe({
+    this.historialSimulacionesService.guardarProyeccion(parametrosSimulacion).subscribe({
       next: () => {
         console.log("Proyección guardada correctamente");
         this.simulacionGuardada = true;
