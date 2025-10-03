@@ -24,19 +24,7 @@ h3 {
   text-shadow: 2px 2px 4px #CAF0F8;
 }
 
-.seccion-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 0 20px;
-}
 
-.descripcion-seccion {
-  font-size: 16px;
-  color: #444;
-  max-width: 700px;
-  margin: 10px auto 0;
-  line-height: 1.6;
-}
 
 /* INFORMACIÓN RESUMIDA */
 .resumen-info {
@@ -58,20 +46,6 @@ h3 {
 }
 
 /* BARRA DE PROGRESO */
-.progress-title {
-  text-align: center;
-  margin: 12px 0; 
-  font-weight: bold;
-  font-size: 16px;
-  color:#0077B6;
-  text-shadow: 2px 2px 4px #CAF0F8;
-}
-
-.barra-container {
-  padding: 0 20px;
-  max-width: 700px;
-  margin: 0 auto 30px;
-}
 
 .progress-bar-section {
   width: 100%;
@@ -113,6 +87,13 @@ h3 {
 
 /*  CRÉDITOS Y GRÁFICO  */
 .resumen-grid {
+  display: grid;
+  grid-template-columns: 60% 40%; 
+  gap: 32px;
+  align-items: start;
+}
+
+.resumen-grid1 {
   display: flex;
   justify-content: space-between;
   gap: 15px;
@@ -150,54 +131,6 @@ h3 {
   font-size: 20px;
   margin-top: 25px;
 }
-
-/* GRÁFICO */
-.grafico-d3 {
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1.1;
-}
-
-.grafico-contenido {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.grafico-svg-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-
-
-#graficoSVG {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Leyenda */
-.leyenda-d3 {
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-left: 10px;
-  align-items: flex-start;
-}
-
 
 /*  REQUISITOS */
 .requisitos-container {
@@ -336,4 +269,84 @@ button {
 button:hover {
   background-color: #00B4D8;
   transform: scale(1.03);
+}
+
+.disclaimer {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 20px;
+  font-style: italic;
+  font-size: 17px;
+}
+
+
+
+/* CREDITOS CARDS - NUEVOS CUADRADOS COLORIDOS */
+.creditos-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 30px auto;
+  flex-wrap: wrap;
+}
+
+.credit-square {
+  width: 180px;
+  height: 180px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.credit-square:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.credit-square::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.credit-value {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.credit-label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  opacity: 0.95;
+}
+
+/* Colores específicos para cada cuadrado */
+.credit-square.cursados {
+  background:  #0077B6;
+}
+
+.credit-square.faltantes {
+  background: #00B4D8;
+}
+
+.credit-square.cursando {
+  background: #82e0f3;
 }

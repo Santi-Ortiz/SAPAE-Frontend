@@ -22,47 +22,65 @@
             </div>
           </div>
         </div>
-        
-      </div>      
-      <h3>Créditos Faltantes</h3>
-      <!-- Créditos y gráfico -->
+      </div>  
+
       <div class="resumen-grid">
-        <div class="creditos-grid">
-          <div class="cuadro-credito">
-            <h3>NÚCLEO</h3>
-            <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0) }} créditos</p>
-          </div>
-          <div class="cuadro-credito">
-            <h3>ELECTIVAS</h3>
-            <p>{{ historial.faltanElectiva }} créditos</p>
-          </div>
-          <div class="cuadro-credito">
-            <h3>COMPLEMENTARIAS</h3>
-            <p>{{ historial.faltanComplementaria }} créditos</p>
-          </div>
-          <div class="cuadro-credito">
-            <h3>ÉNFASIS</h3>
-            <p>{{ historial.faltanEnfasis }} créditos</p>
-          </div>
-          <div class="cuadro-credito">
-            <h3>ELECTIVA CIENCIAS BÁSICAS</h3>
-            <p>{{ historial.faltanElectivaBasicas }} créditos</p>
+        <div class="creditos-seccion">
+          <h3>Créditos Faltantes</h3>
+          <div class="creditos-grid">
+            <div class="cuadro-credito">
+              <h3>NÚCLEO</h3>
+              <p>{{ (historial.creditosFaltantes || 0) - (historial.faltanElectiva || 0) - (historial.faltanComplementaria || 0) - (historial.faltanEnfasis || 0) - (historial.faltanElectivaBasicas || 0)}} créditos</p>
+            </div>
+            <div class="cuadro-credito">
+              <h3>ELECTIVAS</h3>
+              <p>{{ historial.faltanElectiva }} créditos</p>
+            </div>
+            <div class="cuadro-credito">
+              <h3>COMPLEMENTARIAS</h3>
+              <p>{{ historial.faltanComplementaria }} créditos</p>
+            </div>
+            <div class="cuadro-credito">
+              <h3>ÉNFASIS</h3>
+              <p>{{ historial.faltanEnfasis }} créditos</p>
+            </div>
+            <div class="cuadro-credito">
+              <h3>ELECTIVA CIENCIAS BÁSICAS</h3>
+              <p>{{ historial.faltanElectivaBasicas }} créditos</p>
+            </div>
           </div>
         </div>
-  
-        <div class="grafico-d3" id="donutChartContainer">
-          <div class="grafico-contenido">
-            <div class="grafico-svg-wrapper">
-              <h3 class="titulo-grafico">Cantidad de Créditos</h3>
-              <div id="graficoSVG"></div>
-            </div>
-            <div id="leyendaGrafico" class="leyenda-d3"></div>
-          </div>
-        </div>           
+
+        <div class="creditos-seccion">
+  <h3>Resumen de Créditos</h3>
+  <div class="creditos-cards">
+    <div class="credit-square cursados">
+      <div class="credit-value">{{ historial.creditosCursados }}</div>
+      <div class="credit-label">Créditos Cursados</div>
+    </div>
+
+    <div class="credit-square faltantes">
+      <div class="credit-value">{{ historial.creditosFaltantes }}</div>
+      <div class="credit-label">Créditos Faltantes</div>
+    </div>
+
+    <div class="credit-square cursando">
+      <div class="credit-value">{{ historial.creditosCursando }}</div>
+      <div class="credit-label">Créditos en Curso</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+
+      <div>
+        <p class="disclaimer">
+          <strong>💡 Importante:</strong> Los créditos de las materias que tienes <strong>en curso</strong> aparecen sumados en los créditos faltantes hasta que las apruebes. Una vez aprobadas, sus créditos se descontarán automáticamente del total faltante.
+        </p>
       </div>
   
       <!-- Requisitos -->
-      <div class="resumen-grid">
+      <div class="resumen-grid1">
         <div class="requisitos-container" *ngIf="requisitosProcesados.length">
           <h3>Requisitos de Grado</h3>
           <ul class="requisitos-lista">
@@ -119,6 +137,7 @@
             </tr>
           </tbody>
         </table>
+        <p class="disclaimer">El símbolo 🔄 indica materias que están en curso y aún no tienen calificación.</p>
         
         <!-- Btón ver más registros-->
         <div class="centrar-boton" *ngIf="historial.materias.length > 5" style="margin-top: 10px;">

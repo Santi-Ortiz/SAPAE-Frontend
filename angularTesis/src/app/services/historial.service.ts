@@ -61,4 +61,5 @@ export class HistorialService {
   getHistorial(): Progreso | null {
     return this.historial.value;
   }
+
 }

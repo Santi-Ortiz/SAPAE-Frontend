@@ -1,8 +1,24 @@
-<!-- Barra de inicio -->
 <header class="barra">
   <div class="barra-inicio">
     <h1 class="logo">SAPAE</h1>
   </div>
+
+  <nav class="main-navigation">
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="#inicio" class="nav-link active" (click)="scrollToSection('inicio', $event)">Inicio</a>
+      </li>
+      <li class="nav-item">
+        <a href="#informe" class="nav-link" (click)="scrollToSection('historial-container', $event)">Cargar Informe Avance</a>
+      </li>
+      <li class="nav-item">
+        <a href="#funcionalidades" class="nav-link" (click)="scrollToSection('features', $event)">Funcionalidades</a>
+      </li>
+      <li class="nav-item">
+        <a href="#beneficios" class="nav-link" (click)="scrollToSection('benefits', $event)">Beneficios</a>
+      </li>
+    </ul>
+  </nav>
 
   <div class="user-menu">
     <i class="fa-solid fa-user-circle"></i>
@@ -13,8 +29,7 @@
 </header>
 
 
-<!-- Inicio -->
-<section class="inicio">
+<section class="inicio" id="inicio">
   <div class="inicio-content">
     <h1>Planifica tu carrera de forma inteligente</h1>
     <p class="description">
@@ -24,96 +39,185 @@
     </p>
   </div>
   <div class="inicio-image">
-    <img src="assets/images/plan-de-carrera.jpg" alt="Personas trabajando" />
+    <img src="assets/images/main.jpg" alt="Personas trabajando" />
   </div>
 </section>
 
-<!-- historial -->
-<div class="historial-container">
-    <!-- <h1 id="historial">Progreso académico</h1> -->
-    <p class="description">
-      Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
-       historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
-    </p>
-  
-    <div class="form-wrapper">
-      <div class="form">
-        <input type="file" (change)="onFileSelected($event)" />
-        <button (click)="onSubmit()">Cargar PDF</button>
+<div class="historial-container" id="historial-container">
+  <h2 class="historial-title">Carga tu Informe de Avance</h2>
+  <p class="description">
+    Selecciona tu informe de avance en formato PDF y haz clic en “Cargar PDF” para visualizar el
+    historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
+  </p>
+
+  <div class="modern-upload-wrapper">
+    <div class="upload-area" [class.dragover]="isDragOver" [class.has-file]="historial.archivoSeleccionado"
+      (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onFileDrop($event)"
+      (click)="fileInput.click()">
+
+      <input #fileInput type="file" accept=".pdf" (change)="onFileSelected($event)" class="hidden-input" />
+
+      <div class="upload-content" *ngIf="!historial.archivoSeleccionado">
+        <div class="upload-icon">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <h3>Arrastra tu archivo PDF aquí</h3>
+        <p>o <span class="link-text">selecciona desde tu dispositivo</span></p>
+      </div>
+
+      <div class="file-preview" *ngIf="historial.archivoSeleccionado">
+        <div class="file-icon">
+          <i class="fa-solid fa-file-pdf"></i>
+        </div>
+        <div class="file-details">
+          <h4>{{ historial.archivoSeleccionado.name }}</h4>
+          <span class="file-size">{{ getFileSize(historial.archivoSeleccionado.size) }}</span>
+        </div>
+        <button class="remove-btn" (click)="removeFile($event)" type="button">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Spinner -->
+    <button class="process-btn" [disabled]="!historial.archivoSeleccionado || cargando" (click)="onSubmit()">
+      <span class="btn-content">
+        <i class="fa-solid fa-play"></i>
+        Cargar PDF
+      </span>
+    </button>
+
     <div *ngIf="cargando" class="mensaje-cargando">
       <div class="spinner"></div>
       <p>Cargando archivo, un momento por favor...</p>
     </div>
-  
-    <p *ngIf="historial.error" class="error">{{ historial.error }}</p>
-  
-    <div class="tutorial-box">
-      <div class="tutorial-text">
-        <h2>¿Cómo descargar mi informe de avance?</h2>
-        <p>
-          Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para comenzar a planear tu camino académico.
-        </p>
-      </div>
-      <div class="tutorial-video">
-        <video controls width="400">
-          <source src="assets/videos/VideoInforme.mp4" type="video/mp4" />
-          Tu navegador no soporta el video.
-        </video>
-      </div>
+  </div>
+
+  <div *ngIf="historial.error" class="error-alert">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    <span>{{ historial.error }}</span>
+  </div>
+
+  <div class="tutorial-box">
+    <div class="tutorial-text">
+      <h2>¿Cómo descargar mi informe de avance?</h2>
+      <p>
+        Consulta este video para aprender cómo descargar el informe de avance desde la Intranet. Es el primer paso para
+        comenzar a planear tu camino académico.
+      </p>
+    </div>
+    <div class="tutorial-video">
+      <video controls width="400">
+        <source src="assets/videos/Tutorial.mp4" type="video/mp4" />
+        Tu navegador no soporta el video.
+      </video>
     </div>
   </div>
-  
-  
-  <!-- Funcionalidades -->
-<section class="features">
+</div>
+
+
+<section class="features" id="features">
   <h2>Explora las funcionalidades</h2>
   <p class="description">
     Estas herramientas han sido desarrolladas para facilitar el seguimiento de tu
     proceso formativo y garantizar una planeación académica clara y eficiente.
   </p>
 
-  <div class="feature-carousel">
-    <button class="arrow left" (click)="scrollLeft()">
-      ‹
+  <div class="modern-carousel">
+    <button class="carousel-arrow left" (click)="scrollLeft()">
+      <i class="fa-solid fa-chevron-left"></i>
     </button>
 
-    <div class="feature-scroll-wrapper" #scrollContainer>
-      <div class="feature-cards">
-        <div class="card" *ngFor="let feature of features">
-          <img [src]="feature.image" [alt]="feature.title" />
-          <h3>{{ feature.title }}</h3>
-          <p>{{ feature.description }}</p>
+    <div class="carousel-container">
+      <div class="carousel-track" #scrollContainer>
+        <div class="modern-card" *ngFor="let feature of features; trackBy: trackByFeature">
+          <div class="card-image-wrapper">
+            <img [src]="feature.image" [alt]="feature.title" />
+            <div class="card-overlay"></div>
+          </div>
+          <div class="card-content">
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+            <div class="card-shine"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <button class="arrow right" (click)="scrollRight()">
-      ›
+    <button class="carousel-arrow right" (click)="scrollRight()">
+      <i class="fa-solid fa-chevron-right"></i>
     </button>
   </div>
+
 </section>
 
-<!-- Beneficios -->
-<section class="benefits">
-  <h2>Te ayudará a</h2>
-  <ul class="benefit-list">
-    <li *ngFor="let benefit of benefits">
-      <span class="check-icon">✔</span>
-      <span class="benefit-text">{{ benefit }}</span>
-    </li>
-  </ul>
-</section>
+<section class="benefits" id="benefits">
+  <h2>Beneficios</h2>
+  <div class="benefits-container">
+    <div *ngFor="let benefit of benefits; let i = index" class="benefit-card" [class.left]="i % 2 === 0"
+      [class.right]="i % 2 === 1">
+      <div class="benefit-content">
+        <div class="benefit-icon">
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <div class="benefit-info">
+          <h3>{{ benefit.title }}</h3>
+          <p>{{ benefit.description }}</p>
+        </div>
+      </div>
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-logo">
-    <!--<img src="assets/images/logo.png" alt="Logo" /> -->
+      <div class="side-decoration" [class.decoration-right]="i % 2 === 0" [class.decoration-left]="i % 2 === 1">
+        <div class="floating-element element-1">
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <div class="floating-element element-2">
+          <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        <div class="floating-element element-3">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="decorative-circles">
+          <div class="circle circle-1"></div>
+          <div class="circle circle-2"></div>
+          <div class="circle circle-3"></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <p class="footer-copy">
-    © 2025 SAPAE.
-  </p>
+</section>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <h2 class="footer-logo">SAPAE</h2>
+      <p class="footer-tagline">Software Automatizado para la Planificación Académica Estudiantil</p>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-section">
+        <h4>Plataforma</h4>
+        <a href="#" (click)="$event.preventDefault()">Historial Académico</a>
+        <a href="#" (click)="$event.preventDefault()">Simulaciones</a>
+        <a href="#" (click)="$event.preventDefault()">Recomendaciones</a>
+        <a href="#" (click)="$event.preventDefault()">Búsquedas</a>
+        <a href="#" (click)="$event.preventDefault()">Recomendaciones</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Soporte</h4>
+        <a href="#" (click)="$event.preventDefault()">Centro de Ayuda</a>
+        <a href="#" (click)="$event.preventDefault()">Tutorial</a>
+        <a href="#" (click)="$event.preventDefault()">Contacto</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Universidad</h4>
+        <a href="https://www.javeriana.edu.co" target="_blank">Pontificia Universidad Javeriana</a>
+        <a href="https://www.javeriana.edu.co/carrera-ingenieria-de-sistemas" target="_blank">Ingeniería de Sistemas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 SAPAE - Pontificia Universidad Javeriana. Todos los derechos reservados.</p>
+  </div>
 </footer>

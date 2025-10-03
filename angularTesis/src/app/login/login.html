@@ -1,22 +1,46 @@
 <div class="contenedor-autenticacion">
-  <div class="tarjeta-autenticacion">
-    <h2 class="titulo">Inicio de Sesión</h2>
-    <h3 class="subtitulo">¡Hola!</h3>
-    <p class="mensaje-bienvenida">Bienvenido de vuelta a SAPAE</p>
+    <!-- Elementos decorativos de fondo -->
+  <div class="decorative-background">
+    <div class="floating-icon icon-1"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="floating-icon icon-2"><i class="fa-solid fa-book"></i></div>
+    <div class="floating-icon icon-3"><i class="fa-solid fa-user-graduate"></i></div>
+    <div class="floating-icon icon-4"><i class="fa-solid fa-star"></i></div>
+    <div class="floating-icon icon-5"><i class="fa-solid fa-lightbulb"></i></div>
+    <div class="floating-icon icon-6"><i class="fa-solid fa-trophy"></i></div>
+    <div class="floating-icon icon-7"><i class="fa-solid fa-chart-line"></i></div>
+    <div class="floating-icon icon-8"><i class="fa-solid fa-calendar-days"></i></div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="correo">Correo institucional*</label>
-        <div class="grupo-input">
-          <i class="fa-solid fa-envelope icono"></i>
-          <input type="email" id="correo" name="correo" formControlName="correo"
+    <div class="geometric-shape shape-1"></div>
+    <div class="geometric-shape shape-2"></div>
+    <div class="geometric-shape shape-3"></div>
+    <div class="geometric-shape shape-4"></div>
+    <div class="geometric-shape shape-5"></div>
+    <div class="geometric-shape shape-6"></div>
+
+    <div class="floating-circle circle-1"></div>
+    <div class="floating-circle circle-2"></div>
+    <div class="floating-circle circle-3"></div>
+    <div class="floating-circle circle-4"></div>
+  </div>
+  
+  
+  
+  
+  <div class="tarjeta-autenticacion">
+      <h2 class="titulo">Inicio de Sesión</h2>
+      <h3 class="subtitulo">¡Hola!</h3>
+      <p class="mensaje-bienvenida">Bienvenido de vuelta a SAPAE</p>
+  
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="correo">Correo institucional*</label>
+          <div class="grupo-input">
+            <i class="fa-solid fa-envelope icono"></i>
+            <input type="email" id="correo" name="correo" formControlName="correo"
             placeholder="usuario@javeriana.edu.co" />
+          </div>
+          <small *ngIf="mensajeCorreo" class="mensaje-error">{{ mensajeCorreo }}</small>
         </div>
-        <small *ngIf="f['correo'].invalid && (f['correo'].dirty || f['correo'].touched)" class="mensaje-error">
-          <span *ngIf="f['correo'].errors?.['required']">El correo es requerido</span>
-          <span *ngIf="f['correo'].errors?.['email']">Ingrese un correo válido</span>
-        </small>
-      </div>
 
       <div class="form-group">
         <label for="clave">Contraseña*</label>

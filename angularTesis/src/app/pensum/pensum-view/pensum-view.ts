@@ -6,7 +6,7 @@ import {
   OnInit,
   HostListener
 } from '@angular/core';
-import {  NgFor, NgClass } from '@angular/common';
+import { NgIf, NgFor, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PensumDTO } from '../../dtos/pensum-dto';
 import { MateriaDTO } from '../../dtos/materia-dto';
@@ -16,11 +16,13 @@ import { PensumService } from '../../services/pensum.service';
 import { HistorialService } from '../../services/historial.service';
 import { NgZone, ChangeDetectorRef } from '@angular/core';
 import * as d3 from 'd3';
+type PensumItem = PensumDTO & { cssClass?: string };
+type MateriaItem = MateriaDTO & { cssClass?: string };
 
 @Component({
   selector: 'app-pensum-view',
   standalone: true,
-  imports: [RouterModule, NgFor, NgClass],
+  imports: [RouterModule, NgFor, NgIf, NgClass],
   templateUrl: './pensum-view.html',
   styleUrl: './pensum-view.css',
 })
@@ -28,7 +30,7 @@ export class PensumView implements OnInit, AfterViewInit {
   progreso!: Progreso;
   materiasCursadasCodigos: Set<string> = new Set();
   materiasCursadas: MateriaDTO[] = [];
-  materiasFaltantes: { semestre: number; materias: PensumDTO[] }[] = [];
+  materiasFaltantes: { semestre: number; materias: PensumItem[] }[] = [];
   allPensum: PensumDTO[] = [];
   ultimoSemestreCursado: number = 0;
   errorMessage = '';
@@ -39,6 +41,7 @@ export class PensumView implements OnInit, AfterViewInit {
   mensajeY: number = 0;
   soloMaterias: MateriaDTO[] = [];
   requisitosMap = new Map<string, string[]>();
+  vistaHistorico: boolean = true;
 
 
   @ViewChild('svgRef') svgRef!: ElementRef<SVGSVGElement>;
@@ -54,8 +57,8 @@ export class PensumView implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    this.progreso = this.historialService.getHistorial()!; 
-    
+    this.progreso = this.historialService.getHistorial()!;
+    console.log("Progreso:", this.progreso);
     this.pensumService.obtenerPensum().pipe(
       catchError(err => {
         console.error('Error cargando pensum', err);
@@ -63,7 +66,7 @@ export class PensumView implements OnInit, AfterViewInit {
       })
     ).subscribe(pensum => {
       this.allPensum = pensum;
-  
+
       this.requisitosMap.clear();
 
       for (const m of this.allPensum) {
@@ -76,31 +79,40 @@ export class PensumView implements OnInit, AfterViewInit {
         }
         this.requisitosMap.set(String(m.codigo), req);
       }
-  
+
       if (this.progreso) {
         this.soloMaterias = this.progreso.materias ?? [];
         this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
-        this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, this.allPensum);
+        if (this.vistaHistorico) {
+          this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, this.allPensum);
+        } else {
+          const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
+          this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
+        }        
         this.cdr.detectChanges();
         this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
-
       }
 
 
     });
   }
-  
+
   getCodigo(m: PensumDTO | MateriaDTO): string {
     return (m as any).codigo ?? (m as any).curso;
+  }
+
+  private normCodigo(c: any): string {
+    const s = String(c ?? '').trim();
+    return /^\d+$/.test(s) ? s.padStart(6, '0') : s;
   }  
 
-  getRequisitosJson(codigoDestino: string): string { 
-    const req = this.requisitosMap.get(String(codigoDestino)) || []; 
+  getRequisitosJson(codigoDestino: string): string {
+    const req = this.requisitosMap.get(String(codigoDestino)) || [];
     return JSON.stringify(req);
   }
 
   agruparPorSemestre(materias: MateriaDTO[]) {
-    const ordenSemestres = ["PrimPe", "SegPe", "TerPe"]; 
+    const ordenSemestres = ["PrimPe", "SegPe", "TerPe"];
     const semestreMap = new Map<number, (MateriaDTO & { cssClass: string })[]>();
   
     // ordenar ciclos
@@ -138,21 +150,27 @@ export class PensumView implements OnInit, AfterViewInit {
   
     materias.forEach(m => {
       const match = m.cicloLectivo.match(/(PrimPe|SegPe|TerPe)(\d{4})/);
-      if (match && m.cred > 0) {
+      if (match) {
         const clave = `${match[1]}-${match[2]}`;
         const semestre = cicloToSemestre.get(clave) ?? 0;
         if (!semestreMap.has(semestre)) semestreMap.set(semestre, []);
-        
-        const califNum = Number(m.calif);
   
-        // asignar clases según condición
+        // normalizar créditos
+        const cred = parseFloat((m.cred ?? "0").toString().replace(",", "."));
+  
+        // normalizar calificación
+        const califNum = Number(m.calif);
         let clase = "bloqueada"; // por defecto
         if (!isNaN(califNum) && califNum < 3) {
           clase = "perdida";
         } else if (semestre === ultimoSemestre) {
           clase = "actual";
         }
-        semestreMap.get(semestre)!.push({ ...m, cssClass: clase });
+  
+        // incluir solo materias con créditos válidos (>0)
+        if (cred > 0) {
+          semestreMap.get(semestre)!.push({ ...m, cred, cssClass: clase });
+        }
       }
     });
   
@@ -160,66 +178,160 @@ export class PensumView implements OnInit, AfterViewInit {
       semestre,
       materias
     }));
-  }   
+  }
 
-  agruparMateriasFaltantes(progreso: Progreso, pensum: PensumDTO[]) {
-    if (!progreso || !pensum || pensum.length === 0) return [];
+  agruparPorSemestrePensum(pensum: PensumDTO[], progreso: Progreso): { semestre: number; materias: PensumItem[] }[] {
+    const semestreMap = new Map<number, PensumItem[]>();
   
-    const semestreActual = progreso.semestre ?? 0; 
-    const materiasCursadasCodigos = new Set(progreso.materias.map(m => m.curso));
+    // Normalizar todos los códigos del progreso
+    const todas = (progreso?.materias ?? []).map(m => ({
+      codigo: this.normCodigo(m.curso),
+      calif: m.calif
+    }));
   
-    // Materias faltantes 
-    const materiasFaltantes = (progreso.listaMateriasFaltantes?.length
-      ? progreso.listaMateriasFaltantes.map(m => m.nombre)
-      : pensum
-          .filter(materia => !materiasCursadasCodigos.has(materia.codigo))
-          .map(m => m.nombre)
+    const cursandoSet = new Set(
+      todas.filter(m => m.calif === 'SIN CALIFICACIÓN').map(m => m.codigo)
+    );
+    const cursadasSet = new Set(
+      todas.filter(m => m.calif !== 'SIN CALIFICACIÓN').map(m => m.codigo)
     );
   
-    // Buscar en el pensum cada materia faltante y asignarla a su semestre
-    const agrupadoPorSemestre = new Map<number, PensumDTO[]>();
+    pensum.forEach(m => {
+      if (!semestreMap.has(m.semestre)) semestreMap.set(m.semestre, []);
   
-    materiasFaltantes.forEach(nombreMateria => {
-      const materiaPensum = pensum.find(p => p.nombre === nombreMateria);
-      if (materiaPensum && materiaPensum.semestre > semestreActual) {
-        if (!agrupadoPorSemestre.has(materiaPensum.semestre)) {
-          agrupadoPorSemestre.set(materiaPensum.semestre, []);
+      let clase = "faltante";
+      const codigoNorm = this.normCodigo(m.codigo);
+  
+      if (cursandoSet.has(codigoNorm)) {
+        clase = "actual";
+      } else if (cursadasSet.has(codigoNorm)) {
+        const materiaHist = (progreso?.materias ?? []).find(x => this.normCodigo(x.curso) === codigoNorm);
+        const califNum = Number(materiaHist?.calif);
+        if (!isNaN(califNum) && califNum < 3) {
+          clase = "repetida";
+        } else {
+          clase = "bloqueada";
         }
-        agrupadoPorSemestre.get(materiaPensum.semestre)!.push(materiaPensum);
       }
-    });
-
-    // Agregar cajas para créditos pendientes
-    const creditosExtras = [
-      { titulo: "Electiva", creditos: progreso.faltanElectiva ?? 0 },
-      { titulo: "Complementaria", creditos: progreso.faltanComplementaria ?? 0 },
-      { titulo: "Énfasis", creditos: progreso.faltanEnfasis ?? 0 },
-      { titulo: "Electiva Ciencias Básicas", creditos: progreso.faltanElectivaBasicas ?? 0 }
-    ];
-
-    creditosExtras.forEach(extra => {
-      if (extra.creditos > 0) {
-        const semestreExtra = semestreActual + 1;
-        if (!agrupadoPorSemestre.has(semestreExtra)) {
-          agrupadoPorSemestre.set(semestreExtra, []);
-        }
-        agrupadoPorSemestre.get(semestreExtra)!.push(
-          new PensumDTO(
-            "0",
-            extra.titulo,
-            extra.creditos,
-            semestreExtra,
-            "[]"
-          )
-        );
-      }
+  
+      // crear un PensumItem (no modificamos el objeto original del pensum)
+      const item: PensumItem = { ...m, cssClass: clase };
+      semestreMap.get(m.semestre)!.push(item);
     });
   
-    // Devolver arreglo 
-    return Array.from(agrupadoPorSemestre.entries())
+    return Array.from(semestreMap.entries())
       .sort(([a], [b]) => a - b)
       .map(([semestre, materias]) => ({ semestre, materias }));
   }
+   
+  
+  agruparMateriasFaltantes(progreso: any,pensum: PensumDTO[]): { semestre: number; materias: PensumItem[] }[] {
+    if (!progreso || !pensum || pensum.length === 0) return [];
+  
+    const semestreActual: number = progreso.semestre ?? 0;
+    const proximoSemestre = semestreActual + 1;
+  
+    // Conjunto de códigos ya cursados (en tu código usas m.curso como código)
+    const materiasCursadasCodigos = new Set<string>(
+      (progreso.materias ?? []).map((m: any) => String(m.curso))
+    );
+  
+    const agrupadoPorSemestre = new Map<number, PensumItem[]>();
+    const addedCodes = new Set<string>();
+  
+    // Normalizar string para comparar sin case y sin acentos si quieres (aquí solo lowercase)
+    const normalize = (s?: string) => (s || "").toLowerCase().trim();
+  
+    // Construir lista de pensum items faltantes
+    const faltantesPensumItems: PensumDTO[] = [];
+  
+    if (progreso.listaMateriasFaltantes && progreso.listaMateriasFaltantes.length > 0) {
+      // Si el progreso trae una lista explícita de faltantes intentamos mapearla al pensum
+      for (const lf of progreso.listaMateriasFaltantes) {
+        // lf puede ser string o objeto { nombre: ... } según tu implementación
+        const textoLF: string = typeof lf === "string" ? lf : (lf.nombre ?? lf.codigo ?? "");
+        const textoNorm = normalize(textoLF);
+  
+        // Buscar por codigo exacto primero, luego por nombre exacto, luego por contains
+        let match = pensum.find(p => String(p.codigo) === textoLF || normalize(p.codigo) === textoNorm);
+        if (!match) {
+          match = pensum.find(p => normalize(p.nombre) === textoNorm);
+        }
+        if (!match) {
+          match = pensum.find(p => normalize(p.nombre).includes(textoNorm));
+        }
+  
+        if (match && !addedCodes.has(String(match.codigo))) {
+          faltantesPensumItems.push(match);
+          addedCodes.add(String(match.codigo));
+        }
+      }
+    } else {
+      // Tomar todas las del pensum que no están cursadas
+      for (const p of pensum) {
+        if (!materiasCursadasCodigos.has(String(p.codigo)) && !addedCodes.has(String(p.codigo))) {
+          faltantesPensumItems.push(p);
+          addedCodes.add(String(p.codigo));
+        }
+      }
+    }
+  
+    // Asignar cada materia faltante a su semestre destino:
+    // - si pensum.semestre > semestreActual => target = pensum.semestre
+    // - si pensum.semestre <= semestreActual => target = semestreActual + 1 
+    for (const p of faltantesPensumItems) {
+      const semOriginal = Number(p.semestre ?? proximoSemestre);
+      const semestreDestino = semOriginal > semestreActual ? semOriginal : proximoSemestre;
+  
+      if (!agrupadoPorSemestre.has(semestreDestino)) {
+        agrupadoPorSemestre.set(semestreDestino, []);
+      }
+  
+      const item: PensumItem = { ...(p as PensumDTO), cssClass: "faltante" };
+      agrupadoPorSemestre.get(semestreDestino)!.push(item);
+    }
+  
+    // Ordenar semestres ascendente y devolver en el formato esperado
+    return Array.from(agrupadoPorSemestre.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([semestre, materias]) => ({ semestre, materias }));
+  }
+  
+  
+  private reemplazarGenericas(pensum: PensumDTO[], progreso: Progreso): PensumDTO[] {
+    const electivas = progreso.cursosElectivas ?? [];
+    const complementarias = [
+      ...(progreso.cursosComplementariaLenguas ?? []),
+      ...(progreso.cursosComplementariaInformacion ?? [])
+    ];
+    const enfasis = progreso.cursosEnfasis ?? [];
+    const basicas = progreso.cursosElectivaBasicas ?? [];
+  
+    let idxElectiva = 0, idxCompl = 0, idxEnfasis = 0, idxBasica = 0;
+  
+    return pensum.map(m => {
+      const nombreNorm = (m.nombre ?? '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+      if (nombreNorm.includes("basicas") && basicas[idxBasica]) {
+        const real = basicas[idxBasica++];
+        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
+      } 
+      if (nombreNorm.includes("electiva") && electivas[idxElectiva]) {
+        const real = electivas[idxElectiva++];
+        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
+      } 
+      if (nombreNorm.includes("complementaria") && complementarias[idxCompl]) {
+        const real = complementarias[idxCompl++];
+        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
+      } 
+      if ((nombreNorm.includes("énfasis") || nombreNorm.includes("enfasis")) && enfasis[idxEnfasis]) {
+        const real = enfasis[idxEnfasis++];
+        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
+      }
+      return m; // no era genérica → devolver igual
+    });
+  }  
+  
 
   esMateriaBloqueada(materia: PensumDTO | MateriaDTO): boolean {
     const codigo = this.getCodigo(materia);
@@ -228,12 +340,12 @@ export class PensumView implements OnInit, AfterViewInit {
       return true;
     }
     return false;
-  } 
-    
+  }
+
   // Normaliza todos los códigos al mismo formato 
   private norm(c: any): string {
     const s = String(c ?? '').trim();
-    return /^\d+$/.test(s) ? s.padStart(6, '0') : s; 
+    return /^\d+$/.test(s) ? s.padStart(6, '0') : s;
   }
 
   seleccionarMateria(codigo: string) {
@@ -258,7 +370,7 @@ export class PensumView implements OnInit, AfterViewInit {
           tieneConexiones = true;
         }*/
 
-      } catch {}
+      } catch { }
     });
 
     // Quitar duplicados y asegurar todo normalizado
@@ -275,9 +387,12 @@ export class PensumView implements OnInit, AfterViewInit {
 
     this.dibujarConexiones();
   }
-  
-  
+
+
   ngAfterViewInit() {
+    // Inicializar el estado del toggle (por defecto: "Según plan de estudios")
+    this.inicializarEstadoToggle();
+
     this.zone.onStable.subscribe(() => {
       this.dibujarConexiones();
     });
@@ -293,7 +408,6 @@ export class PensumView implements OnInit, AfterViewInit {
   onScroll() {
     this.dibujarConexiones();
   }
-  
 
   private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
     const { scrollWidth: width, scrollHeight: height } = contenedor;
@@ -301,7 +415,6 @@ export class PensumView implements OnInit, AfterViewInit {
     svg.setAttribute('height', `${height}`);
     svg.innerHTML = ''; // limpiar SVG
   }
-  
   private dibujarCurvas(
     d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
     cajas: HTMLElement[],
@@ -338,11 +451,12 @@ export class PensumView implements OnInit, AfterViewInit {
       gapCentersX.push(rightEdge + (nextLeft - rightEdge) / 2);
     }
   
-    const offsetHorizBase = 16;
-    const laneSpacingY = 12;
-    const laneSpacingX = 16;
-    const offsetLlegada = 12;
-    const shortRun = 14;
+    // parámetros ajustados (canales más pegados)
+    const offsetHorizBase = 12;
+    const laneSpacingY = 8;
+    const laneSpacingX = 6;
+    const offsetLlegada = 10;
+    const shortRun = 10;
   
     const colGapCentersY: Array<number[]> = columnas.map(col => {
       const cajasEnCol = Array.from(col.querySelectorAll<HTMLElement>(".caja"))
@@ -362,16 +476,43 @@ export class PensumView implements OnInit, AfterViewInit {
       .y(d => d[1])
       .curve(d3.curveStep);
   
+    // --- GRID & ocupación de CAJAS ---
     const cellSize = Math.max(7, Math.round(Math.max(laneSpacingX, laneSpacingY) * 0.1));
     const occupied: Set<string> = new Set();
     const keyOf = (gx: number, gy: number) => `${gx},${gy}`;
   
     function toGridCoord(x: number, y: number): [number, number] {
+      // índices de celda
       return [Math.round(x / cellSize), Math.round(y / cellSize)];
     }
   
     function fromGridCoord(gx: number, gy: number): [number, number] {
-      return [gx * cellSize, gy * cellSize];
+      // centro de la celda
+      return [gx * cellSize + cellSize / 2, gy * cellSize + cellSize / 2];
+    }
+  
+    function occupySegmentGrid(x1: number, y1: number, x2: number, y2: number) {
+      const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+      const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+      const [gx1] = toGridCoord(minX, minY);
+      const [gx2] = toGridCoord(maxX, minY);
+      const [, gy1] = toGridCoord(minX, minY);
+      const [, gy2] = toGridCoord(minX, maxY);
+  
+      for (let gx = Math.min(gx1, gx2); gx <= Math.max(gx1, gx2); gx++) {
+        for (let gy = Math.min(gy1, gy2); gy <= Math.max(gy1, gy2); gy++) {
+          occupied.add(keyOf(gx, gy));
+        }
+      }
+    }
+  
+    // NO marcamos líneas como ocupadas para que se puedan sobreescribir,
+    // pero sí usaremos la grid para detectar cajas y desplazar canales.
+    function reservarEnGridNoOccupy(x: number, y: number): [number, number] {
+      const [gx0, gy0] = toGridCoord(x, y);
+      // buscamos la celda más cercana (sin marcarla)
+      const free = findFreeCellNear(gx0, gy0, 6) || [gx0, gy0];
+      return fromGridCoord(free[0], free[1]);
     }
   
     function findFreeCellNear(gx0: number, gy0: number, maxRadius = 8): [number, number] | null {
@@ -396,7 +537,8 @@ export class PensumView implements OnInit, AfterViewInit {
       return null;
     }
   
-    function occupySegmentGrid(x1: number, y1: number, x2: number, y2: number) {
+    // Verifica si algún bloque de celdas en el rectángulo (x1,y1)-(x2,y2) está ocupado
+    function rectIntersectsOccupied(x1: number, y1: number, x2: number, y2: number): boolean {
       const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
       const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
       const [gx1] = toGridCoord(minX, minY);
@@ -406,17 +548,37 @@ export class PensumView implements OnInit, AfterViewInit {
   
       for (let gx = Math.min(gx1, gx2); gx <= Math.max(gx1, gx2); gx++) {
         for (let gy = Math.min(gy1, gy2); gy <= Math.max(gy1, gy2); gy++) {
-          occupied.add(keyOf(gx, gy));
+          if (occupied.has(keyOf(gx, gy))) return true;
         }
       }
+      return false;
     }
   
-    function reservarEnGrid(x: number, y: number): [number, number] {
-      const [gx0, gy0] = toGridCoord(x, y);
-      const free = findFreeCellNear(gx0, gy0, 12) || [gx0, gy0];
-      occupied.add(keyOf(free[0], free[1]));
-      return fromGridCoord(free[0], free[1]);
+    // Busca un Y libre alrededor de yDeseado en la columna de grid correspondiente a x
+    function findFreeY(x: number, yDeseado: number, maxSearch = 30): number {
+      const [gx, gyStart] = toGridCoord(x, yDeseado);
+      if (!occupied.has(keyOf(gx, gyStart))) return fromGridCoord(gx, gyStart)[1];
+  
+      for (let r = 1; r <= maxSearch; r++) {
+        // priorizar dirección del destino: primero hacia afuera del rectángulo central
+        const up = gyStart - r;
+        const down = gyStart + r;
+        if (!occupied.has(keyOf(gx, up))) return fromGridCoord(gx, up)[1];
+        if (!occupied.has(keyOf(gx, down))) return fromGridCoord(gx, down)[1];
+      }
+      // fallback: devolver yDeseado sin cambiar (no ideal, pero evita bloqueo infinito)
+      return yDeseado;
     }
+  
+    // --- Reservar las áreas ocupadas por las cajas en el grid (con padding) ---
+    const padding = 4; // ajustable
+    cajas.forEach(caja => {
+      const left = caja.offsetLeft - padding;
+      const right = caja.offsetLeft + caja.offsetWidth + padding;
+      const top = caja.offsetTop - padding;
+      const bottom = caja.offsetTop + caja.offsetHeight + padding;
+      occupySegmentGrid(left, top, right, bottom);
+    });
   
     const verticalLaneCounters: Map<string, number> = new Map();
   
@@ -435,7 +597,7 @@ export class PensumView implements OnInit, AfterViewInit {
         const yOrigen = origen.offsetTop + ((salidaIndex + 1) / (totalSalidas + 1)) * origen.offsetHeight;
         const xDestino = destino.offsetLeft;
   
-        // --- distribuir flechas verticalmente ---
+        // --- distribuir flechas verticalmente (slot dentro de la caja destino) ---
         if (!verticalLaneCounters.has(destino.id)) verticalLaneCounters.set(destino.id, 0);
         const slotIndex = verticalLaneCounters.get(destino.id)!;
         const marginY = 4;
@@ -451,6 +613,30 @@ export class PensumView implements OnInit, AfterViewInit {
         const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
         const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
   
+        // --- Caso especial: columnas adyacentes y cajas cercanas (línea recta) ---
+        const distanciaX = Math.abs(xDestino - xOrigen);
+        const distanciaY = Math.abs(yDestino - yOrigen);
+        if (colOriIdx !== colDestIdx && distanciaX < 70 && distanciaY < 25) {
+          const capa = esActiva ? capaLineasResaltadas : capaLineas;
+          const path = capa.append("path")
+            .attr("d", `M ${xOrigen} ${yOrigen} L ${xDestino} ${yDestino}`)
+            .attr("fill", "none")
+            .attr("stroke", colorLinea)
+            .attr("stroke-width", esActiva ? 2 : 1.6)
+            .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
+  
+          if (esActiva) {
+            path.classed("resaltada", true);
+            destino.classList.add("resaltada");
+            origen.classList.add("resaltada");
+            path.raise();
+          }
+  
+          // no ocupamos celdas por la línea: permitimos solapamiento
+          return;
+        }
+  
+        // --- calcular canal X base (canales pequeños) ---
         let rawXChannel: number;
         if (colOriIdx < colDestIdx) {
           const gapX = gapCentersX[colOriIdx] ?? (xOrigen + shortRun);
@@ -462,6 +648,7 @@ export class PensumView implements OnInit, AfterViewInit {
           rawXChannel = xOrigen + Math.min(shortRun, offsetHorizBase ?? 30) + salidaIndex * laneSpacingX;
         }
   
+        // calcular Y candidato y ajustarlo con la grid para no pasar por cajas
         const channelYraw = (function chooseChannelY() {
           const gaps = colGapCentersY[colDestIdx] || [];
           for (let i = 0; i < gaps.length; i++) {
@@ -480,40 +667,53 @@ export class PensumView implements OnInit, AfterViewInit {
           return yOrigen + (yDestino - yOrigen) * 0.2;
         })();
   
-        const [xChannelGrid, channelYGrid] = reservarEnGrid(rawXChannel, channelYraw);
+        // Snap al grid (sin ocupar) y forzar Y libre si cae sobre caja
+        const [snapX, snapY] = reservarEnGridNoOccupy(rawXChannel, channelYraw);
+        const channelYGrid = findFreeY(snapX, snapY);
   
-        occupySegmentGrid(xOrigen, yOrigen, xChannelGrid, yOrigen);
-        occupySegmentGrid(xChannelGrid, yOrigen, xChannelGrid, channelYGrid);
-        occupySegmentGrid(xChannelGrid, channelYGrid, xDestino - offsetLlegada, channelYGrid);
-        occupySegmentGrid(xDestino - offsetLlegada, channelYGrid, xDestino - offsetLlegada, yDestino);
-  
-        const puntosRuta: [number, number][] = [
-          [xOrigen, yOrigen],
-          [xChannelGrid, yOrigen],
-          [xChannelGrid, channelYGrid],
-          [xDestino - offsetLlegada, channelYGrid],
-          [xDestino - offsetLlegada, yDestino],
-          [xDestino, yDestino]
-        ];
-  
+        // Si origen y destino casi comparten Y, forzamos un pequeño quiebre (no recta) salvo caso cercano
+        let puntosRuta: [number, number][];
         if (Math.abs(yDestino - yOrigen) < 20 && colOriIdx !== colDestIdx) {
-          const puntosDirectos: [number, number][] = [
+          // comprobar si la recta horizontal entre xOrigen->xDestino cruza alguna caja;
+          // si no, se puede usar la ruta directa corta; si sí, forzamos quiebre mínimo.
+          const horizontalCrosses = rectIntersectsOccupied(xOrigen, yOrigen - 1, xDestino, yOrigen + 1);
+          if (!horizontalCrosses && distanciaX < 90) {
+            // usar una ruta corta con pequeño salto al canal
+            puntosRuta = [
+              [xOrigen, yOrigen],
+              [snapX, yOrigen],
+              [xDestino - offsetLlegada, yDestino],
+              [xDestino, yDestino]
+            ];
+          } else {
+            // forzar pequeño quiebre para que no atraviese cajas
+            puntosRuta = [
+              [xOrigen, yOrigen],
+              [snapX, yOrigen],
+              [snapX, channelYGrid - 4],
+              [xDestino - offsetLlegada, channelYGrid - 4],
+              [xDestino - offsetLlegada, yDestino],
+              [xDestino, yDestino]
+            ];
+          }
+        } else {
+          puntosRuta = [
             [xOrigen, yOrigen],
-            [xChannelGrid, yOrigen],
+            [snapX, yOrigen],
+            [snapX, channelYGrid],
+            [xDestino - offsetLlegada, channelYGrid],
             [xDestino - offsetLlegada, yDestino],
             [xDestino, yDestino]
           ];
-          if (Math.abs(puntosDirectos[2][1] - yOrigen) < Math.abs(channelYGrid - yOrigen)) {
-            puntosRuta.splice(0, puntosRuta.length, ...puntosDirectos);
-          }
         }
   
+        // dibujar la ruta — no marcamos esas celdas como ocupadas para permitir solapamiento
         const capa = esActiva ? capaLineasResaltadas : capaLineas;
         const path = capa.append("path")
           .attr("d", lineGenerator(puntosRuta)!)
           .attr("fill", "none")
           .attr("stroke", colorLinea)
-          .attr("stroke-width", esActiva ? 2 : 2)
+          .attr("stroke-width", esActiva ? 2 : 1.6)
           .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
   
         if (esActiva) {
@@ -526,22 +726,24 @@ export class PensumView implements OnInit, AfterViewInit {
     });
   }
   
+
   dibujarConexiones() {
     const svg = this.svgRef?.nativeElement;
     const contenedor = this.contenedorRef?.nativeElement;
     if (!svg || !contenedor) return;
-  
+
     this.configurarSVG(svg, contenedor);
     const d3svg = d3.select(svg);
-  
+
     const salidasGlobal = new Map<string, string[]>();
     const llegadasGlobal = new Map<string, string[]>();
-  
+
     // Materias faltantes
     this.materiasFaltantes.forEach(grupo => {
       grupo.materias.forEach(faltante => {
+        if (faltante.cssClass !== "faltante") return; // solo faltantes
         let requisitos: string[] = [];
-  
+
         if ((faltante as PensumDTO).requisitos) {
           requisitos = (faltante as PensumDTO).requisitos;
         } else if ((faltante as any).requisitosJson) {
@@ -551,16 +753,16 @@ export class PensumView implements OnInit, AfterViewInit {
             requisitos = [];
           }
         }
-  
+
         const codigoFaltante = String(this.getCodigo(faltante)).padStart(6, "0").trim();
-  
+
         requisitos.forEach(requisitoCodigo => {
           const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
-  
+
           // conexión requisito → faltante
           if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
           salidasGlobal.get(reqCode)!.push(codigoFaltante);
-  
+
           if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
           llegadasGlobal.get(codigoFaltante)!.push(reqCode);
         });
@@ -571,16 +773,55 @@ export class PensumView implements OnInit, AfterViewInit {
     //console.log("Salidas:", salidasGlobal);
   
     const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
-  
+
     // Dibujar todas las curvas
     this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor);
-  
+
     // Recalcular al hacer scroll o resize
-    window.addEventListener("scroll", () => 
+    window.addEventListener("scroll", () =>
       this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
     );
-    window.addEventListener("resize", () => 
+    window.addEventListener("resize", () =>
       this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor)
     );
   }
+
+  /**
+   * Inicializar el estado visual del toggle
+   */
+  inicializarEstadoToggle(): void {
+    const historicoLabel = document.getElementById('historico-label');
+    historicoLabel?.classList.add('active');
+  }
+
+  /**
+   * Método para cambiar entre vista histórica y vista por plan de estudios
+   */
+  cambiarVista(): void {
+    this.vistaHistorico = !this.vistaHistorico;
+  
+    if (this.vistaHistorico) {
+      // histórico → agrupamos solo las materias cursadas/faltantes
+      this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, this.allPensum);
+    } else {
+      // plan de estudios completo → con reemplazo de genéricas
+      const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
+      this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
+    }
+  
+    const historicoLabel = document.getElementById('historico-label');
+    const planLabel = document.getElementById('plan-label');
+  
+    if (this.vistaHistorico) {
+      historicoLabel?.classList.add('active');
+      planLabel?.classList.remove('active');
+    } else {
+      historicoLabel?.classList.remove('active');
+      planLabel?.classList.add('active');
+    }
+  
+    console.log(`Vista cambiada a: ${this.vistaHistorico ? 'Tu histórico' : 'Según plan de estudios'}`);
+  }
+  
+  
 }

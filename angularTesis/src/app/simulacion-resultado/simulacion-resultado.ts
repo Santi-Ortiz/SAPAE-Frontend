@@ -48,9 +48,15 @@ export class SimulacionResultado implements OnInit {
     private simulacionService: SimulacionService,
     private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
-    private historialSimulacionesService: HistorialSimulacionesService,
-    private materiaService: MateriaService
+    private historialSimulacionesService: HistorialSimulacionesService
   ) {}
+
+  // Función para ordenar semestres numéricamente
+  orderByNumericSemestre = (a: any, b: any) => {
+    const numA = parseInt(a.key, 10);
+    const numB = parseInt(b.key, 10);
+    return numA - numB;
+  }
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
@@ -331,18 +337,17 @@ export class SimulacionResultado implements OnInit {
     } else { this.router.navigate(['/pensum/simulacion']); } 
   }
 
-  public volverFormSimulacion(): void { 
-    this.router.navigate(["/simulaciones"]); 
-  }
+  public guardarSimulacion(): void {
+    const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual();
 
-  guardarSimulacion(): void {
-    const simulacionLocal = this.simulacionService.getSimulacion();
-    if (!simulacionLocal) {
-      console.error("No hay simulación generada para guardar");
-      return;
-    }
-
-    const proyeccion: Proyeccion = simulacionLocal.proyeccion;
+    const parametrosSimulacion = parametrosGuardados || {
+      semestres: Object.keys(this.resultadoSimulacion).length,
+      tipoMatricula: 'No especificado',
+      creditos: 0,
+      materias: 0,
+      priorizaciones: [],
+      practicaProfesional: false
+    };
 
     this.historialSimulacionesService.guardarProyeccion(proyeccion).subscribe({
       next: () => {

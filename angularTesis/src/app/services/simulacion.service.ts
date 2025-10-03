@@ -102,11 +102,17 @@ export class SimulacionService {
       jobId,
       estado: 'PENDIENTE',
       mensaje: descripcion,
-      nombre,
+      nombre: nombre,
+      cargando: true // Iniciar con spinner activo
     };
     jobsActivos.push(nuevoJob);
     this.guardarJobsActivos(jobsActivos);
     this.jobsActivosSubject.next(jobsActivos);
+
+    // Timeout de seguridad para evitar spinners colgados (10 minutos)
+    setTimeout(() => {
+      this.forzarDetenerCargando(jobId);
+    }, 600000); // 10 minutos
   }
 
   private monitorearJobsActivos(): void {
@@ -114,11 +120,12 @@ export class SimulacionService {
       .pipe(
         switchMap(() => {
           const jobsActivos = this.getJobsActivos();
-          const jobsPendientes = jobsActivos.filter(
-            (job) =>
-              job.estado === 'PENDIENTE' ||
-              job.estado === 'EN_PROGRESO' ||
-              job.estado === 'EN_PROCESO'
+          
+          const estadosEnProceso = ['PENDIENTE', 'EN_PROGRESO', 'EN_PROCESO', 'INICIADA', 'PROCESANDO'];
+          const estadosFinales = ['COMPLETADA', 'ERROR', 'TERMINADA', 'FINALIZADA', 'CANCELADA'];
+          
+          const jobsPendientes = jobsActivos.filter(job => 
+            estadosEnProceso.includes(job.estado.toUpperCase()) && !estadosFinales.includes(job.estado.toUpperCase())
           );
 
           if (jobsPendientes.length === 0) return of([]);
@@ -141,9 +148,20 @@ export class SimulacionService {
     const index = jobsActivos.findIndex((job) => job.jobId === status.jobId);
 
     if (index !== -1) {
-      const nombreOriginal = jobsActivos[index].nombre;
-      jobsActivos[index] = { ...status, nombre: nombreOriginal };
-
+      const estadoAnterior = jobsActivos[index].estado;
+      const nombreOriginal = jobsActivos[index].nombre; 
+      
+      // Determinar si debe mostrar el spinner de carga
+      const estadosEnProceso = ['PENDIENTE', 'EN_PROGRESO', 'EN_PROCESO', 'INICIADA', 'PROCESANDO'];
+      const estadosFinales = ['COMPLETADA', 'ERROR', 'TERMINADA', 'FINALIZADA', 'CANCELADA'];
+      
+      jobsActivos[index] = {
+        ...status,
+        nombre: nombreOriginal,
+        cargando: estadosEnProceso.includes(status.estado.toUpperCase()) && !estadosFinales.includes(status.estado.toUpperCase())
+      };
+      
+      // Si el job está completado, obtener el resultado
       if (status.estado === 'COMPLETADA') {
         this.obtenerResultadoJob(status.jobId).subscribe({
           next: (resultado) => {
@@ -170,6 +188,21 @@ export class SimulacionService {
     );
     this.guardarJobsActivos(jobsActivos);
     this.jobsActivosSubject.next(jobsActivos);
+  }
+
+  // Forzar detener el spinner de carga para un job específico
+  private forzarDetenerCargando(jobId: string): void {
+    const jobsActivos = this.getJobsActivos();
+    const index = jobsActivos.findIndex(job => job.jobId === jobId);
+    
+    if (index !== -1 && jobsActivos[index].cargando) {
+      console.warn(`Forzando detener spinner para job ${jobId} debido a timeout`);
+      jobsActivos[index].cargando = false;
+      jobsActivos[index].mensaje = jobsActivos[index].mensaje + ' (Timeout de carga)';
+      
+      this.guardarJobsActivos(jobsActivos);
+      this.jobsActivosSubject.next([...jobsActivos]);
+    }
   }
 
   private getJobsActivos(): SimulacionJobStatus[] {
