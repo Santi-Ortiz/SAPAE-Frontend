@@ -32,6 +32,7 @@ export class SimulacionResultado implements OnInit {
     semestreMayorCarga: ''
   };
 
+  // Toast
   toast?: { kind: 'success'|'info'|'error', text: string };
   showToast = false;
 
@@ -62,6 +63,7 @@ export class SimulacionResultado implements OnInit {
       this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion);
     }
 
+    // Leer estado de navegación (toast + foco)
     const nav = this.router.getCurrentNavigation();
     const st = (nav?.extras?.state as any) || null;
     if (st?.toast) {
@@ -82,16 +84,13 @@ export class SimulacionResultado implements OnInit {
 
   /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
 
-  // Helper: ¿es la materia "Electiva CB Futura"?
+  // ¿es la materia "Electiva CB Futura"?
   private isElectivaCBFutura(materia: Materia): boolean {
     return ((materia?.nombre || '').trim().toLowerCase() === 'electiva cb futura');
   }
 
   public esReemplazable(materia: Materia): boolean {
-    // Si es la materia "Electiva CB Futura", habilitar siempre el botón
-    if (this.isElectivaCBFutura(materia)) {
-      return true;
-    }
+    if (this.isElectivaCBFutura(materia)) return true;
 
     const tipo = (materia?.tipo || '').toLowerCase();
     const codigo = String(materia?.codigo ?? '').trim();
@@ -117,7 +116,6 @@ export class SimulacionResultado implements OnInit {
   }
 
   public irARecomendaciones(materia: Materia, semestreKey: string, index: number): void {
-    // Si es "Electiva CB Futura", forzar el tipo a 'electivas_ciencias_basicas'
     const tipoQuery = this.isElectivaCBFutura(materia)
       ? 'electivas_ciencias_basicas'
       : this.mapTipoToQuery(materia.tipo || '');

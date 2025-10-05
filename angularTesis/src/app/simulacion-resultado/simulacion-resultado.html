@@ -15,6 +15,29 @@
     <p>
       Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente y tomar decisiones informadas.
     </p>
+
+    <!-- Leyenda de la columna Recomendación -->
+    <div class="legend-recom">
+      <div class="legend-title">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Guía de la columna <strong>Recomendación</strong></span>
+      </div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <span class="legend-icon ok"><i class="fa-solid fa-check"></i></span>
+          <span class="legend-text">
+            Botón <strong>azul</strong> con ✓: puedes abrir el módulo de recomendaciones y <strong>reemplazar</strong> esta materia.
+          </span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-icon no"><i class="fa-solid fa-xmark"></i></span>
+          <span class="legend-text">
+            Botón <strong>gris</strong> con ✕: esta materia <strong>no se puede reemplazar</strong> (no aplica o se encuentra bloqueada).
+          </span>
+        </div>
+      </div>
+    </div>
+
     <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de Estudios</button>
   </section>
 
