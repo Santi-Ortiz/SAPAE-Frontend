@@ -47,6 +47,7 @@ export class SimulacionComponent implements OnInit {
   public mostrarMensajeError = false;
   public nombreDuplicado = false;
   public nombreDuplicadoModal = false;
+  public progresoCompletado = false;
 
   constructor(
     private router: Router, 
@@ -77,6 +78,12 @@ export class SimulacionComponent implements OnInit {
 
     if (this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
       this.nombreDuplicadoModal = true;
+      return;
+    }
+
+    // Verificar si el progreso está completado (excepto si eligió práctica profesional)
+    if (this.verificarProgresoCompletado() && !this.practicaProfesional) {
+      this.progresoCompletado = true;
       return;
     }
 
@@ -225,5 +232,20 @@ export class SimulacionComponent implements OnInit {
     } else {
       this.nombreDuplicado = false;
     }
+  }
+
+  verificarProgresoCompletado(): boolean {
+    const noHayMateriasFaltantes = !this.progresoActual.materiasFaltantes || this.progresoActual.materiasFaltantes === 0;
+    const noHayListaMateriasFaltantes = !this.progresoActual.listaMateriasFaltantes || this.progresoActual.listaMateriasFaltantes.length === 0;
+    const noFaltanElectivas = !this.progresoActual.faltanElectiva || this.progresoActual.faltanElectiva === 0;
+    const noFaltanComplementarias = !this.progresoActual.faltanComplementaria || this.progresoActual.faltanComplementaria === 0;
+    const noFaltanEnfasis = !this.progresoActual.faltanEnfasis || this.progresoActual.faltanEnfasis === 0;
+    const noFaltanElectivasCB = !this.progresoActual.faltanElectivaBasicas || this.progresoActual.faltanElectivaBasicas === 0;
+
+    return (noHayMateriasFaltantes || noHayListaMateriasFaltantes) && 
+           noFaltanElectivas && 
+           noFaltanComplementarias && 
+           noFaltanEnfasis && 
+           noFaltanElectivasCB;
   }
 }
