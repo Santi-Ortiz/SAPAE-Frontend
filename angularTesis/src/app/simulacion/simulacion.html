@@ -202,5 +202,13 @@
       <button (click)="nombreDuplicadoModal = false">Cerrar</button>
     </div>
   </div>
+
+  <div class="modal-backdrop" *ngIf="progresoCompletado">
+    <div class="modal-custom">
+      <h3>¡Felicitaciones! Tu progreso académico está completo</h3>
+      <p>Ya no puedes hacer más simulaciones porque has completado todas las materias obligatorias y los créditos requeridos de electivas, complementarias y énfasis.</p>
+      <button (click)="progresoCompletado = false">Entendido</button>
+    </div>
+  </div>
   
 </div>
