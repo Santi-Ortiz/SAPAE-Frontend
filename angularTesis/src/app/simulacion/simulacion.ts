@@ -91,7 +91,12 @@ export class SimulacionComponent implements OnInit {
       id: 1,
       semestre: (this.semestreInput + this.progresoActual.semestre!),
       creditos: this.creditosInput,
-      materias: this.materiasInput
+      materias: this.materiasInput,
+      nombreSimulacion: this.nombreSimulacion,
+      tipoMatricula: this.tipoMatricula || 'No especificado',
+      practicaProfesional: this.practicaProfesional,
+      // fechaCreacion se creará en el backend
+      priorizaciones: this.obtenerPriorizacionesSeleccionadas()
     }
 
     const priorizacionesSeleccionadas = this.obtenerPriorizacionesSeleccionadas();

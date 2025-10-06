@@ -49,6 +49,7 @@ p {
   padding-bottom: 10px;
 }
 
+/* Semestres Normales */
 .semestre-columna {
   width: 126px;
   padding-right: 2px;
@@ -72,6 +73,45 @@ p {
   width: 105px; 
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Semestres Simulados */
+
+.semestre-columna.simulado {
+  background: linear-gradient(145deg,
+      rgba(202, 228, 248, 0.15) 0%,
+      rgba(144, 224, 239, 0.2) 50%,
+      rgba(0, 180, 216, 0.1) 100%);
+  border: 50px dashed rgba(0, 119, 182, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.08);
+  border-radius: 10px;
+  width: 10%;
+  height: 1%;
+  padding: 6px;
+}
+
+.semestre-columna.simulado h3 {
+  background: linear-gradient(135deg, #f8fdff 0%, #e8f7ff 100%);
+  border: 3px dashed #0077B6;
+  box-shadow: 0 2px 8px rgba(0, 119, 182, 0.15);
+  text-align: center;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: bold;
+  background-color: white;
+  color: #0077B6;
+  margin-bottom: 15px;
+  font-size: 14px;
+  width: 105px; 
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.semestre-columna.simulado .caja{
+  border: 3px dashed #0077B6;
+  width: 120px;
+  z-index: 2;
 }
 
 .caja {

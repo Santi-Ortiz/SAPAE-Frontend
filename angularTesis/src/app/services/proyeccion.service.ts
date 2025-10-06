@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class ProyeccionService {
 
-  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0, 0));
+  private proyeccion = new BehaviorSubject<Proyeccion>(new Proyeccion(0, 0, 0, 0, '', '', false));
 
   constructor() { }
 
