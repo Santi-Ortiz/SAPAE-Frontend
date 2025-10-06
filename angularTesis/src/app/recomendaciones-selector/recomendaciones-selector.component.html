@@ -6,11 +6,14 @@
   </p>
 
   <div class="formulario">
-    <textarea [(ngModel)]="pregunta" name="pregunta"
-      placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
+    <!-- Agrupamos textarea + disclaimer para evitar el gap del contenedor -->
+    <div class="input-block">
+      <textarea [(ngModel)]="pregunta" name="pregunta"
+        placeholder="Tema de interés, gustos, preferencias para la temática central de la materia"></textarea>
 
-    <div class="disclaimer">
-      La información proporcionada por el modelo debe ser validada por el estudiante.
+      <div class="disclaimer">
+        La información proporcionada por el modelo debe ser validada por el estudiante.
+      </div>
     </div>
 
     <div class="tipo-materia">
@@ -62,7 +65,7 @@
 
   <!-- ALTA AFINIDAD -->
   <div *ngIf="!cargando && materias.length > 0" class="respuesta-box">
-    <h3 class="titulo-respuesta">Materias recomendadas (alta afinidad)</h3>
+    <h3 class="titulo-respuesta">Materias recomendadas</h3>
     <table class="tabla-materias">
       <thead>
         <tr>
@@ -116,7 +119,7 @@
     </table>
   </div>
 
-  <!-- SIN RESULTADOS (solo tras intentar) -->
+  <!-- SIN RESULTADOS -->
   <div *ngIf="!cargando && tried && materias.length === 0 && sugerencias.length === 0 && !error" class="respuesta-box">
     <h3 class="titulo-respuesta">No se encontraron materias con suficiente afinidad para los intereses proporcionados.</h3>
     <p>Intente ser más específico o pruebe con otros términos.</p>
