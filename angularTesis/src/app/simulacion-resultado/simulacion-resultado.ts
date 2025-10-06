@@ -36,7 +36,6 @@ export class SimulacionResultado implements OnInit {
   toast?: { kind: 'success'|'info'|'error', text: string };
   showToast = false;
 
-  // ⛔ Códigos de énfasis que NO se pueden reemplazar
   private readonly ENFASIS_NO_CAMBIABLES = new Set(['31339','34814']);
 
   constructor(
@@ -139,7 +138,20 @@ export class SimulacionResultado implements OnInit {
         totalCursados += this.resultadoSimulacion[key].materias.reduce((sum, m) => sum + m.creditos, 0);
       }
     }
-    return Math.max(this.creditosFaltantesTotales - totalCursados, 0);
+
+    const creditosEnCurso = this.historialService.getHistorial()?.creditosCursando || 0;
+    const semestresSimulacion = Object.keys(this.resultadoSimulacion);
+    const tieneSimulacion = semestresSimulacion.length > 0;
+
+    // console.log('Créditos en curso:', creditosEnCurso);
+    // console.log('Tiene simulación:', tieneSimulacion);
+    
+    if (tieneSimulacion) {
+      return Math.max(this.creditosFaltantesTotales - creditosEnCurso - totalCursados, 0);
+    } else {
+      return Math.max(this.creditosFaltantesTotales - totalCursados, 0);
+    }
+
   }
 
   public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number} {
@@ -174,7 +186,18 @@ export class SimulacionResultado implements OnInit {
       }
     });
 
-    creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos, 0);
+    const creditosEnCurso = this.historialService.getHistorial()?.creditosCursando || 0;
+    const semestresSimulacion = Object.keys(this.resultadoSimulacion);
+    const tieneSimulacion = semestresSimulacion.length > 0;
+
+    // console.log('Créditos en curso:', creditosEnCurso);
+    // console.log('Tiene simulación:', tieneSimulacion);
+    
+    if (tieneSimulacion) {
+      creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos - creditosEnCurso, 0);
+    } else {
+      creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos, 0);
+    }
 
     this.estadisticasGenerales = {
       promedioMaterias: numSemestres ? Math.round((totalMaterias / numSemestres)) : 0,
