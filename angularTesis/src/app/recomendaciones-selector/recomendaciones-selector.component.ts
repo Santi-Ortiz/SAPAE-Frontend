@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimulacionRecomBridgeService } from '../services/simulacion-recomendacion.service';
+import { RagApiService, RecommendRequest } from '../services/rag-api.service';
 
 @Component({
   selector: 'app-recomendaciones-selector',
@@ -20,9 +21,9 @@ export class RecomendacionesSelectorComponent implements OnInit {
   tipo: string = 'cualquiera';
 
   // contexto que llega desde simulación
-  semestre!: number;                 // p.ej. 7
-  index?: number;                    // índice de la fila a reemplazar (opcional)
-  fromSim: boolean = true;           // este componente siempre es “de selección”
+  semestre!: number;   // p.ej. 7
+  index?: number;      // índice de la fila a reemplazar (opcional)
+  fromSim: boolean = true;
 
   // resultado
   materias: any[] = [];
@@ -37,7 +38,7 @@ export class RecomendacionesSelectorComponent implements OnInit {
   selecting = false;
 
   constructor(
-    private http: HttpClient,
+    private api: RagApiService,
     private route: ActivatedRoute,
     private router: Router,
     private bridge: SimulacionRecomBridgeService
@@ -76,15 +77,16 @@ export class RecomendacionesSelectorComponent implements OnInit {
     this.sugerencias = [];
     this.explicacion = '';
 
-    const body: any = {
+    const body: RecommendRequest = {
       intereses: this.pregunta,
       tipo: this.tipo
     };
     body.creditos = this.creditos === 'cualquiera' ? 'cualquiera' : Number(this.creditos);
 
-    this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe({
+    this.api.recomendarMaterias(body).subscribe({
       next: (res) => {
         this.materias = Array.isArray(res?.materias) ? res.materias : [];
+        // Soporta contratos antiguos (sugerencias / sugerenciasIgnoreCreds)
         this.sugerencias = Array.isArray(res?.sugerencias)
           ? res.sugerencias
           : (Array.isArray(res?.sugerenciasIgnoreCreds) ? res.sugerenciasIgnoreCreds : []);
@@ -104,7 +106,7 @@ export class RecomendacionesSelectorComponent implements OnInit {
     this.selecting = true;
 
     const selec = {
-      tipo: this.tipo,                       // ahora puede ser 'electivas_ciencias_basicas'
+      tipo: this.tipo,    // puede ser 'electivas_ciencias_basicas'
       semestre: this.semestre,
       index: this.index,
       nombre: m?.nombre || m?.Nombre || '',
