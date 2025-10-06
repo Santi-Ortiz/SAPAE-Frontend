@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NgIf, NgFor, NgClass, } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NotificacionesSimulacionComponent } from './notificaciones-simulacion/notificaciones-simulacion.component';
+import { CalendarioService } from './services/calendario.service';
 
 @Component({
   selector: 'app-root',
@@ -20,12 +21,13 @@ import { NotificacionesSimulacionComponent } from './notificaciones-simulacion/n
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class App {
+export class App implements OnInit {
   protected title = 'angularTesis';
 
   hideMenu = false;
+  semanaActual: any = null;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private calendarioService: CalendarioService) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -35,6 +37,10 @@ export class App {
         const rutasOcultas = ['/main', '/login', '/registro'];
         this.hideMenu = rutasOcultas.includes(event.urlAfterRedirects);
       });
+  }
+
+  ngOnInit(): void {
+    this.semanaActual = this.calendarioService.getSemanaActual();
   }
 
   logout(): void {
