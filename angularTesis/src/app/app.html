@@ -29,6 +29,23 @@
         </a>
       </nav>
 
+      <!-- Semana académica --> 
+      <div class="semana-academica-sidebar" *ngIf="semanaActual && !semanaActual.esReceso">
+        <i class="fas fa-calendar-week"></i>
+        <div class="semana-content">
+          <div class="semana-texto">Semana {{ semanaActual.numero }} académica</div>
+          <div class="periodo-texto">Periodo {{ semanaActual.periodo }}</div>
+        </div>
+      </div>
+
+      <div class="receso-academico-sidebar" *ngIf="semanaActual && semanaActual.esReceso">
+        <i class="fas fa-umbrella-beach"></i>
+        <div class="receso-content">
+          <div class="receso-texto">{{ semanaActual.descripcion }}</div>
+          <div class="periodo-texto">Periodo {{ semanaActual.periodo }}</div>
+        </div>
+      </div>
+
       <button class="logout-button" (click)="logout()">Cerrar sesión</button>
     </aside>
 
@@ -39,7 +56,7 @@
 
     <!-- Componente de notificaciones -->
     <app-notificaciones-simulacion></app-notificaciones-simulacion>
-    
+
   </div>
 </ng-container>
 

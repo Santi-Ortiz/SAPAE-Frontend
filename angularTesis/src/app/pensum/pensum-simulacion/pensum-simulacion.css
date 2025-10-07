@@ -34,6 +34,8 @@ p {
   gap: 30px;
   height: fit-content;
   max-height: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
   width: fit-content; /* 🔹 se ajusta al contenido */
   max-width: 100%;
 }
@@ -80,7 +82,7 @@ p {
       rgba(202, 228, 248, 0.15) 0%,
       rgba(144, 224, 239, 0.2) 50%,
       rgba(0, 180, 216, 0.1) 100%);
-  border: 2px dashed rgba(0, 119, 182, 0.3);
+  border: 50px dashed rgba(0, 119, 182, 0.3);
   box-shadow: 0 4px 12px rgba(0, 180, 216, 0.08);
   border-radius: 10px;
   width: 10%;
@@ -90,7 +92,7 @@ p {
 
 .semestre-columna.simulado h3 {
   background: linear-gradient(135deg, #f8fdff 0%, #e8f7ff 100%);
-  border: 2px dashed #0077B6;
+  border: 3px dashed #0077B6;
   box-shadow: 0 2px 8px rgba(0, 119, 182, 0.15);
   text-align: center;
   border-radius: 8px;
@@ -108,7 +110,7 @@ p {
 
 
 .semestre-columna.simulado .caja{
-  border: 2px dashed #0077B6;
+  border: 3px dashed #0077B6;
   width: 120px;
   z-index: 2;
 }
@@ -146,7 +148,7 @@ p {
 }
 
 .caja.simulada {
-  border: 1px dashed #0077B6; 
+  border: 1.35px dashed #0077B6; 
   background-color: #fff;     
 }
 

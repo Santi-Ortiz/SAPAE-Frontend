@@ -1,20 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { SimulacionService } from '../services/simulacion.service';
-import {
-  CommonModule,
-  KeyValuePipe,
-  NgFor,
-  NgIf,
-  ViewportScroller,
-} from '@angular/common';
+import { CommonModule, KeyValuePipe, NgFor, NgIf, ViewportScroller } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
+
+import { SimulacionService } from '../services/simulacion.service';
 import { HistorialService } from '../services/historial.service';
 import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
-import { MateriaService } from '../services/materia.service';
-import { Simulacion } from '../models/simulacion.model';
-import { Proyeccion } from '../models/proyeccion.model';
 import { Materia } from '../models/materia.model';
 
 @Component({
@@ -22,34 +14,36 @@ import { Materia } from '../models/materia.model';
   standalone: true,
   imports: [NgIf, NgFor, KeyValuePipe, FormsModule, CommonModule],
   templateUrl: './simulacion-resultado.html',
-  styleUrl: './simulacion-resultado.css',
+  styleUrl: './simulacion-resultado.css'
 })
 export class SimulacionResultado implements OnInit {
-  public resultadoSimulacion: { [semestre: string]: Simulacion } = {};
-  public creditosFaltantesTotales = 0;
-  public nombreSimulacion = '';
+
+  public resultadoSimulacion: { [semestre: string]: { materias: Materia[] } } = {};
+  public creditosFaltantesTotales:number = 0;
+  public nombreSimulacion: string = '';
   public jobIdActual: string | null = null;
-  public simulacionGuardada = false;
-  public mostrarModalGuardar = false;
+  public simulacionGuardada: boolean = false;
+  public mostrarModalGuardar: boolean = false;
 
   public estadisticasGenerales = {
     promedioMaterias: 0,
     promedioCreditos: 0,
     creditosFaltantes: 0,
-    semestreMayorCarga: '',
+    semestreMayorCarga: ''
   };
 
   // === Toast ===
   toast?: { kind: 'success'|'info'|'error', text: string };
   showToast = false;
 
+  private readonly ENFASIS_NO_CAMBIABLES = new Set(['31339','34814']);
+
   constructor(
     private router: Router,
     private simulacionService: SimulacionService,
     private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
-    private historialSimulacionesService: HistorialSimulacionesService,
-    private materiaService: MateriaService
+    private historialSimulacionesService: HistorialSimulacionesService
   ) {}
 
   // Función para ordenar semestres numéricamente
@@ -64,58 +58,18 @@ export class SimulacionResultado implements OnInit {
 
     // Traer el estado actual desde el servicio (si volviste del selector, ya viene actualizado)
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
-
-    console.log("ResultadoSimulacion:", this.resultadoSimulacion);
-
-    for (const key in this.resultadoSimulacion) {
-      const semestreData = this.resultadoSimulacion[key];
-
-      // Guardamos una copia de las materias con solo ID
-      const materiasIds = semestreData.materiasAsociadas;
-
-      // Reiniciamos el arreglo pero lo vamos llenando con los objetos completos
-      semestreData.materiasAsociadas = [];
-
-      materiasIds.forEach((m: any) => {
-        this.materiaService.getMateriaById(m.id).subscribe((materia: any) => {
-          semestreData.materiasAsociadas.push(materia);
-
-          console.log(
-            `Materia cargada para semestre ${semestreData.semestre}:`,
-            materia
-          );
-        });
-      });
-
-      console.log("Semestre", key, "->", semestreData);
-    }
-
-    this.creditosFaltantesTotales =
-      this.historialService.getHistorial()?.creditosFaltantes || 0;
-    this.nombreSimulacion =
-      this.simulacionService.getNombreSimulacionActual() ||
-      "Simulación sin nombre";
+    this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
+    this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
 
-    
-    this.historialSimulacionesService
-        .existeProyeccionConNombre(this.nombreSimulacion)
-        .subscribe((existe: boolean) => {
-          this.simulacionGuardada = existe;
-      });
-    
-    this.calcularEstadisticasGenerales();
-    setTimeout(() => this.crearGraficos(), 0);
-  }
-
-
-  obtenerMaterias(value: any): Materia[] {
-    if (!value) return [];
-    if (Array.isArray(value.materias)) return value.materias;
-    if (Array.isArray(value.materiasAsociadas)) {
-      return value.materiasAsociadas.map((sm: any) => sm.materia).filter(Boolean);
+    // Verificar si la simulación ya está guardada
+    if (this.jobIdActual) {
+      this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConJobId(this.jobIdActual);
+    } else {
+      this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion);
     }
 
+    // === Leer estado de navegación (toast + foco) si venimos del selector ===
     const nav = this.router.getCurrentNavigation();
     const st = (nav?.extras?.state as any) || null;
     if (st?.toast) {
@@ -132,15 +86,25 @@ export class SimulacionResultado implements OnInit {
 
     this.calcularEstadisticasGenerales();
     setTimeout(() => this.crearGraficos(), 0);
-
-    return [];
   }
 
   /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
 
   public esReemplazable(materia: Materia): boolean {
-    const t = (materia?.tipo || '').toLowerCase();
-    return t === 'electiva' || t === 'enfasis' || t === 'complementaria';
+    const tipo = (materia?.tipo || '').toLowerCase();
+    const codigo = String(materia?.codigo ?? '').trim();
+
+    // Bloqueo explícito: si es énfasis y el código es uno de los no cambiables ⇒ NO
+    if ((tipo === 'enfasis' || tipo === 'énfasis') && this.ENFASIS_NO_CAMBIABLES.has(codigo)) {
+      return false;
+    }
+
+    // Reemplazables normales (placeholders u otras optativas)
+    return (
+      tipo === 'electiva' ||
+      tipo === 'enfasis' || tipo === 'énfasis' ||
+      tipo === 'complementaria'
+    );
   }
 
   private mapTipoToQuery(tipoMateria: string): 'electivas' | 'énfasis' | 'complementarias' {
@@ -171,33 +135,32 @@ export class SimulacionResultado implements OnInit {
     let totalCursados = 0;
     for (const key in this.resultadoSimulacion) {
       if (parseInt(key) <= parseInt(semestreKey)) {
-        const materias = this.obtenerMaterias(this.resultadoSimulacion[key]);
-        totalCursados += materias.reduce((sum, m) => sum + (m?.creditos ?? 0), 0);
+        totalCursados += this.resultadoSimulacion[key].materias.reduce((sum, m) => sum + m.creditos, 0);
       }
     }
-    return Math.max(this.creditosFaltantesTotales - totalCursados, 0);
-  }
 
-  public calcularResumen(value: any) {
-    if (!value) {
-      return {
-        totalCreditos: 0,
-        totalMaterias: 0,
-        horasEstudio: 0,
-      };
+    const creditosEnCurso = this.historialService.getHistorial()?.creditosCursando || 0;
+    const semestresSimulacion = Object.keys(this.resultadoSimulacion);
+    const tieneSimulacion = semestresSimulacion.length > 0;
+
+    // console.log('Créditos en curso:', creditosEnCurso);
+    // console.log('Tiene simulación:', tieneSimulacion);
+    
+    if (tieneSimulacion) {
+      return Math.max(this.creditosFaltantesTotales - creditosEnCurso - totalCursados, 0);
+    } else {
+      return Math.max(this.creditosFaltantesTotales - totalCursados, 0);
     }
 
-    const materias: Materia[] =
-      value.materias ??
-      (value.materiasAsociadas?.map((sm: any) => sm.materia) ?? []);
+  }
 
-    const totalCreditos = materias.reduce((sum, m) => sum + (m?.creditos ?? 0), 0);
-    const horasEstudio = (totalCreditos * 48) / 18 / 5;
-
+  public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number} {
+    const totalCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
+    const horasEstudio = (totalCreditos * 48 / 18 / 5);
     return {
       totalCreditos,
       totalMaterias: materias.length,
-      horasEstudio: Number(horasEstudio.toFixed(2)),
+      horasEstudio: Number(horasEstudio.toFixed(2))
     };
   }
 
@@ -207,12 +170,13 @@ export class SimulacionResultado implements OnInit {
 
     let totalMaterias = 0;
     let totalCreditos = 0;
+    let creditosFaltantes = this.creditosFaltantesTotales;
     let semestreMayorCarga = '';
     let maxCreditos = 0;
 
     Object.entries(this.resultadoSimulacion).forEach(([key, value]) => {
-      const materias = this.obtenerMaterias(value);
-      const sumaCreditos = materias.reduce((sum, m) => sum + (m?.creditos ?? 0), 0);
+      const materias = value.materias;
+      const sumaCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
       totalMaterias += materias.length;
       totalCreditos += sumaCreditos;
 
@@ -222,27 +186,35 @@ export class SimulacionResultado implements OnInit {
       }
     });
 
-    const creditosFaltantes = Math.max(
-      this.creditosFaltantesTotales - totalCreditos,
-      0
-    );
+    const creditosEnCurso = this.historialService.getHistorial()?.creditosCursando || 0;
+    const semestresSimulacion = Object.keys(this.resultadoSimulacion);
+    const tieneSimulacion = semestresSimulacion.length > 0;
+
+    // console.log('Créditos en curso:', creditosEnCurso);
+    // console.log('Tiene simulación:', tieneSimulacion);
+    
+    if (tieneSimulacion) {
+      creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos - creditosEnCurso, 0);
+    } else {
+      creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos, 0);
+    }
 
     this.estadisticasGenerales = {
-      promedioMaterias: numSemestres ? Math.round(totalMaterias / numSemestres) : 0,
-      promedioCreditos: numSemestres ? Math.round(totalCreditos / numSemestres) : 0,
+      promedioMaterias: numSemestres ? Math.round((totalMaterias / numSemestres)) : 0,
+      promedioCreditos: numSemestres ? Math.round((totalCreditos / numSemestres)) : 0,
       creditosFaltantes,
-      semestreMayorCarga,
+      semestreMayorCarga
     };
   }
 
   public mapaNombresTipos: { [key: string]: string } = {
-    nucleoCienciasBasicas: 'Núcleo de Ciencias Básicas',
-    nucleoIngenieria: 'Núcleo de Ingeniería',
-    nucleoSociohumanisticas: 'Núcleo de Socio-humanísticas',
-    enfasis: 'Énfasis',
-    complementaria: 'Complementaria',
-    electiva: 'Electiva',
-    practicaProfesional: 'Práctica Profesional',
+    'nucleoCienciasBasicas': 'Núcleo de Ciencias Básicas',
+    'nucleoIngenieria': 'Núcleo de Ingeniería',
+    'nucleoSociohumanisticas': 'Núcleo de Socio-humanísticas',
+    'enfasis': 'Énfasis',
+    'complementaria': 'Complementaria',
+    'electiva': 'Electiva',
+    'practicaProfesional': 'Práctica Profesional'
   };
 
   public obtenerNombre(tipoMateria: string): string {
@@ -253,8 +225,8 @@ export class SimulacionResultado implements OnInit {
     if (!this.resultadoSimulacion) return;
     for (const key in this.resultadoSimulacion) {
       if (this.resultadoSimulacion.hasOwnProperty(key)) {
-        const materias = this.obtenerMaterias(this.resultadoSimulacion[key]);
-        this.dibujarPieChart(materias, key);
+        const semestreData = this.resultadoSimulacion[key];
+        this.dibujarPieChart(semestreData.materias, key);
       }
     }
   }
@@ -264,78 +236,106 @@ export class SimulacionResultado implements OnInit {
       const tipo = this.obtenerNombre(materia.tipo!);
       acc[tipo] = (acc[tipo] || 0) + 1;
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as { [key: string]: number });
 
-    const dataParaGrafico = Object.entries(conteoPorTipo).map(
-      ([tipo, cantidad]) => ({ tipo, cantidad })
-    );
+    const dataParaGrafico = Object.entries(conteoPorTipo).map(([key, value]) => {
+      return { tipo: key, cantidad: value };
+    });
+
     if (dataParaGrafico.length === 0) return;
 
-    const totalMaterias = d3.sum(dataParaGrafico, (d) => d.cantidad);
-    const chartId = `#pie-chart-semestre-${semestreKey}`;
-    const width = 300,
-      height = 300,
-      radius = Math.min(width, height) / 2;
+    const totalMaterias = d3.sum(dataParaGrafico, d => d.cantidad);
 
-    d3.select(chartId).selectAll('*').remove();
-    const svg = d3
-      .select(chartId)
+    const chartId = `#pie-chart-semestre-${semestreKey}`;
+    d3.select(`${chartId} svg`).remove();
+
+    const width = 700;
+    const height = 280;
+    const radius = Math.min(height, height) / 2;
+    const chartCenterX = radius;
+    const chartCenterY = height / 2;
+
+    const svg = d3.select(chartId)
       .append('svg')
       .attr('width', width)
-      .attr('height', height)
-      .append('g')
-      .attr(
-        'transform',
-        'translate(' + width / 2 + ',' + height / 2 + ')'
-      );
+      .attr('height', height);
 
-    const pie = d3
-      .pie<any>()
-      .value((d: any) => d.cantidad)
+    const chartGroup = svg.append('g')
+      .attr('transform', `translate(${chartCenterX}, ${chartCenterY})`);
+
+    const color = d3.scaleOrdinal<string>()
+      .domain(dataParaGrafico.map(d => d.tipo))
+      .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4"]);
+
+    const pie = d3.pie<{ tipo: string, cantidad: number }>()
+      .value(d => d.cantidad)
       .sort(null);
 
-    const arc = d3.arc<any>().innerRadius(0).outerRadius(radius);
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    const arc = d3.arc<d3.PieArcDatum<{ tipo: string, cantidad: number }>>()
+      .innerRadius(radius * 0.5)
+      .outerRadius(radius * 0.9);
 
-    const g = svg
-      .selectAll('.arc')
+    chartGroup.selectAll('path')
       .data(pie(dataParaGrafico))
       .enter()
-      .append('g')
-      .attr('class', 'arc');
-
-    g.append('path')
+      .append('path')
       .attr('d', arc)
-      .style('fill', (d: any) => color(d.data.tipo));
+      .attr('fill', d => color(d.data.tipo))
+      .attr('stroke', 'white')
+      .style('stroke-width', '3px');
 
-    g.append('title').text(
-      (d: any) =>
-        `${d.data.tipo}: ${d.data.cantidad} (${(
-          (d.data.cantidad / totalMaterias) *
-          100
-        ).toFixed(1)}%)`
-    );
+    chartGroup.selectAll('text.percentage')
+      .data(pie(dataParaGrafico))
+      .enter()
+      .append('text')
+      .attr('class', 'percentage')
+      .text(d => (d.data.cantidad / totalMaterias * 100).toFixed(0) + '%')
+      .attr('transform', d => `translate(${arc.centroid(d)})`)
+      .style('text-anchor', 'middle')
+      .style('font-size', '15px')
+      .style('font-weight', 'bold')
+      .style('fill', 'white');
+
+    const legendGroup = svg.append('g')
+      .attr('class', 'legend-group')
+      .attr('transform', `translate(${radius * 2 + 40}, 40)`);
+
+    const legendItems = legendGroup.selectAll('.legend-item')
+      .data(dataParaGrafico)
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (_d, i) => `translate(0, ${i * 30})`);
+
+    legendItems.append('rect')
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('rx', 5)
+      .attr('fill', d => color(d.tipo));
+
+    legendItems.append('text')
+      .attr('x', 28)
+      .attr('y', 10)
+      .attr('dy', '0.35em')
+      .text(d => `${d.tipo} (${d.cantidad} materias)`)
+      .style('font-size', '14px')
+      .style('fill', '#333');
   }
 
-  regresar(): void {
-    this.router.navigate(['/simulacion-parametros']);
+  public volverFormSimulacion(): void {
+    this.router.navigate(["/simulacion"]);
   }
 
-  mostrarGuardar(): void {
-    this.mostrarModalGuardar = true;
-  }
-
-  cancelarGuardar(): void {
-    this.mostrarModalGuardar = false;
-  }
-
-  public visualizarSimulacion(): void { 
-    this.simulacionService.setSimulacion(this.resultadoSimulacion); 
-    const currentUrl = this.router.url; 
-    if (currentUrl === '/pensum/simulacion') { 
-      this.router.navigateByUrl('/', { skipLocationChange: true })
-      .then(() => { this.router.navigate(['/pensum/simulacion']); }); 
-    } else { this.router.navigate(['/pensum/simulacion']); } 
+  public visualizarSimulacion(): void {
+    this.simulacionService.setSimulacion(this.resultadoSimulacion);
+    const currentUrl = this.router.url;
+    if (currentUrl === '/pensum/simulacion') {
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['/pensum/simulacion']);
+      });
+    } else {
+      this.router.navigate(['/pensum/simulacion']);
+    }
   }
 
   public guardarSimulacion(): void {
@@ -350,19 +350,14 @@ export class SimulacionResultado implements OnInit {
       practicaProfesional: false
     };
 
-    this.historialSimulacionesService.guardarProyeccion(parametrosSimulacion).subscribe({
-      next: () => {
-        console.log("Proyección guardada correctamente");
-        this.simulacionGuardada = true;
-        this.mostrarModalGuardar = false;
-        this.router.navigate(['/historial-simulaciones']);
-      },
-      error: (err) => console.error("Error guardando proyección en BD", err)
-    });
-  }
+    this.historialSimulacionesService.guardarSimulacion(
+      this.nombreSimulacion,
+      this.resultadoSimulacion,
+      parametrosSimulacion,
+      this.jobIdActual || undefined
+    );
 
-  public volverFormSimulacion(): void {
-    this.router.navigate(["/simulaciones"]);
+    this.simulacionGuardada = true;
+    this.mostrarModalGuardar = true;
   }
-
 }
