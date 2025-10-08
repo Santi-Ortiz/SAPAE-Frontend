@@ -28,10 +28,9 @@
   gap: 16px;
 }
 
-/* NUEVO: bloque que envuelve textarea + nota para alinear y compartir ancho */
 .input-block {
   width: 100%;
-  max-width: 600px;    /* igual que el textarea */
+  max-width: 600px;     /* igual al textarea */
   display: flex;
   flex-direction: column;
 }
@@ -319,12 +318,13 @@ button:hover { background-color: #00B4D8; }
 }
 .btn-select:hover{ background-color:#009fc0; }
 .subcopy{ color:#4a6072; margin:8px 0 16px; }
+
 .disclaimer{
-  margin-top:1px;
-  margin-bottom:10px;
-  font-size:13px;
-  color:#4a6072;
-  width:100%;
-  max-width:600px; /* mismo ancho que el textarea */
-  text-align:left;
+  margin-top: 6px;      /* antes 1px; subimos a 6 para pegado limpio */
+  margin-bottom: 0;     /* sin espacio extra debajo */
+  font-size: 13px;
+  color: #4a6072;
+  width: 100%;
+  max-width: 600px;     /* mismo ancho que el textarea */
+  text-align: left;
 }

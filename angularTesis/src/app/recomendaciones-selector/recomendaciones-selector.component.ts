@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimulacionRecomBridgeService } from '../services/simulacion-recomendacion.service';
+import { RagApiService, RecommendRequest } from '../services/rag-api.service';
 
 @Component({
   selector: 'app-recomendaciones-selector',
@@ -20,9 +21,9 @@ export class RecomendacionesSelectorComponent implements OnInit {
   tipo: string = 'cualquiera';
 
   // contexto que llega desde simulación
-  semestre!: number;                 // p.ej. 7
-  index?: number;                    // índice de la fila a reemplazar (opcional)
-  fromSim: boolean = true;           // este componente siempre es “de selección”
+  semestre!: number;   // p.ej. 7
+  index?: number;      // índice de la fila a reemplazar (opcional)
+  fromSim: boolean = true;
 
   // resultado
   materias: any[] = [];
@@ -31,13 +32,13 @@ export class RecomendacionesSelectorComponent implements OnInit {
 
   cargando = false;
   error = '';
-  tried = false;                     // para no mostrar mensajes hasta que se haga la 1ª consulta
+  tried = false;
 
-  // NUEVO: bandera para desactivar botones Seleccionar tras primer clic
+  // desactivar botones tras selección
   selecting = false;
 
   constructor(
-    private http: HttpClient,
+    private api: RagApiService,
     private route: ActivatedRoute,
     private router: Router,
     private bridge: SimulacionRecomBridgeService
@@ -47,7 +48,7 @@ export class RecomendacionesSelectorComponent implements OnInit {
     // leer query params desde simulación
     this.route.queryParamMap.subscribe(params => {
       const tipoQP = (params.get('tipo') || 'cualquiera').toLowerCase();
-      this.tipo = tipoQP;
+      this.tipo = tipoQP; // soporta 'electivas_ciencias_basicas' sin cambios
       this.semestre = Number(params.get('semestre') || 0);
       const idx = params.get('index');
       this.index = (idx !== null && idx !== undefined) ? Number(idx) : undefined;
@@ -76,16 +77,16 @@ export class RecomendacionesSelectorComponent implements OnInit {
     this.sugerencias = [];
     this.explicacion = '';
 
-    const body: any = {
+    const body: RecommendRequest = {
       intereses: this.pregunta,
       tipo: this.tipo
     };
     body.creditos = this.creditos === 'cualquiera' ? 'cualquiera' : Number(this.creditos);
 
-    this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe({
+    this.api.recomendarMaterias(body).subscribe({
       next: (res) => {
         this.materias = Array.isArray(res?.materias) ? res.materias : [];
-        // el backend puede responder como 'sugerencias' o 'sugerenciasIgnoreCreds'; soporta ambos
+        // Soporta contratos antiguos (sugerencias / sugerenciasIgnoreCreds)
         this.sugerencias = Array.isArray(res?.sugerencias)
           ? res.sugerencias
           : (Array.isArray(res?.sugerenciasIgnoreCreds) ? res.sugerenciasIgnoreCreds : []);
@@ -101,26 +102,20 @@ export class RecomendacionesSelectorComponent implements OnInit {
 
   // Selección → reemplazo en simulación y vuelta inmediata a /simulacion/mostrar
   seleccionar(m: any) {
-    if (this.selecting) return;         // evita doble clic
-    this.selecting = true;              // desactiva botones "Seleccionar"
+    if (this.selecting) return;
+    this.selecting = true;
 
     const selec = {
-      tipo: this.tipo,                       // electivas | complementarias | énfasis
-      semestre: this.semestre,              // semestre del bloque
-      index: this.index,                    // fila, si la tenemos
+      tipo: this.tipo,    // puede ser 'electivas_ciencias_basicas'
+      semestre: this.semestre,
+      index: this.index,
       nombre: m?.nombre || m?.Nombre || '',
       creditos: Number(m?.creditos ?? m?.Creditos ?? 0),
       id: m?.id || m?.ID || m?.codigo || ''
     };
 
-    // 1) aplicar en memoria (el servicio ya lo hace sincrónicamente)
-    this.bridge.applySelection(selec).subscribe({
-      // navegamos igual aunque falle el POST (persistencia) porque el estado local ya se actualizó
-      next: () => {},
-      error: () => {}
-    });
+    this.bridge.applySelection(selec).subscribe({ next: () => {}, error: () => {} });
 
-    // 2) navegar de inmediato a la visualización real de la simulación
     const navState = {
       state: {
         toast: { kind: 'success', text: `Se actualizó "${selec.nombre}" en el semestre ${this.semestre}.` },
@@ -129,7 +124,6 @@ export class RecomendacionesSelectorComponent implements OnInit {
     };
 
     this.router.navigate(['/simulacion/mostrar'], navState).catch(() => {
-      // último fallback (por si la app no reconoce la ruta via router)
       window.location.href = '/simulacion/mostrar';
     });
   }

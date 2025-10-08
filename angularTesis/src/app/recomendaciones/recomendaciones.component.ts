@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { RagApiService, RecommendRequest } from '../services/rag-api.service';
 
 type ModoCreditos = 'exacto' | 'rango';
 
@@ -35,9 +36,9 @@ export class RecomendacionesComponent {
 
   cargando: boolean = false;
   error: string = '';
-  hasSearched: boolean = false;    // <-- clave para no renderizar al inicio
+  hasSearched: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private api: RagApiService) {}
 
   // ===== Switch de modo
   onToggleModo(isRango: boolean) {
@@ -50,14 +51,12 @@ export class RecomendacionesComponent {
     const v = Number(this.creditos) || 0;
     this.creditos = Math.min(10, v + 1);
   }
-
   decCreditos() {
     if (this.creditos === 'cualquiera') { return; }
     const v = Number(this.creditos) || 1;
     const next = Math.max(1, v - 1);
     this.creditos = next === 1 ? 1 : next;
   }
-
   setCualquieraCreditos() { this.creditos = 'cualquiera'; }
 
   // ===== Rango: helpers
@@ -68,7 +67,6 @@ export class RecomendacionesComponent {
       this.creditosMax = minVal; // Mantén coherencia (mín <= máx)
     }
   }
-
   incMin() {
     if (this.creditosMin === 'cualquiera') { this.creditosMin = 1; this.ensureRangeInvariant(); return; }
     this.creditosMin = Math.min(10, (Number(this.creditosMin) || 0) + 1);
@@ -109,7 +107,7 @@ export class RecomendacionesComponent {
     this.explicacionSugeridas = '';
 
     // Construcción del body (retrocompatible)
-    const body: any = {
+    const body: RecommendRequest = {
       intereses: this.pregunta,
       tipo: this.tipo
     };
@@ -132,7 +130,7 @@ export class RecomendacionesComponent {
       }
     }
 
-    this.http.post<any>('http://localhost:8080/api/rag/recomendar', body).subscribe(
+    this.api.recomendarMaterias(body).subscribe(
       (res) => {
         try {
           this.materias = Array.isArray(res?.materias) ? res.materias : [];
