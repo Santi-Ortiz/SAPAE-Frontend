@@ -3,11 +3,13 @@ import { CommonModule, KeyValuePipe, NgFor, NgIf, ViewportScroller } from '@angu
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
-
+import { Observable } from 'rxjs';
 import { SimulacionService } from '../services/simulacion.service';
 import { HistorialService } from '../services/historial.service';
 import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 import { Materia } from '../models/materia.model';
+import { SimulacionDTO } from '../dtos/simulacion-dto';
+import { MateriaService } from '../services/materia.service';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -22,8 +24,9 @@ export class SimulacionResultado implements OnInit {
   public creditosFaltantesTotales:number = 0;
   public nombreSimulacion: string = '';
   public jobIdActual: string | null = null;
-  public simulacionGuardada: boolean = false;
+  public simulacionGuardada: Observable<boolean> = new Observable<boolean>((observer) => observer.next(false));
   public mostrarModalGuardar: boolean = false;
+  public materiasRenderizadas: { [semestre: string]: Materia[] } = {};
 
   public estadisticasGenerales = {
     promedioMaterias: 0,
@@ -41,6 +44,7 @@ export class SimulacionResultado implements OnInit {
   constructor(
     private router: Router,
     private simulacionService: SimulacionService,
+    private materiaService: MateriaService,
     private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
     private historialSimulacionesService: HistorialSimulacionesService
@@ -58,15 +62,32 @@ export class SimulacionResultado implements OnInit {
 
     // Traer el estado actual desde el servicio (si volviste del selector, ya viene actualizado)
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
+    console.log(' Resultado de la simulación desde el servicio:', this.resultadoSimulacion);
+    Object.entries(this.resultadoSimulacion).forEach(([semestre, data]: [string, any]) => {
+      const materiasIds = data.materiasAsociadas ?? [];
+
+      this.resultadoSimulacion[semestre] = { materias: materiasIds };
+
+      // Convertir los IDs en objetos Materia
+      const materias = materiasIds
+        .map((id: number) => this.materiaService.getMateriaById(id))
+        .filter((m: Materia | undefined): m is Materia => m !== undefined);
+
+      // Guardas la lista de materias renderizables
+      this.materiasRenderizadas[semestre] = materias;
+
+      console.log(`Semestre ${semestre}:`, materias);
+    });
+    
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
     this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
 
     // Verificar si la simulación ya está guardada
     if (this.jobIdActual) {
-      this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConJobId(this.jobIdActual);
+      this.simulacionGuardada = this.historialSimulacionesService.existeProyeccionConJobId(this.jobIdActual);
     } else {
-      this.simulacionGuardada = this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion);
+      this.simulacionGuardada = this.historialSimulacionesService.existeProyeccionConNombre(this.nombreSimulacion);
     }
 
     // === Leer estado de navegación (toast + foco) si venimos del selector ===
@@ -87,6 +108,8 @@ export class SimulacionResultado implements OnInit {
     this.calcularEstadisticasGenerales();
     setTimeout(() => this.crearGraficos(), 0);
   }
+
+  
 
   /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
 
@@ -323,7 +346,7 @@ export class SimulacionResultado implements OnInit {
   }
 
   public volverFormSimulacion(): void {
-    this.router.navigate(["/simulacion"]);
+    this.router.navigate(["/simulaciones"]);
   }
 
   public visualizarSimulacion(): void {
@@ -338,26 +361,31 @@ export class SimulacionResultado implements OnInit {
     }
   }
 
-  public guardarSimulacion(): void {
-    const parametrosGuardados = this.simulacionService.getParametrosSimulacionActual();
-
-    const parametrosSimulacion = parametrosGuardados || {
-      semestres: Object.keys(this.resultadoSimulacion).length,
-      tipoMatricula: 'No especificado',
-      creditos: 0,
-      materias: 0,
-      priorizaciones: [],
-      practicaProfesional: false
-    };
-
-    this.historialSimulacionesService.guardarSimulacion(
-      this.nombreSimulacion,
-      this.resultadoSimulacion,
-      parametrosSimulacion,
-      this.jobIdActual || undefined
-    );
-
-    this.simulacionGuardada = true;
-    this.mostrarModalGuardar = true;
+  obtenerMaterias(materias: Materia[]): Materia[] {
+    if (materias && materias.length > 0) {
+      return materias;
+    }
+    else { return [];}
   }
+
+  guardarSimulacion() {
+    const simulacionDTO = this.simulacionService.crearSimulacionDTODesdeActual();
+
+    if (!simulacionDTO) {
+      console.error('No hay simulación cargada para guardar.');
+      return;
+    }
+
+    this.simulacionService.postSimulacion(simulacionDTO).subscribe({
+      next: (respuesta) => {
+        console.log('Simulación guardada correctamente en la base de datos:', respuesta);
+        alert('Simulación guardada correctamente.');
+      },
+      error: (error) => {
+        console.error('Error al guardar la simulación:', error);
+        alert('Ocurrió un error al guardar la simulación.');
+      }
+    });
+  }
+
 }

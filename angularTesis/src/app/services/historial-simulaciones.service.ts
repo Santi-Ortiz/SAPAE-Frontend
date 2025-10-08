@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Proyeccion } from '../models/proyeccion.model';
+import { HttpHeaders } from '@angular/common/http';
 
 export interface SimulacionGuardada {
   id: string;
@@ -100,7 +101,11 @@ export class HistorialSimulacionesService {
 
   // Eliminar una proyección
   eliminarProyeccion(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { withCredentials: true });
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+    return this.http.delete<void>(`${this.apiUrl}/eliminar/${id}`, { headers });
   }
 
   // Verificar si existe una proyección por nombre

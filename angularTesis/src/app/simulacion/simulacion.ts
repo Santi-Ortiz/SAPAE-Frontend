@@ -76,11 +76,6 @@ export class SimulacionComponent implements OnInit {
     return;
   }
 
-    /*if (this.historialSimulacionesService.existeSimulacionConNombre(this.nombreSimulacion)) {
-      this.nombreDuplicadoModal = true;
-      return;
-    }*/
-
     // Verificar si el progreso está completado (excepto si eligió práctica profesional)
     if (this.verificarProgresoCompletado() && !this.practicaProfesional) {
       this.progresoCompletado = true;
@@ -121,7 +116,7 @@ export class SimulacionComponent implements OnInit {
   this.simulacionService.setParametrosSimulacionActual(parametrosSimulacion);
 
 
-  // --- Iniciar simulación en backend ---
+  //--- Iniciar simulación en backend ---
   this.simulacionService.iniciarSimulacion(this.simulacionDTO!).subscribe({
     next: (respuesta) => {
       this.simulacionService.agregarJobAlMonitoreo(

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Materia } from '../models/materia.model';
 import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class MateriaService {
   }
 
   getMateriaById(id: number) {
-    return this.http.get(`${this.apiUrl}/${id}`);
+    return this.http.get<Materia>(`${this.apiUrl}/${id}`);
   }
 
   addMateria(materia: Materia) {

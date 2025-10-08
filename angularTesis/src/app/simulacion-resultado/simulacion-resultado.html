@@ -2,8 +2,8 @@
   <h1>Simulación de Escenarios Académicos</h1>
 
   <!-- Toast de confirmación -->
-  <div *ngIf="showToast" class="toast" [class.success]="toast?.kind === 'success'" [class.info]="toast?.kind === 'info'"
-    [class.error]="toast?.kind === 'error'">
+  <div *ngIf="showToast" class="toast" [class.success]="toast?.kind === 'success'"
+       [class.info]="toast?.kind === 'info'" [class.error]="toast?.kind === 'error'">
     {{ toast?.text }}
   </div>
 
@@ -15,15 +15,17 @@
       las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente
       y tomar decisiones informadas.
     </p>
-    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de
-      Estudios</button>
+    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">
+      Visualizar Simulación en Plan de Estudios
+    </button>
   </section>
 
-  <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
-    <!-- Ancla para scroll: id="sem-<número>" -->
-    <div *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre"
+  <!-- AHORA usamos materiasRenderizadas -->
+  <section *ngIf="materiasRenderizadas" class="simulacion-resultados">
+    <div *ngFor="let semestre of materiasRenderizadas | keyvalue: orderByNumericSemestre"
          class="resultado-semestre"
          [attr.id]="'sem-' + semestre.key">
+
       <h2>Semestre {{ semestre.key }}</h2>
 
       <table class="materias-table">
@@ -38,16 +40,19 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let materia of obtenerMaterias(semestre.value); let i = index">
+          <!-- AHORA recorre materiasRenderizadas -->
+          <tr *ngFor="let materia of semestre.value; let i = index">
             <td>{{ materia.codigo }}</td>
             <td>{{ materia.nombre }}</td>
             <td>{{ materia.creditos }}</td>
             <td>{{ materia.semestre }}</td>
             <td>{{ obtenerNombre(materia.tipo!) }}</td>
             <td class="col-recom">
-              <button *ngIf="esReemplazable(materia); else bloqueado" class="btn-recom"
-                title="Elegir desde Recomendaciones" (click)="irARecomendaciones(materia, semestre.key, i)"
-                aria-label="Elegir recomendación">
+              <button *ngIf="esReemplazable(materia); else bloqueado"
+                      class="btn-recom"
+                      title="Elegir desde Recomendaciones"
+                      (click)="irARecomendaciones(materia, semestre.key, i)"
+                      aria-label="Elegir recomendación">
                 <i class="fa-solid fa-check"></i>
               </button>
               <ng-template #bloqueado>
@@ -60,14 +65,13 @@
         </tbody>
       </table>
 
+      <!-- Resumen por semestre -->
       <div class="resumen-container">
         <h2>Resumen para Semestre {{ semestre.key }}</h2>
-
         <div class="semestre-card">
           <div class="card-header">
             <h3>Semestre {{ semestre.key }}</h3>
           </div>
-
           <div class="card-body">
             <div class="stats-grid">
               <div class="stat-item">
@@ -92,7 +96,6 @@
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -100,12 +103,12 @@
         <h2>Porcentaje por Tipo de Materia</h2>
         <div [id]="'pie-chart-semestre-' + semestre.key" class="pie-chart-container"></div>
       </div>
-
     </div>
   </section>
 
   <hr class="divider" />
 
+  <!-- Resumen general -->
   <section class="resumen-general">
     <h2>Resumen General de Simulaciones</h2>
     <p>
@@ -142,10 +145,9 @@
   </section>
 
   <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
-  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar
-    Simulación</button>
+  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
 
-  <!-- Modal para confirmar que se guardó -->
+  <!-- Modal de confirmación -->
   <div class="modal-backdrop" *ngIf="mostrarModalGuardar">
     <div class="modal-custom">
       <h3>Simulación guardada con éxito</h3>

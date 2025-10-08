@@ -17,6 +17,7 @@ import { environment } from '../../environments/environment';
 import { Materia } from '../models/materia.model';
 import { SimulacionJobResponse } from '../dtos/simulacion-job-response.dto';
 import { SimulacionJobStatus } from '../dtos/simulacion-job-status.dto';
+import { Proyeccion } from '../models/proyeccion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -74,6 +75,17 @@ export class SimulacionService {
       simulacionDTO, { withCredentials: true }
     );
   }
+
+  crearSimulacionDTODesdeActual(): SimulacionDTO | null {
+    const simulacion = this.getSimulacion();
+    if (!simulacion) return null;
+
+    const progreso = simulacion.progreso || null;
+    const proyeccion = simulacion.proyeccion || null;
+
+    return { progreso, proyeccion };
+  }
+
 
   iniciarSimulacion(
     simulacionDTO: SimulacionDTO
@@ -346,4 +358,5 @@ export class SimulacionService {
   deleteSimulacion(id: number) {
     return this.http.delete(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
+
 }
