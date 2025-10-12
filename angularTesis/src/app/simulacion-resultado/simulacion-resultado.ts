@@ -86,7 +86,7 @@ export class SimulacionResultado implements OnInit {
 
   // ¿es la materia "Electiva CB Futura"?
   private isElectivaCBFutura(materia: Materia): boolean {
-    return ((materia?.nombre || '').trim().toLowerCase() === 'electiva cb futura');
+    return ((materia?.nombre || '').trim().toLowerCase() === 'electiva de ciencias básicas');
   }
 
   public esReemplazable(materia: Materia): boolean {
