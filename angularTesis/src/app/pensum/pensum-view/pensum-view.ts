@@ -16,7 +16,7 @@ import { PensumService } from '../../services/pensum.service';
 import { HistorialService } from '../../services/historial.service';
 import { NgZone, ChangeDetectorRef } from '@angular/core';
 import * as d3 from 'd3';
-type PensumItem = PensumDTO & { cssClass?: string };
+type PensumItem = PensumDTO & { cssClass?: string, dataEtiqueta?: string; };
 type MateriaItem = MateriaDTO & { cssClass?: string };
 
 @Component({
@@ -92,7 +92,7 @@ export class PensumView implements OnInit, AfterViewInit {
         this.cdr.detectChanges();
         this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
       }
-
+      this.resetearSeleccion();
 
     });
   }
@@ -180,7 +180,10 @@ export class PensumView implements OnInit, AfterViewInit {
     }));
   }
 
-  agruparPorSemestrePensum(pensum: PensumDTO[], progreso: Progreso): { semestre: number; materias: PensumItem[] }[] {
+  agruparPorSemestrePensum(
+    pensum: PensumDTO[],
+    progreso: Progreso
+  ): { semestre: number; materias: PensumItem[] }[] {
     const semestreMap = new Map<number, PensumItem[]>();
   
     // Normalizar todos los códigos del progreso
@@ -196,35 +199,65 @@ export class PensumView implements OnInit, AfterViewInit {
       todas.filter(m => m.calif !== 'SIN CALIFICACIÓN').map(m => m.codigo)
     );
   
+    // 🧮 Contar cuántas veces se cursó cada materia
+    const contadorRepeticiones = new Map<string, number>();
+    for (const m of todas) {
+      const codigo = m.codigo;
+      contadorRepeticiones.set(codigo, (contadorRepeticiones.get(codigo) || 0) + 1);
+    }
+  
     pensum.forEach(m => {
       if (!semestreMap.has(m.semestre)) semestreMap.set(m.semestre, []);
   
       let clase = "faltante";
       const codigoNorm = this.normCodigo(m.codigo);
+      let etiqueta = "";
   
       if (cursandoSet.has(codigoNorm)) {
         clase = "actual";
       } else if (cursadasSet.has(codigoNorm)) {
-        const materiaHist = (progreso?.materias ?? []).find(x => this.normCodigo(x.curso) === codigoNorm);
+        const materiaHist = (progreso?.materias ?? []).find(
+          x => this.normCodigo(x.curso) === codigoNorm
+        );
         const califNum = Number(materiaHist?.calif);
-        if (!isNaN(califNum) && califNum < 3) {
+        const vecesVista = contadorRepeticiones.get(codigoNorm) ?? 1;
+  
+        if (vecesVista > 1) {
           clase = "repetida";
+          etiqueta = `Vista ${vecesVista} veces`;
+        } else if (!isNaN(califNum) && califNum < 3) {
+          clase = "repetida";
+          etiqueta = "Repetida";
         } else {
           clase = "bloqueada";
         }
       }
   
-      // crear un PensumItem (no modificamos el objeto original del pensum)
+      // ✅ Guardamos la etiqueta como un atributo data-* para el HTML
       const item: PensumItem = { ...m, cssClass: clase };
+      (item as any).dataEtiqueta = etiqueta;
+  
       semestreMap.get(m.semestre)!.push(item);
     });
   
+    // 🔗 Asegurar que las relaciones (requisitos) sigan mostrándose
+    // Si tienes un método que dibuja las líneas, aquí se conserva la estructura base.
+    // (Generalmente el dibujo ocurre después en la vista, no en este método)
+  
     return Array.from(semestreMap.entries())
       .sort(([a], [b]) => a - b)
-      .map(([semestre, materias]) => ({ semestre, materias }));
+      .map(([semestre, materias]) => ({
+        semestre,
+        materias: materias.map(m => ({
+          ...m,
+          requisitos: m.requisitos ?? [] // 👈 mantiene los requisitos del pensum
+        }))
+      }));
   }
-   
   
+  
+  
+   
   agruparMateriasFaltantes(progreso: any,pensum: PensumDTO[]): { semestre: number; materias: PensumItem[] }[] {
     if (!progreso || !pensum || pensum.length === 0) return [];
   
@@ -309,29 +342,34 @@ export class PensumView implements OnInit, AfterViewInit {
   
     let idxElectiva = 0, idxCompl = 0, idxEnfasis = 0, idxBasica = 0;
   
+    const normalizarCred = (valor: any): number => {
+      if (valor == null) return 0;
+      const num = parseFloat(String(valor).replace(',', '.'));
+      return isNaN(num) ? 0 : num;
+    };
+  
     return pensum.map(m => {
       const nombreNorm = (m.nombre ?? '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   
       if (nombreNorm.includes("basicas") && basicas[idxBasica]) {
         const real = basicas[idxBasica++];
-        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
-      } 
+        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+      }
       if (nombreNorm.includes("electiva") && electivas[idxElectiva]) {
         const real = electivas[idxElectiva++];
-        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
-      } 
+        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+      }
       if (nombreNorm.includes("complementaria") && complementarias[idxCompl]) {
         const real = complementarias[idxCompl++];
-        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
-      } 
+        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+      }
       if ((nombreNorm.includes("énfasis") || nombreNorm.includes("enfasis")) && enfasis[idxEnfasis]) {
         const real = enfasis[idxEnfasis++];
-        return new PensumDTO(String(real.curso), real.titulo, Number(real.cred ?? 0), m.semestre, "[]", []);
+        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
       }
       return m; // no era genérica → devolver igual
     });
-  }  
-  
+  }
 
   esMateriaBloqueada(materia: PensumDTO | MateriaDTO): boolean {
     const codigo = this.getCodigo(materia);
@@ -342,15 +380,9 @@ export class PensumView implements OnInit, AfterViewInit {
     return false;
   }
 
-  // Normaliza todos los códigos al mismo formato 
-  private norm(c: any): string {
-    const s = String(c ?? '').trim();
-    return /^\d+$/.test(s) ? s.padStart(6, '0') : s;
-  }
-
   seleccionarMateria(codigo: string) {
     console.log(`MATERIA SELECCIONADA: ${codigo}`);
-    const codSel = this.norm(codigo);
+    const codSel = this.normCodigo(codigo);
 
     if (this.materiasCursadasCodigos.has(codSel)) return;
 
@@ -359,10 +391,10 @@ export class PensumView implements OnInit, AfterViewInit {
 
     this.allPensum.forEach(materia => {
       try {
-        const codMat = this.norm(materia.codigo);
+        const codMat = this.normCodigo(materia.codigo);
         const parsed = JSON.parse(materia.requisitosJson || '[]');
         const requisitos: string[] = (Array.isArray(parsed) ? parsed : [])
-          .map(r => this.norm(r));
+          .map(r => this.normCodigo(r));
 
         /* La seleccionada es requisito de otra (flecha de salida)
         if (requisitos.includes(codSel)) {
@@ -374,7 +406,7 @@ export class PensumView implements OnInit, AfterViewInit {
     });
 
     // Quitar duplicados y asegurar todo normalizado
-    this.conexionesActivas = Array.from(new Set(this.conexionesActivas.map(c => this.norm(c))));
+    this.conexionesActivas = Array.from(new Set(this.conexionesActivas.map(c => this.normCodigo(c))));
 
     // Quitar resaltados previos
     document.querySelectorAll('.caja').forEach(c => c.classList.remove('resaltada'));
@@ -613,25 +645,45 @@ export class PensumView implements OnInit, AfterViewInit {
         const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
         const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
   
-        // --- Caso especial: columnas adyacentes y cajas cercanas (línea recta) ---
+        // --- Caso especial: columnas adyacentes y cajas cercanas (dos giros, no diagonal) ---
         const distanciaX = Math.abs(xDestino - xOrigen);
         const distanciaY = Math.abs(yDestino - yOrigen);
+
         if (colOriIdx !== colDestIdx && distanciaX < 70 && distanciaY < 25) {
           const capa = esActiva ? capaLineasResaltadas : capaLineas;
+
+          // Elegimos un canal intermedio X donde realizar la transición vertical.
+          // Preferimos el gapCentersX entre las columnas si existe; si no, usamos el punto medio.
+          const preferredGap = gapCentersX[colOriIdx] ?? gapCentersX[Math.max(0, colOriIdx - 1)] ?? (xOrigen + xDestino) / 2;
+          // Aseguramos que el canal no esté dentro de las cajas (margen)
+          const canalX = Math.max(Math.min(preferredGap, Math.max(xOrigen, xDestino) - 8), Math.min(xOrigen, xDestino) + 8);
+
+          // Puntos: salir horizontal del origen hasta canalX, ir vertical al nivel del destino, y entrar horizontal al destino.
+          const xEntradaDestino = xDestino - offsetLlegada; // punto justo antes de entrar a la caja destino
+
+          // Usamos comandos SVG M, L para mantener líneas rectas en ángulo recto.
+          const d = [
+            `M ${xOrigen} ${yOrigen}`,        // inicio un pelín dentro del borde derecho del origen
+            `L ${canalX} ${yOrigen}`,              // horizontal hasta el canal
+            `L ${canalX} ${yDestino}`,             // vertical en el canal hasta la altura de la entrada destino
+            `L ${xEntradaDestino} ${yDestino}`,    // horizontal hasta justo antes del destino
+            `L ${xDestino} ${yDestino}`            // entrada final al centro/destino (opcional)
+          ].join(" ");
+
           const path = capa.append("path")
-            .attr("d", `M ${xOrigen} ${yOrigen} L ${xDestino} ${yDestino}`)
+            .attr("d", d)
             .attr("fill", "none")
             .attr("stroke", colorLinea)
             .attr("stroke-width", esActiva ? 2 : 1.6)
             .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
-  
+
           if (esActiva) {
             path.classed("resaltada", true);
             destino.classList.add("resaltada");
             origen.classList.add("resaltada");
             path.raise();
           }
-  
+
           // no ocupamos celdas por la línea: permitimos solapamiento
           return;
         }
@@ -819,9 +871,17 @@ export class PensumView implements OnInit, AfterViewInit {
       historicoLabel?.classList.remove('active');
       planLabel?.classList.add('active');
     }
+
+    this.resetearSeleccion();
   
     console.log(`Vista cambiada a: ${this.vistaHistorico ? 'Tu histórico' : 'Según plan de estudios'}`);
   }
+
+  private resetearSeleccion(): void {
+    const cajas = document.querySelectorAll('.caja.resaltada');
+    cajas.forEach(caja => caja.classList.remove('resaltada'));
+  }
+  
   
   
 }

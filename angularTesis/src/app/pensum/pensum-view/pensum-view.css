@@ -103,18 +103,18 @@ p {
 }
 
 .caja.repetida::before {
-  content: "Repetida";
+  content: attr(data-etiqueta);
   position: absolute;
-  bottom: -6px;
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 10px;
-  background:#005F8F;
+  background: #005F8F;
   color: white;
-  padding: 1px 4px;
+  padding: 2px 8px;
   border-radius: 3px;
+  white-space: nowrap;
 }
-
 
 .caja.bloqueada {
   border: 1px solid #00B4D8;

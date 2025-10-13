@@ -109,6 +109,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         );
       })
     );
+    this.resetearSeleccion();
   }
 
   getCodigo(m: Materia | MateriaDTO): string {
@@ -656,5 +657,10 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
 
   public volverSimulacion(): void {
     this.router.navigate(["/simulacion/mostrar"]);
+  }
+
+  private resetearSeleccion(): void {
+    const cajas = document.querySelectorAll('.caja.resaltada');
+    cajas.forEach(caja => caja.classList.remove('resaltada'));
   }
 }

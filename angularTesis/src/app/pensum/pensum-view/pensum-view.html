@@ -65,18 +65,21 @@
     <div class="semestres" *ngIf="!vistaHistorico">
       <div class="semestre-columna" *ngFor="let grupo of materiasFaltantes">
         <h3>Semestre {{ grupo.semestre }}</h3>
-        <div class="caja" *ngFor="let materia of grupo.materias"
-          [attr.id]="getCodigo(materia).toString().padStart(6,'0')"
+
+        <div class="caja"
+          *ngFor="let materia of grupo.materias"
+          [attr.id]="getCodigo(materia).toString().padStart(6, '0')"
           [attr.data-semestre]="grupo.semestre"
+          [attr.data-etiqueta]="materia?.dataEtiqueta || '' "
           (click)="seleccionarMateria(getCodigo(materia))"
           [ngClass]="materia.cssClass">
+
           <strong>{{ materia.nombre }}</strong>
           <span class="codigo">{{ getCodigo(materia) }}</span>
           <span class="creditos">{{ materia.creditos }} créditos</span>
         </div>
       </div>
     </div>
-
 
     <svg #svgRef class="svg-lines"></svg>
   </div>
