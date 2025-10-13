@@ -29,8 +29,12 @@
         </a>
       </nav>
 
-      <!-- Semana académica --> 
-      <div class="semana-academica-sidebar" *ngIf="semanaActual && !semanaActual.esReceso">
+      <div class="nav-divider-line"></div>
+      <div class="section-title">AVISOS DE FECHAS IMPORTANTES</div>
+
+      <!-- Semana académica normal -->
+      <div class="semana-academica-sidebar"
+        *ngIf="semanaActual && !semanaActual.esReceso && !semanaActual.esUltimaSemanaRetiro">
         <i class="fas fa-calendar-week"></i>
         <div class="semana-content">
           <div class="semana-texto">Semana {{ semanaActual.numero }} académica</div>
@@ -38,11 +42,31 @@
         </div>
       </div>
 
+      <!-- Semana académica - ÚLTIMA SEMANA RETIRO -->
+      <div class="semana-retiro-sidebar"
+        *ngIf="semanaActual && !semanaActual.esReceso && semanaActual.esUltimaSemanaRetiro">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="semana-content">
+          <div class="semana-texto-alerta">{{ semanaActual.descripcion }}</div>
+          <div class="periodo-texto">Periodo {{ semanaActual.periodo }}</div>
+        </div>
+      </div>
+
+      <!-- Receso académico -->
       <div class="receso-academico-sidebar" *ngIf="semanaActual && semanaActual.esReceso">
         <i class="fas fa-umbrella-beach"></i>
         <div class="receso-content">
           <div class="receso-texto">{{ semanaActual.descripcion }}</div>
           <div class="periodo-texto">Periodo {{ semanaActual.periodo }}</div>
+        </div>
+      </div>
+
+      <!-- Aviso de última semana de retiro -->
+      <div class="info-retiro-sidebar" *ngIf="infoRetiro && !semanaActual?.esUltimaSemanaRetiro">
+        <i class="fas fa-info-circle"></i>
+        <div class="info-content">
+          <div class="info-texto">Última semana para retirar: Semana {{ infoRetiro.semanaLimite }}</div>
+          <div class="periodo-texto">Periodo {{ infoRetiro.periodo }}</div>
         </div>
       </div>
 

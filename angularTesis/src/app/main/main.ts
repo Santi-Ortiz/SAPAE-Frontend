@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { LecturaService } from '../services/lectura.service';
 import { HistorialService } from '../services/historial.service';
@@ -12,7 +12,7 @@ import { NgIf, NgFor } from '@angular/common';
   templateUrl: './main.html',
   styleUrls: ['./main.css']
 })
-export class Main implements AfterViewInit {
+export class Main implements AfterViewInit, OnInit, OnDestroy {
 
   historial: Progreso = new Progreso();
   mostrarMenu = false;
@@ -22,6 +22,10 @@ export class Main implements AfterViewInit {
   currentIndex: number = 0;
   canScrollLeft: boolean = true;
   canScrollRight: boolean = false;
+
+  private sections: string[] = ['inicio', 'historial-container', 'features', 'benefits'];
+  private currentActiveSection: string = 'inicio';
+  private isScrolling: boolean = false;
 
   constructor(
     private lecturaService: LecturaService,
@@ -86,8 +90,22 @@ export class Main implements AfterViewInit {
     }, 300);
   }
 
+  ngOnInit(): void {
+    this.initScrollSpy();
+  }
+
   ngAfterViewInit(): void {
     this.updateScrollButtons();
+  }
+
+  ngOnDestroy(): void {
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    if (!this.isScrolling) {
+      this.updateActiveNavigation();
+    }
   }
 
   scrollToIndex(index: number): void {
@@ -225,10 +243,13 @@ export class Main implements AfterViewInit {
   scrollToSection(sectionId: string, event: Event): void {
     event.preventDefault();
 
+    this.isScrolling = true;
+
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => link.classList.remove('active'));
 
     (event.target as HTMLElement).classList.add('active');
+    this.currentActiveSection = sectionId;
 
     const section = document.getElementById(sectionId);
     if (section) {
@@ -240,6 +261,82 @@ export class Main implements AfterViewInit {
         top: offsetPosition,
         behavior: 'smooth'
       });
+
+      setTimeout(() => {
+        this.isScrolling = false;
+      }, 1000);
+    }
+  }
+
+  private initScrollSpy(): void {
+    this.updateActiveNavigation();
+  }
+
+  // Actualizar la navegación activa basada en la sección visible
+  private updateActiveNavigation(): void {
+    const headerHeight = 100;
+    let currentSection = '';
+
+    // Encontrar qué sección está actualmente visible
+    for (const sectionId of this.sections) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const elementTop = rect.top + window.pageYOffset;
+        const elementBottom = elementTop + element.offsetHeight;
+        const scrollPosition = window.pageYOffset + headerHeight;
+
+        // Si estamos dentro de esta sección
+        if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+          currentSection = sectionId;
+          break;
+        }
+      }
+    }
+
+    // Si no encontramos ninguna sección específica, usar la última visible
+    if (!currentSection) {
+      const windowHeight = window.innerHeight;
+      const scrollPosition = window.pageYOffset + headerHeight;
+
+      for (const sectionId of this.sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const elementTop = rect.top + window.pageYOffset;
+
+          if (scrollPosition >= elementTop - windowHeight / 3) {
+            currentSection = sectionId;
+          }
+        }
+      }
+    }
+
+    // Actualizar la navegación si cambió la sección
+    if (currentSection && currentSection !== this.currentActiveSection) {
+      this.currentActiveSection = currentSection;
+      this.updateNavigationHighlight(currentSection);
+    }
+  }
+
+  // Actualizar el resaltado de la navegación
+  private updateNavigationHighlight(activeSection: string): void {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+
+    const sectionToLinkMap: { [key: string]: string } = {
+      'inicio': '#inicio',
+      'historial-container': '#informe',
+      'features': '#funcionalidades',
+      'benefits': '#beneficios'
+    };
+
+    const targetHref = sectionToLinkMap[activeSection];
+    if (targetHref) {
+      const activeLink = document.querySelector(`a[href="${targetHref}"]`);
+      if (activeLink) {
+        activeLink.classList.add('active');
+      }
     }
   }
 }

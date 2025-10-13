@@ -26,6 +26,7 @@ export class App implements OnInit {
 
   hideMenu = false;
   semanaActual: any = null;
+  infoRetiro: any = null;
 
   constructor(private router: Router, private calendarioService: CalendarioService) {
     this.router.events
@@ -41,6 +42,7 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.semanaActual = this.calendarioService.getSemanaActual();
+    this.infoRetiro = this.calendarioService.getInfoRetiroActual();
   }
 
   logout(): void {
