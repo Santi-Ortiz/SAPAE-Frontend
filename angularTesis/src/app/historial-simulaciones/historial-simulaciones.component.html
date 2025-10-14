@@ -21,11 +21,7 @@
             <p><strong>{{ simulacion.numMaxCreditos }}</strong> créditos máx.</p>
             <p><strong>{{ simulacion.numMaxMaterias }}</strong> materias máx.</p>
             <p><strong>{{ simulacion.tipoMatricula }}</strong></p>
-            <!-- <p *ngIf="simulacion.parametros.practicaProfesional"><strong>Práctica Profesional</strong></p> -->
-            <p>
-              Práctica profesional:
-              <strong>{{ simulacion.practicaProfesional ? 'Sí' : 'No' }}</strong>
-            </p>
+            <p>Práctica profesional: <strong>{{ simulacion.practicaProfesional ? 'Sí' : 'No' }}</strong></p>
 
             <!-- Mostrar priorizaciones si existen -->
             <div
@@ -35,7 +31,12 @@
               <p class="priorizaciones-label">Priorizaciones:</p>
               <ul class="priorizaciones-list">
                 <li *ngFor="let prio of simulacion.priorizaciones; let i = index">
-                  {{ 'Criterio ' + (i+1) }}: {{ prio ? 'Sí' : 'No' }}
+                  <ng-container *ngIf="getPriorizacionTexto(simulacion, i, prio) as texto">
+                    <span>{{ texto.split(':')[0] }}:</span>
+                      <span class="prior-answer"><strong>
+                      {{ texto.includes(':') ? (texto.split(':')[1].trim()) : '' }}
+                    </strong></span>
+                  </ng-container>
                 </li>
               </ul>
             </div>

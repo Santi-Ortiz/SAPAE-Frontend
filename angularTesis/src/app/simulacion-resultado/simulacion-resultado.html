@@ -20,12 +20,10 @@
     </button>
   </section>
 
-  <!-- AHORA usamos materiasRenderizadas -->
-  <section *ngIf="materiasRenderizadas" class="simulacion-resultados">
-    <div *ngFor="let semestre of materiasRenderizadas | keyvalue: orderByNumericSemestre"
+  <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
+    <div *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre"
          class="resultado-semestre"
          [attr.id]="'sem-' + semestre.key">
-
       <h2>Semestre {{ semestre.key }}</h2>
 
       <table class="materias-table">
@@ -40,19 +38,20 @@
           </tr>
         </thead>
         <tbody>
-          <!-- AHORA recorre materiasRenderizadas -->
-          <tr *ngFor="let materia of semestre.value; let i = index">
+          <tr *ngFor="let materia of semestre.value.materias; let i = index">
             <td>{{ materia.codigo }}</td>
             <td>{{ materia.nombre }}</td>
             <td>{{ materia.creditos }}</td>
             <td>{{ materia.semestre }}</td>
             <td>{{ obtenerNombre(materia.tipo!) }}</td>
             <td class="col-recom">
-              <button *ngIf="esReemplazable(materia); else bloqueado"
-                      class="btn-recom"
-                      title="Elegir desde Recomendaciones"
-                      (click)="irARecomendaciones(materia, semestre.key, i)"
-                      aria-label="Elegir recomendación">
+              <button
+                *ngIf="esReemplazable(materia); else bloqueado"
+                class="btn-recom"
+                title="Elegir desde Recomendaciones"
+                (click)="irARecomendaciones(materia, semestre.key, i)"
+                aria-label="Elegir recomendación"
+              >
                 <i class="fa-solid fa-check"></i>
               </button>
               <ng-template #bloqueado>
@@ -65,7 +64,6 @@
         </tbody>
       </table>
 
-      <!-- Resumen por semestre -->
       <div class="resumen-container">
         <h2>Resumen para Semestre {{ semestre.key }}</h2>
         <div class="semestre-card">
@@ -77,17 +75,17 @@
               <div class="stat-item">
                 <i class="fas fa-book-open"></i>
                 <span><strong>Materias a cursar:</strong></span>
-                <span class="stat-value">{{ calcularResumen(semestre.value).totalMaterias }}</span>
+                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalMaterias }}</span>
               </div>
               <div class="stat-item">
                 <i class="fas fa-star"></i>
                 <span><strong>Total de créditos:</strong></span>
-                <span class="stat-value">{{ calcularResumen(semestre.value).totalCreditos }}</span>
+                <span class="stat-value">{{ calcularResumen(semestre.value.materias).totalCreditos }}</span>
               </div>
               <div class="stat-item">
                 <i class="fa-solid fa-clock"></i>
                 <span><strong>Horas de estudio por día:</strong></span>
-                <span class="stat-value">{{ calcularResumen(semestre.value).horasEstudio }}</span>
+                <span class="stat-value">{{ calcularResumen(semestre.value.materias).horasEstudio }}</span>
               </div>
               <div class="stat-item">
                 <i class="fa-solid fa-circle-exclamation"></i>

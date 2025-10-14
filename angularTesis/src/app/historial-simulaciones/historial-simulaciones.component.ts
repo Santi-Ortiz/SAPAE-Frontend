@@ -15,6 +15,15 @@ import { Proyeccion } from '../models/proyeccion.model';
 export class HistorialSimulacionesComponent implements OnInit {
   simulacionesGuardadas: Proyeccion[] = [];
   
+  defaultPriorizacionesLabels: string[] = [
+    'Núcleo Ciencias Básicas',
+    'Núcleo Ingeniería Aplicada',
+    'Núcleo Socio-Humanística',
+    'Electivas',
+    'Complementarias',
+    'Énfasis'
+  ];
+  
   // Variables para controlar los modales
   mostrarModalEliminar = false;
   mostrarModalLimpiar = false;
@@ -40,19 +49,57 @@ export class HistorialSimulacionesComponent implements OnInit {
   }
 
   verSimulacion(simulacion: Proyeccion): void {
-    // Cargar datos en el servicio de simulación
-    this.simulacionService.setSimulacion(simulacion); 
-    this.simulacionService.setNombreSimulacionActual(simulacion.nombreSimulacion);
-    
-    // Guardar el jobId si existe
-    if ((simulacion as any).jobId) {
-      this.simulacionService.setJobIdSimulacionActual((simulacion as any).jobId);
+    const posibleId = (simulacion as any).id ?? (simulacion as any).proyeccionId ?? null;
+
+    if (posibleId) {
+      this.simulacionService.getSimulacionById(Number(posibleId)).subscribe({
+        next: (resp) => {
+          let resultado: any;
+          const anyResp: any = resp as any;
+
+          if (anyResp && Array.isArray(anyResp.materias)) {
+            resultado = { '0': { materias: anyResp.materias } };
+          } else if (anyResp && (anyResp.resultadoSimulacion || anyResp.resultado)) {
+            resultado = anyResp.resultadoSimulacion ?? anyResp.resultado;
+          } else {
+            resultado = anyResp;
+          }
+
+          this.simulacionService.setSimulacion(resultado);
+          const nombre = anyResp?.nombreSimulacion ?? (simulacion as any).nombreSimulacion ?? '';
+          this.simulacionService.setNombreSimulacionActual(nombre);
+
+          const jobId = anyResp?.jobId ?? (simulacion as any).jobId ?? null;
+          if (jobId) {
+            this.simulacionService.setJobIdSimulacionActual(jobId);
+          } else {
+            this.simulacionService.limpiarJobIdSimulacionActual();
+          }
+
+          this.router.navigate(['/simulaciones/mostrar']);
+        },
+        error: (err) => {
+          this.simulacionService.setSimulacion(simulacion as any);
+          this.simulacionService.setNombreSimulacionActual(simulacion.nombreSimulacion);
+          if ((simulacion as any).jobId) {
+            this.simulacionService.setJobIdSimulacionActual((simulacion as any).jobId);
+          } else {
+            this.simulacionService.limpiarJobIdSimulacionActual();
+          }
+          this.router.navigate(['/simulaciones/mostrar']);
+        }
+      });
     } else {
-      this.simulacionService.limpiarJobIdSimulacionActual();
+      // Si no hay id, usar la simulación local
+      this.simulacionService.setSimulacion(simulacion as any);
+      this.simulacionService.setNombreSimulacionActual(simulacion.nombreSimulacion);
+      if ((simulacion as any).jobId) {
+        this.simulacionService.setJobIdSimulacionActual((simulacion as any).jobId);
+      } else {
+        this.simulacionService.limpiarJobIdSimulacionActual();
+      }
+      this.router.navigate(['/simulaciones/mostrar']);
     }
-    
-    // Navegar a la vista de resultado
-    this.router.navigate(['/simulaciones/mostrar']);
   }
 
   eliminarSimulacion(simulacion: Proyeccion): void {
@@ -106,4 +153,15 @@ export class HistorialSimulacionesComponent implements OnInit {
   formatearPriorizaciones(priorizaciones: boolean[] = []): string {
     return priorizaciones.some(p => p) ? priorizaciones.join(', ') : 'Ninguna';
   }
+
+  getPriorizacionTexto(simulacion: any, index: number, valor: any): string {
+    const paramsNombres: string[] | undefined = simulacion?.parametros?.priorizaciones;
+    
+    if (typeof valor === 'boolean') {
+      const label = this.defaultPriorizacionesLabels[index] ?? `Criterio ${index + 1}`;
+      return `${label}: ${valor ? 'Sí' : 'No'}`;
+    }
+    
+    return `Criterio: ${index + 1}`;
+}
 }

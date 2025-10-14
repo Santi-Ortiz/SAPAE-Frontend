@@ -4,11 +4,9 @@ import { SimulacionMateria } from "./simulacion_materia.model";
 
 export class Simulacion {
     constructor(
-        public id: number,
-        public materiasAsociadas: SimulacionMateria[] = [],
-        public semestre: number,
-        public creditosTotales?: number,
-        public proyeccion?: Proyeccion
+        public materias: Materia[] = [],
+        public puntajeTotal?: number,
+        public creditosTotales?: number
     ) { }
 
 }

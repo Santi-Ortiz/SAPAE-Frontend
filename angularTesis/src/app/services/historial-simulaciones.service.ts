@@ -101,11 +101,7 @@ export class HistorialSimulacionesService {
 
   // Eliminar una proyección
   eliminarProyeccion(id: number): Observable<void> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-    return this.http.delete<void>(`${this.apiUrl}/eliminar/${id}`, { headers });
+    return this.http.delete<void>(`${this.apiUrl}/eliminar/${id}`, { withCredentials: true });
   }
 
   // Verificar si existe una proyección por nombre
@@ -115,7 +111,7 @@ export class HistorialSimulacionesService {
 
   // Eliminar todas las proyecciones del usuario
   limpiarProyecciones(): Observable<void> {
-    return this.http.delete<void>(this.apiUrl, { withCredentials: true });
+    return this.http.delete<void>(`${this.apiUrl}/eliminarTodo`, { withCredentials: true });
   }
 
   guardarProyeccion(proyeccion: Proyeccion): Observable<any> {

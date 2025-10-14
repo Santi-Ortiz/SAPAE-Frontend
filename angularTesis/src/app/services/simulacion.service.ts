@@ -25,27 +25,23 @@ import { Proyeccion } from '../models/proyeccion.model';
 export class SimulacionService {
   private apiUrl = `${environment.SERVER_URL}`;
   private readonly STORAGE_KEY = 'resultadoSimulacion';
+  private readonly DTO_STORAGE_KEY = 'simulacionDTO_original';
   private readonly JOBS_STORAGE_KEY = 'simulacionJobs';
   private readonly NOMBRE_SIMULACION_KEY = 'nombreSimulacionActual';
   private readonly PARAMETROS_SIMULACION_KEY = 'parametrosSimulacionActual';
-  private readonly JOB_ID_ACTUAL_KEY = 'jobIdSimulacionActual';
+  private readonly JOB_ID_ACTUAL_KEY = 'jobIdSimulacionActual'
+  resultadoSimulacion!: Record<string, { materias: Materia[] }>;
 
-  public resultadoSimulacion!: Record<string, { materias: Materia[] }>;
-
+  // Subject para la simulación organizada por semestres
   private simulacionSubject = new BehaviorSubject<any>(null);
   simulacion$ = this.simulacionSubject.asObservable();
-
-  private simulacion: { [semestre: string]: { materias: Materia[] } } = {};
 
   // Materias planas y agrupadas
   private materiasSimuladasSubject = new BehaviorSubject<Materia[]>([]);
   materiasSimuladas$ = this.materiasSimuladasSubject.asObservable();
 
-  private materiasSimuladasPorKeySubject = new BehaviorSubject<
-    Record<string, Materia[]>
-  >({});
-  materiasSimuladasPorKey$ =
-    this.materiasSimuladasPorKeySubject.asObservable();
+  private materiasSimuladasPorKeySubject = new BehaviorSubject<Record<string, Materia[]>>({});
+  materiasSimuladasPorKey$ = this.materiasSimuladasPorKeySubject.asObservable();
 
   // Notificaciones
   private notificacionesSubject = new BehaviorSubject<string[]>([]);
@@ -78,10 +74,24 @@ export class SimulacionService {
 
   crearSimulacionDTODesdeActual(): SimulacionDTO | null {
     const simulacion = this.getSimulacion();
-    if (!simulacion) return null;
 
-    const progreso = simulacion.progreso || null;
-    const proyeccion = simulacion.proyeccion || null;
+    let progreso = simulacion?.progreso || null;
+    let proyeccion = simulacion?.proyeccion || null;
+
+    if (!progreso && !proyeccion) {
+      try {
+        const storedDto = sessionStorage.getItem(this.DTO_STORAGE_KEY);
+        if (storedDto) {
+          const parsed = JSON.parse(storedDto);
+          progreso = parsed?.progreso || null;
+          proyeccion = parsed?.proyeccion || null;
+        }
+      } catch (e) {
+        console.warn('[SimulacionService] Error al parsear DTO almacenado:', e);
+      }
+    }
+
+    if (!progreso && !proyeccion) return null;
 
     return { progreso, proyeccion };
   }
@@ -261,35 +271,52 @@ export class SimulacionService {
     );
   }
 
+  guardarSimulacion(simulacionDTO: SimulacionDTO, resultadoSimulacion: any): Observable<boolean> {
+    this.resultadoSimulacion = this.getSimulacion();
+    return this.http.post<boolean>(
+      `${environment.SERVER_URL}/api/simulaciones/guardarSimulacion`,
+      { simulacionDTO, resultadoSimulacion },
+      { withCredentials: true }
+    );
+  }
+
   setSimulacion(simulacion: any): void {
-    if (simulacion?.materiasAsociadas) {
-      const normalizada: { [semestre: string]: { materias: Materia[] } } = {};
-      simulacion.materiasAsociadas.forEach((m: Materia) => {
-        const semestre = m.semestre?.toString() || '0';
-        if (!normalizada[semestre]) {
-          normalizada[semestre] = { materias: [] };
-        }
-        normalizada[semestre].materias.push(m);
-      });
-      this.simulacion = normalizada;
-    } else {
-      this.simulacion = simulacion;
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(simulacion));
+    this.resultadoSimulacion = simulacion;
+    this.simulacionSubject.next(simulacion);
+
+    const todasLasMaterias: Materia[] = [];
+    const gruposPorKey: Record<string, Materia[]> = {};
+    
+    for (const semestre in simulacion) {
+      if (simulacion[semestre] && simulacion[semestre].materias) {
+        const materiasDelSemestre = simulacion[semestre].materias;
+        todasLasMaterias.push(...materiasDelSemestre);
+        gruposPorKey[semestre] = materiasDelSemestre;
+      }
     }
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.simulacion));
-    this.simulacionSubject.next(this.simulacion);
+    
+    this.materiasSimuladasSubject.next(todasLasMaterias);
+    this.materiasSimuladasPorKeySubject.next(gruposPorKey);
+
+    try {
+      const posibleProgreso = simulacion?.progreso;
+      const posibleProyeccion = simulacion?.proyeccion;
+      if (posibleProgreso || posibleProyeccion) {
+        sessionStorage.setItem(this.DTO_STORAGE_KEY, JSON.stringify({ progreso: posibleProgreso || null, proyeccion: posibleProyeccion || null }));
+      }
+    } catch (e) {
+      console.warn('[SimulacionService] No se pudo guardar DTO original en sessionStorage:', e);
+    }
   }
 
   getSimulacion(): any {
-    if (!this.simulacion) {
-      const data = sessionStorage.getItem(this.STORAGE_KEY);
-      if (data) this.simulacion = JSON.parse(data);
-    }
-    return this.simulacion;
+   return this.resultadoSimulacion;
   }
 
-  setMateriasSimuladasPorKey(grupos: Record<string, Materia[]>) {
+  setMateriasSimuladasPorKey(grupos: Record<string, Materia[]>): void {
     this.materiasSimuladasPorKeySubject.next(grupos);
-    const todasLasMaterias = Object.values(grupos).flat();
+    const todasLasMaterias: Materia[] = Object.values(grupos).flatMap(arr => arr);
     this.materiasSimuladasSubject.next(todasLasMaterias);
   }
 

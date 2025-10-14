@@ -3,13 +3,11 @@ import { CommonModule, KeyValuePipe, NgFor, NgIf, ViewportScroller } from '@angu
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as d3 from 'd3';
-import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { SimulacionService } from '../services/simulacion.service';
 import { HistorialService } from '../services/historial.service';
 import { HistorialSimulacionesService } from '../services/historial-simulaciones.service';
 import { Materia } from '../models/materia.model';
-import { SimulacionDTO } from '../dtos/simulacion-dto';
-import { MateriaService } from '../services/materia.service';
 
 @Component({
   selector: 'app-simulacion-resultado',
@@ -24,7 +22,7 @@ export class SimulacionResultado implements OnInit {
   public creditosFaltantesTotales:number = 0;
   public nombreSimulacion: string = '';
   public jobIdActual: string | null = null;
-  public simulacionGuardada: Observable<boolean> = new Observable<boolean>((observer) => observer.next(false));
+  public simulacionGuardada: boolean = false;
   public mostrarModalGuardar: boolean = false;
   public materiasRenderizadas: { [semestre: string]: Materia[] } = {};
 
@@ -44,7 +42,6 @@ export class SimulacionResultado implements OnInit {
   constructor(
     private router: Router,
     private simulacionService: SimulacionService,
-    private materiaService: MateriaService,
     private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
     private historialSimulacionesService: HistorialSimulacionesService
@@ -60,35 +57,40 @@ export class SimulacionResultado implements OnInit {
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
 
-    // Traer el estado actual desde el servicio (si volviste del selector, ya viene actualizado)
     this.resultadoSimulacion = this.simulacionService.getSimulacion();
-    console.log(' Resultado de la simulación desde el servicio:', this.resultadoSimulacion);
-    Object.entries(this.resultadoSimulacion).forEach(([semestre, data]: [string, any]) => {
-      const materiasIds = data.materiasAsociadas ?? [];
-
-      this.resultadoSimulacion[semestre] = { materias: materiasIds };
-
-      // Convertir los IDs en objetos Materia
-      const materias = materiasIds
-        .map((id: number) => this.materiaService.getMateriaById(id))
-        .filter((m: Materia | undefined): m is Materia => m !== undefined);
-
-      // Guardas la lista de materias renderizables
-      this.materiasRenderizadas[semestre] = materias;
-
-      console.log(`Semestre ${semestre}:`, materias);
-    });
+    console.log('Resultado simulación cargado:', this.resultadoSimulacion);
+    this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
+    this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
+    this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
     
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
     this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
 
-    // Verificar si la simulación ya está guardada
-    if (this.jobIdActual) {
-      this.simulacionGuardada = this.historialSimulacionesService.existeProyeccionConJobId(this.jobIdActual);
-    } else {
-      this.simulacionGuardada = this.historialSimulacionesService.existeProyeccionConNombre(this.nombreSimulacion);
-    }
+    this.historialSimulacionesService.getMisProyecciones()?.pipe?.(take(1)).subscribe?.({
+      next: (proyecciones: any[]) => {
+        if (!Array.isArray(proyecciones) || proyecciones.length === 0) {
+          this.simulacionGuardada = false;
+          return;
+        }
+
+        const nombreLower = String(this.nombreSimulacion || '').trim().toLowerCase();
+        const jobId = this.jobIdActual;
+
+        const encontrada = proyecciones.some(p => {
+          const pNombre = String(p?.nombreSimulacion ?? p?.nombre ?? '').trim().toLowerCase();
+          const pJob = p?.jobId ?? p?.jobid ?? p?.job;
+          if (jobId && pJob && String(pJob) === String(jobId)) return true;
+          if (nombreLower && pNombre && pNombre === nombreLower) return true;
+          return false;
+        });
+
+        this.simulacionGuardada = Boolean(encontrada);
+      },
+      error: () => {
+        this.simulacionGuardada = false;
+      }
+    });
 
     // === Leer estado de navegación (toast + foco) si venimos del selector ===
     const nav = this.router.getCurrentNavigation();
@@ -361,13 +363,6 @@ export class SimulacionResultado implements OnInit {
     }
   }
 
-  obtenerMaterias(materias: Materia[]): Materia[] {
-    if (materias && materias.length > 0) {
-      return materias;
-    }
-    else { return [];}
-  }
-
   guardarSimulacion() {
     const simulacionDTO = this.simulacionService.crearSimulacionDTODesdeActual();
 
@@ -376,14 +371,22 @@ export class SimulacionResultado implements OnInit {
       return;
     }
 
-    this.simulacionService.postSimulacion(simulacionDTO).subscribe({
-      next: (respuesta) => {
-        console.log('Simulación guardada correctamente en la base de datos:', respuesta);
-        alert('Simulación guardada correctamente.');
+    this.simulacionService.guardarSimulacion(simulacionDTO, this.resultadoSimulacion).subscribe({
+      next: (exito) => {
+        if (exito === true) {
+          this.simulacionGuardada = true;
+          this.mostrarModalGuardar = true;
+        } else {
+          this.toast = { kind: 'error', text: 'No se pudo guardar la simulación.' };
+          this.showToast = true;
+          setTimeout(() => this.showToast = false, 4000);
+        }
       },
       error: (error) => {
         console.error('Error al guardar la simulación:', error);
-        alert('Ocurrió un error al guardar la simulación.');
+        this.toast = { kind: 'error', text: 'Ocurrió un error al guardar la simulación.' };
+        this.showToast = true;
+        setTimeout(() => this.showToast = false, 4000);
       }
     });
   }
