@@ -27,9 +27,17 @@ export class CalendarioService {
         finClases: '2025-11-29',
         recesos: [
           { inicio: '2025-09-15', fin: '2025-09-21', nombre: 'Semana de Reflexión' },
+          // { inicio: '2025-10-13', fin: '2025-10-17', nombre: 'Semana de Reflexión' },
         ]
       }
     }
+  };
+
+  // Semanas límite para retiro de materias por período
+  private semanasLimiteRetiro: { [key: string]: number } = {
+    '10': 14,  // Primer semestre: semana 14
+    '20': 8, // Intersemestral: semana 8
+    '30': 14 // Segundo semestre: semana 14
   };
 
   /* Obtiene la información de la semana académica */
@@ -84,13 +92,23 @@ export class CalendarioService {
     const numeroSemana = semanaCalculada - semanasRecesoAnteriores;
     const finClases = new Date(semestreConfig.finClases);
     let descripcion: string;
+    let esUltimaSemanaRetiro = false;
 
+    // Obtener el período del objeto periodo (último carácter)
+    const periodoNumero = periodo.split('-')[1];
+    const semanaLimite = this.semanasLimiteRetiro[periodoNumero] || 10;
 
     if (fecha <= finClases) {
-      descripcion = `Semana ${numeroSemana} académica`;
+      // Verificar si es la última semana para retirar materias
+      if (numeroSemana === semanaLimite) {
+        descripcion = `Semana ${numeroSemana} - Úlitma semana para retirar materias`;
+        esUltimaSemanaRetiro = true;
+      } else {
+        descripcion = `Semana ${numeroSemana} académica`;
+      }
     } else {
       descripcion = 'Periodo de vacaciones';
-    } 
+    }
 
     return {
       numero: numeroSemana,
@@ -98,7 +116,8 @@ export class CalendarioService {
       periodo,
       fechaInicio: this.obtenerInicioSemana(fecha),
       fechaFin: this.obtenerFinSemana(fecha),
-      esReceso: false
+      esReceso: false,
+      esUltimaSemanaRetiro
     };
   }
 
@@ -117,5 +136,26 @@ export class CalendarioService {
     const finSemana = new Date(inicioSemana);
     finSemana.setDate(finSemana.getDate() + 6);
     return finSemana;
+  }
+
+  /* Obtiene información de retiro para el período actual */
+  getInfoRetiroActual() {
+    const hoy = new Date();
+    const añoActual = hoy.getFullYear();
+
+    for (const [periodoKey, periodo] of Object.entries(this.calendarioAcademico.periodos)) {
+      const inicioClases = new Date(periodo.inicioClases);
+      const finClases = new Date(periodo.finClases);
+
+      if (hoy >= inicioClases && hoy <= finClases) {
+        const semanaLimite = this.semanasLimiteRetiro[periodoKey] || 10;
+        return {
+          semanaLimite,
+          periodo: `${añoActual}-${periodoKey}`
+        };
+      }
+    }
+
+    return null;
   }
 }

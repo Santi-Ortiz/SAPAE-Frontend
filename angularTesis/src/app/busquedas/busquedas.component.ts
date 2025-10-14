@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { RagApiService } from '../services/rag-api.service';
 
 @Component({
   selector: 'app-busquedas',
@@ -15,7 +16,7 @@ export class BusquedasComponent {
   respuesta: string = '';
   cargando: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private api: RagApiService) {}
 
   consultarIA() {
     if (!this.pregunta.trim()) return;
@@ -23,9 +24,7 @@ export class BusquedasComponent {
     this.cargando = true;
     this.respuesta = '';
 
-    const body = { question: this.pregunta };
-
-    this.http.post('http://localhost:8080/api/rag', body, { responseType: 'text' }).subscribe(
+    this.api.queryReglamento(this.pregunta).subscribe(
       (res) => {
         this.respuesta = res;
         this.cargando = false;

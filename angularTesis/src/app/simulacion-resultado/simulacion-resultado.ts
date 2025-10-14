@@ -33,7 +33,7 @@ export class SimulacionResultado implements OnInit {
     semestreMayorCarga: ''
   };
 
-  // === Toast ===
+  // Toast
   toast?: { kind: 'success'|'info'|'error', text: string };
   showToast = false;
 
@@ -47,12 +47,8 @@ export class SimulacionResultado implements OnInit {
     private historialSimulacionesService: HistorialSimulacionesService
   ) {}
 
-  // Función para ordenar semestres numéricamente
-  orderByNumericSemestre = (a: any, b: any) => {
-    const numA = parseInt(a.key, 10);
-    const numB = parseInt(b.key, 10);
-    return numA - numB;
-  }
+  // Ordenar semestres
+  orderByNumericSemestre = (a: any, b: any) => parseInt(a.key,10) - parseInt(b.key,10);
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
@@ -92,7 +88,7 @@ export class SimulacionResultado implements OnInit {
       }
     });
 
-    // === Leer estado de navegación (toast + foco) si venimos del selector ===
+    // Leer estado de navegación (toast + foco)
     const nav = this.router.getCurrentNavigation();
     const st = (nav?.extras?.state as any) || null;
     if (st?.toast) {
@@ -115,46 +111,49 @@ export class SimulacionResultado implements OnInit {
 
   /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
 
+  // ¿es la materia "Electiva CB Futura"?
+  private isElectivaCBFutura(materia: Materia): boolean {
+    return ((materia?.nombre || '').trim().toLowerCase() === 'electiva de ciencias básicas');
+  }
+
   public esReemplazable(materia: Materia): boolean {
+    if (this.isElectivaCBFutura(materia)) return true;
+
     const tipo = (materia?.tipo || '').toLowerCase();
     const codigo = String(materia?.codigo ?? '').trim();
 
-    // Bloqueo explícito: si es énfasis y el código es uno de los no cambiables ⇒ NO
     if ((tipo === 'enfasis' || tipo === 'énfasis') && this.ENFASIS_NO_CAMBIABLES.has(codigo)) {
       return false;
     }
 
-    // Reemplazables normales (placeholders u otras optativas)
     return (
       tipo === 'electiva' ||
       tipo === 'enfasis' || tipo === 'énfasis' ||
-      tipo === 'complementaria'
+      tipo === 'complementaria' ||
+      tipo === 'electivas_ciencias_basicas'
     );
   }
 
-  private mapTipoToQuery(tipoMateria: string): 'electivas' | 'énfasis' | 'complementarias' {
+  private mapTipoToQuery(tipoMateria: string): 'electivas' | 'énfasis' | 'complementarias' | 'electivas_ciencias_basicas' {
     const t = (tipoMateria || '').toLowerCase();
     if (t === 'electiva') return 'electivas';
     if (t === 'enfasis' || t === 'énfasis') return 'énfasis';
+    if (t === 'electivas_ciencias_basicas') return 'electivas_ciencias_basicas';
     return 'complementarias';
   }
 
   public irARecomendaciones(materia: Materia, semestreKey: string, index: number): void {
-    const tipoQuery = this.mapTipoToQuery(materia.tipo || '');
-    // Enviamos al componente selector (el que muestra el botón "Seleccionar")
+    const tipoQuery = this.isElectivaCBFutura(materia)
+      ? 'electivas_ciencias_basicas'
+      : this.mapTipoToQuery(materia.tipo || '');
+
     this.router.navigate(
       ['/recomendar-seleccion'],
-      {
-        queryParams: {
-          tipo: tipoQuery,
-          semestre: Number(semestreKey),
-          index
-        }
-      }
+      { queryParams: { tipo: tipoQuery, semestre: Number(semestreKey), index } }
     );
   }
 
-  /* ======= Utilidades ya existentes ======= */
+  /* ======= Utilidades ======= */
 
   public calcularCreditosFaltantesPorSemestre(semestreKey: string): number {
     let totalCursados = 0;
@@ -182,11 +181,7 @@ export class SimulacionResultado implements OnInit {
   public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number} {
     const totalCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
     const horasEstudio = (totalCreditos * 48 / 18 / 5);
-    return {
-      totalCreditos,
-      totalMaterias: materias.length,
-      horasEstudio: Number(horasEstudio.toFixed(2))
-    };
+    return { totalCreditos, totalMaterias: materias.length, horasEstudio: Number(horasEstudio.toFixed(2)) };
   }
 
   calcularEstadisticasGenerales(): void {
@@ -239,6 +234,7 @@ export class SimulacionResultado implements OnInit {
     'enfasis': 'Énfasis',
     'complementaria': 'Complementaria',
     'electiva': 'Electiva',
+    'electivas_ciencias_basicas': 'Electivas Ciencias Básicas',
     'practicaProfesional': 'Práctica Profesional'
   };
 
@@ -263,10 +259,7 @@ export class SimulacionResultado implements OnInit {
       return acc;
     }, {} as { [key: string]: number });
 
-    const dataParaGrafico = Object.entries(conteoPorTipo).map(([key, value]) => {
-      return { tipo: key, cantidad: value };
-    });
-
+    const dataParaGrafico = Object.entries(conteoPorTipo).map(([key, value]) => ({ tipo: key, cantidad: value }));
     if (dataParaGrafico.length === 0) return;
 
     const totalMaterias = d3.sum(dataParaGrafico, d => d.cantidad);
@@ -280,30 +273,19 @@ export class SimulacionResultado implements OnInit {
     const chartCenterX = radius;
     const chartCenterY = height / 2;
 
-    const svg = d3.select(chartId)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height);
-
-    const chartGroup = svg.append('g')
-      .attr('transform', `translate(${chartCenterX}, ${chartCenterY})`);
+    const svg = d3.select(chartId).append('svg').attr('width', width).attr('height', height);
+    const chartGroup = svg.append('g').attr('transform', `translate(${chartCenterX}, ${chartCenterY})`);
 
     const color = d3.scaleOrdinal<string>()
       .domain(dataParaGrafico.map(d => d.tipo))
       .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4"]);
 
-    const pie = d3.pie<{ tipo: string, cantidad: number }>()
-      .value(d => d.cantidad)
-      .sort(null);
-
-    const arc = d3.arc<d3.PieArcDatum<{ tipo: string, cantidad: number }>>()
-      .innerRadius(radius * 0.5)
-      .outerRadius(radius * 0.9);
+    const pie = d3.pie<{ tipo: string, cantidad: number }>().value(d => d.cantidad).sort(null);
+    const arc = d3.arc<d3.PieArcDatum<{ tipo: string, cantidad: number }>>().innerRadius(radius * 0.5).outerRadius(radius * 0.9);
 
     chartGroup.selectAll('path')
       .data(pie(dataParaGrafico))
-      .enter()
-      .append('path')
+      .enter().append('path')
       .attr('d', arc)
       .attr('fill', d => color(d.data.tipo))
       .attr('stroke', 'white')
@@ -311,8 +293,7 @@ export class SimulacionResultado implements OnInit {
 
     chartGroup.selectAll('text.percentage')
       .data(pie(dataParaGrafico))
-      .enter()
-      .append('text')
+      .enter().append('text')
       .attr('class', 'percentage')
       .text(d => (d.data.cantidad / totalMaterias * 100).toFixed(0) + '%')
       .attr('transform', d => `translate(${arc.centroid(d)})`)
@@ -321,30 +302,18 @@ export class SimulacionResultado implements OnInit {
       .style('font-weight', 'bold')
       .style('fill', 'white');
 
-    const legendGroup = svg.append('g')
-      .attr('class', 'legend-group')
-      .attr('transform', `translate(${radius * 2 + 40}, 40)`);
-
+    const legendGroup = svg.append('g').attr('class', 'legend-group').attr('transform', `translate(${radius * 2 + 40}, 40)`);
     const legendItems = legendGroup.selectAll('.legend-item')
       .data(dataParaGrafico)
-      .enter()
-      .append('g')
+      .enter().append('g')
       .attr('class', 'legend-item')
       .attr('transform', (_d, i) => `translate(0, ${i * 30})`);
 
-    legendItems.append('rect')
-      .attr('width', 20)
-      .attr('height', 20)
-      .attr('rx', 5)
-      .attr('fill', d => color(d.tipo));
-
+    legendItems.append('rect').attr('width', 20).attr('height', 20).attr('rx', 5).attr('fill', d => color(d.tipo));
     legendItems.append('text')
-      .attr('x', 28)
-      .attr('y', 10)
-      .attr('dy', '0.35em')
+      .attr('x', 28).attr('y', 10).attr('dy', '0.35em')
       .text(d => `${d.tipo} (${d.cantidad} materias)`)
-      .style('font-size', '14px')
-      .style('fill', '#333');
+      .style('font-size', '14px').style('fill', '#333');
   }
 
   public volverFormSimulacion(): void {
