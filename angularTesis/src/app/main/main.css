@@ -270,6 +270,58 @@ button:hover {
   transform: scale(1.03);
 }
 
+.last-report-section {
+  display: flex;
+  flex-direction: column; /* Apila los elementos verticalmente */
+  align-items: center;
+  justify-content: center;
+  background: #f9f9f9;
+  border: 2px dotted #00B4D8;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin: 0 auto 20px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.last-report-info {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 12px; /* Espacio entre el texto y el botón */
+}
+
+.last-report-btn {
+  background-color: #00B4D8; 
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.last-report-btn:hover {
+  background-color: #0077B6;
+  transform: scale(1.03);
+}
+
+.last-report-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.last-report-info {
+  font-size: 0.9rem;
+  color: #555;
+}
+
 /* Spinner */
 .spinner {
   border: 6px solid #caf0f8;

@@ -3,7 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { LecturaService } from '../services/lectura.service';
 import { HistorialService } from '../services/historial.service';
 import { Progreso } from '../models/progreso.model';
-import { NgIf, NgFor } from '@angular/common';
+import { NgIf, NgFor , DatePipe} from '@angular/common';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
   standalone: true,
   imports: [RouterModule, NgIf, NgFor],
   templateUrl: './main.html',
+  providers: [DatePipe],
   styleUrls: ['./main.css']
 })
 export class Main implements AfterViewInit, OnInit, OnDestroy {
@@ -19,7 +20,8 @@ export class Main implements AfterViewInit, OnInit, OnDestroy {
   mostrarMenu = false;
   cargando: boolean = false;
   isDragOver: boolean = false;
-
+  tieneInformeAnterior = false;
+  ultimoInforme?: { nombreArchivo: string; fecha: Date; archivo?: File };
   currentIndex: number = 0;
   canScrollLeft: boolean = true;
   canScrollRight: boolean = false;
@@ -32,7 +34,8 @@ export class Main implements AfterViewInit, OnInit, OnDestroy {
     private lecturaService: LecturaService,
     private historialService: HistorialService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private datePipe: DatePipe
   ) { }
 
   @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
@@ -94,6 +97,7 @@ export class Main implements AfterViewInit, OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initScrollSpy();
+    this.obtenerUltimoInforme();
   }
 
   ngAfterViewInit(): void {
@@ -172,6 +176,78 @@ export class Main implements AfterViewInit, OnInit, OnDestroy {
     } else {
       this.historial.error = 'Debe seleccionar un archivo PDF válido.';
     }
+  }
+
+  obtenerUltimoInforme(): void {
+  this.lecturaService.getUltimoInformeAvance().subscribe({
+    next: (data: any) => {
+      if (data && data.archivo) {
+        this.tieneInformeAnterior = true;
+
+        const nombre = data.nombreArchivo || 'informe-avance.pdf';
+        const fecha = new Date(data.fechaPublicacion || new Date());
+        const archivoRaw = data.archivo;
+        let file: File | undefined;
+
+        try {
+          // 1) Si el backend ya envía un File o Blob (browser-side)
+          if (archivoRaw instanceof File) {
+            file = archivoRaw as File;
+          } else if (archivoRaw instanceof Blob) {
+            file = new File([archivoRaw], nombre, { type: 'application/pdf' });
+          }
+          // 2) Si el backend envía un ArrayBuffer
+          else if (archivoRaw instanceof ArrayBuffer) {
+            file = new File([new Uint8Array(archivoRaw)], nombre, { type: 'application/pdf' });
+          }
+          // 3) Si el backend envía un arreglo de bytes (number[])
+          else if (Array.isArray(archivoRaw) && archivoRaw.every((b: any) => typeof b === 'number')) {
+            file = new File([new Uint8Array(archivoRaw)], nombre, { type: 'application/pdf' });
+          }
+          // 4) Si el backend envía una cadena base64
+          else if (typeof archivoRaw === 'string') {
+            // puede ser base64 puro o prefijado "data:application/pdf;base64,..."
+            const base64 = archivoRaw.includes('base64,') ? archivoRaw.split('base64,')[1] : archivoRaw;
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            file = new File([byteArray], nombre, { type: 'application/pdf' });
+          } else {
+            console.warn('Tipo de "archivo" desconocido:', archivoRaw);
+          }
+        } catch (err) {
+          console.error('Error al convertir archivo:', err);
+        }
+
+        this.ultimoInforme = {
+          nombreArchivo: nombre,
+          fecha,
+          archivo: file
+        };
+
+        // Si no pudimos reconstruir file, ocultar sección (opcional)
+        if (!file) {
+          this.tieneInformeAnterior = false;
+        }
+      } else {
+        this.tieneInformeAnterior = false;
+      }
+    },
+    error: (error) => {
+      console.warn('No hay informe previo o hubo un error:', error);
+      this.tieneInformeAnterior = false;
+    }
+  });
+  }
+
+  cargarUltimoInforme(): void {
+    if (!this.ultimoInforme?.archivo) return;
+
+    this.historial.archivoSeleccionado = this.ultimoInforme.archivo;
+    this.historial.error = '';
   }
 
   onSubmit(): void {

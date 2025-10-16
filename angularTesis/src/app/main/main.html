@@ -50,6 +50,19 @@
     historial de cursos registrados en el informe de avance a lo largo de tu programa académico.
   </p>
 
+   <!-- NUEVO BLOQUE: Botón para cargar último informe -->
+  <div class="last-report-section" *ngIf="tieneInformeAnterior">
+    <span class="last-report-info">
+      Último informe:
+      <strong>{{ ultimoInforme?.nombreArchivo }}</strong>
+    </span>
+    <button class="last-report-btn" (click)="cargarUltimoInforme()" [disabled]="cargando">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      Cargar último informe guardado
+    </button>
+  </div>
+
+
   <div class="modern-upload-wrapper">
     <div class="upload-area" [class.dragover]="isDragOver" [class.has-file]="historial.archivoSeleccionado"
       (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onFileDrop($event)"
