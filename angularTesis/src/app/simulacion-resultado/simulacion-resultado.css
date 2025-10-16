@@ -3,7 +3,10 @@
   box-sizing: border-box;
 }
 
-body {
+.simulacion-resultado-container {
+  width: 100%;
+  min-height: 100%;
+  padding: 20px;
   text-align: center;
   justify-content: center;
   align-items: center;
@@ -65,7 +68,7 @@ h1 {
   background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
   border: 1px solid #d6e6f3;
   border-radius: 12px;
-  box-shadow: 0 8px 18px rgba(0,119,182,0.08);
+  box-shadow: 0 8px 18px rgba(0, 119, 182, 0.08);
   text-align: left;
 }
 
@@ -103,7 +106,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 }
 
 .legend-icon.ok {
@@ -145,8 +148,7 @@ h1 {
   background: white;
   border-radius: 8px;
   padding: 5px;
-  margin: 30px;
-  margin-left: 115px;
+  margin: 30px auto;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
@@ -323,12 +325,12 @@ h1 {
 }
 
 .pie-chart-container text.percentage {
-  pointer-events: none; 
+  pointer-events: none;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .legend-group .legend-item {
-  cursor: default; 
+  cursor: default;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -346,21 +348,27 @@ h1 {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.nueva-simulacion:hover { background-color: #005f8a; }
+
+.nueva-simulacion:hover {
+  background-color: #005f8a;
+}
 
 .visualizar-simulacion {
   display: block;
   margin: 30px auto;
   padding: 12px 24px;
   font-size: 16px;
-  background-color:#0077B6;
+  background-color: #0077B6;
   border: none;
   color: white;
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.visualizar-simulacion:hover { background-color:#005f8a; }
+
+.visualizar-simulacion:hover {
+  background-color: #005f8a;
+}
 
 /* Botón guardar simulación */
 .guardar-simulacion {
@@ -447,10 +455,16 @@ h1 {
   background-color: #0077b6;
   color: white;
 }
-.btn-cerrar:hover { background-color: #005f8a; transform: translateY(-2px); }
+
+.btn-cerrar:hover {
+  background-color: #005f8a;
+  transform: translateY(-2px);
+}
 
 /* --- Columna y botones de Recomendación --- */
-.col-recom { width: 120px; }
+.col-recom {
+  width: 120px;
+}
 
 .btn-recom,
 .btn-bloqueado {
@@ -470,8 +484,14 @@ h1 {
   color: #fff;
   box-shadow: 0 4px 10px rgba(0, 180, 216, 0.25);
 }
-.btn-recom:hover { background: #00a3c4; }
-.btn-recom:active { transform: translateY(1px) scale(.98); }
+
+.btn-recom:hover {
+  background: #00a3c4;
+}
+
+.btn-recom:active {
+  transform: translateY(1px) scale(.98);
+}
 
 .btn-bloqueado {
   background: #e9ecef;
@@ -481,9 +501,17 @@ h1 {
 
 /* Toast flotante */
 @keyframes toastIn {
-  from { transform: translateY(-10px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
+
 .toast {
   position: fixed;
   right: 24px;
@@ -492,16 +520,44 @@ h1 {
   background: #eaf6ff;
   color: #0b3550;
   border-left: 4px solid #00B4D8;
-  box-shadow: 0 8px 24px rgba(0,119,182,0.15);
+  box-shadow: 0 8px 24px rgba(0, 119, 182, 0.15);
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 14px;
   animation: toastIn .2s ease-out;
 }
-.toast.success { border-left-color: #2ecc71; }
-.toast.info    { border-left-color: #00B4D8; }
-.toast.error   { border-left-color: #e74c3c; }
+
+.toast.success {
+  border-left-color: #2ecc71;
+}
+
+.toast.info {
+  border-left-color: #00B4D8;
+}
+
+.toast.error {
+  border-left-color: #e74c3c;
+}
 
 /* Animaciones modales */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideIn { from { transform: translateY(6px); opacity: .98; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(6px);
+    opacity: .98;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

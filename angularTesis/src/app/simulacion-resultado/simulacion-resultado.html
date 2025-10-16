@@ -1,9 +1,9 @@
-<body>
+<div class="simulacion-resultado-container">
   <h1>Simulación de Escenarios Académicos</h1>
 
   <!-- Toast de confirmación -->
-  <div *ngIf="showToast" class="toast" [class.success]="toast?.kind === 'success'"
-       [class.info]="toast?.kind === 'info'" [class.error]="toast?.kind === 'error'">
+  <div *ngIf="showToast" class="toast" [class.success]="toast?.kind === 'success'" [class.info]="toast?.kind === 'info'"
+    [class.error]="toast?.kind === 'error'">
     {{ toast?.text }}
   </div>
 
@@ -12,8 +12,10 @@
     <h3><span class="nombre">{{ nombreSimulacion }}</span></h3>
     <p>
       Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con
-      las materias para tu próximo semestre. Con esto podrás conocer qué materias cursar para avanzar de forma eficiente
-      y tomar decisiones informadas.
+      las materias para tus próximos semestres. Con esto podrás conocer qué materias cursar para avanzar de forma
+      eficiente
+      y tomar decisiones informadas. Puedes guardar esta simulación para futuras referencias o generar una nueva según
+      tus preferencias.
     </p>
 
     <!-- Leyenda de la columna Recomendación -->
@@ -26,25 +28,27 @@
         <div class="legend-item">
           <span class="legend-icon ok"><i class="fa-solid fa-check"></i></span>
           <span class="legend-text">
-            Botón <strong>azul</strong> con ✓: puedes abrir el módulo de recomendaciones y <strong>reemplazar</strong> esta materia.
+            Botón <strong>azul</strong> con ✓: puedes abrir el módulo de recomendaciones y <strong>reemplazar</strong>
+            esta materia.
           </span>
         </div>
         <div class="legend-item">
           <span class="legend-icon no"><i class="fa-solid fa-xmark"></i></span>
           <span class="legend-text">
-            Botón <strong>gris</strong> con ✕: esta materia <strong>no se puede reemplazar</strong> (no aplica o se encuentra bloqueada).
+            Botón <strong>gris</strong> con ✕: esta materia <strong>no se puede reemplazar</strong> (no aplica o se
+            encuentra bloqueada).
           </span>
         </div>
       </div>
     </div>
 
-    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de Estudios</button>
+    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de
+      Estudios</button>
   </section>
 
   <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
-    <div *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre"
-         class="resultado-semestre"
-         [attr.id]="'sem-' + semestre.key">
+    <div *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre" class="resultado-semestre"
+      [attr.id]="'sem-' + semestre.key">
       <h2>Semestre {{ semestre.key }}</h2>
 
       <table class="materias-table">
@@ -66,13 +70,9 @@
             <td>{{ materia.semestre }}</td>
             <td>{{ obtenerNombre(materia.tipo!) }}</td>
             <td class="col-recom">
-              <button
-                *ngIf="esReemplazable(materia); else bloqueado"
-                class="btn-recom"
-                title="Elegir desde Recomendaciones"
-                (click)="irARecomendaciones(materia, semestre.key, i)"
-                aria-label="Elegir recomendación"
-              >
+              <button *ngIf="esReemplazable(materia); else bloqueado" class="btn-recom"
+                title="Elegir desde Recomendaciones" (click)="irARecomendaciones(materia, semestre.key, i)"
+                aria-label="Elegir recomendación">
                 <i class="fa-solid fa-check"></i>
               </button>
               <ng-template #bloqueado>
@@ -164,7 +164,8 @@
   </section>
 
   <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
-  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar Simulación</button>
+  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar
+    Simulación</button>
 
   <!-- Modal de confirmación -->
   <div class="modal-backdrop" *ngIf="mostrarModalGuardar">
@@ -176,4 +177,4 @@
       </div>
     </div>
   </div>
-</body>
+</div>
