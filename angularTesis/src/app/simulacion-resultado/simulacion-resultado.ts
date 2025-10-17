@@ -19,12 +19,16 @@ import { Materia } from '../models/materia.model';
 export class SimulacionResultado implements OnInit {
 
   public resultadoSimulacion: { [semestre: string]: { materias: Materia[] } } = {};
-  public creditosFaltantesTotales:number = 0;
+  public creditosFaltantesTotales: number = 0;
   public nombreSimulacion: string = '';
   public jobIdActual: string | null = null;
   public simulacionGuardada: boolean = false;
   public mostrarModalGuardar: boolean = false;
   public materiasRenderizadas: { [semestre: string]: Materia[] } = {};
+
+  // Toggle de semestres
+  public semestreSeleccionado: string = '';
+  public indiceSemestreSeleccionado: number = 0;
 
   public estadisticasGenerales = {
     promedioMaterias: 0,
@@ -34,10 +38,10 @@ export class SimulacionResultado implements OnInit {
   };
 
   // Toast
-  toast?: { kind: 'success'|'info'|'error', text: string };
+  toast?: { kind: 'success' | 'info' | 'error', text: string };
   showToast = false;
 
-  private readonly ENFASIS_NO_CAMBIABLES = new Set(['31339','34814']);
+  private readonly ENFASIS_NO_CAMBIABLES = new Set(['31339', '34814']);
 
   constructor(
     private router: Router,
@@ -45,10 +49,29 @@ export class SimulacionResultado implements OnInit {
     private historialService: HistorialService,
     private viewportScroller: ViewportScroller,
     private historialSimulacionesService: HistorialSimulacionesService
-  ) {}
+  ) { }
 
   // Ordenar semestres
-  orderByNumericSemestre = (a: any, b: any) => parseInt(a.key,10) - parseInt(b.key,10);
+  orderByNumericSemestre = (a: any, b: any) => parseInt(a.key, 10) - parseInt(b.key, 10);
+
+  // Seleccionar y navegar a semestre específico
+  public seleccionarSemestre(semestreKey: string, index: number): void {
+    this.semestreSeleccionado = semestreKey;
+    this.indiceSemestreSeleccionado = index;
+    this.navegarASemestre(semestreKey);
+  }
+
+  // Navegación a semestre específico
+  public navegarASemestre(semestreKey: string): void {
+    const elemento = document.getElementById('sem-' + semestreKey);
+    if (elemento) {
+      elemento.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  }
 
   ngOnInit(): void {
     this.viewportScroller.scrollToPosition([0, 0]);
@@ -58,7 +81,7 @@ export class SimulacionResultado implements OnInit {
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
     this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
-    
+
     this.creditosFaltantesTotales = this.historialService.getHistorial()?.creditosFaltantes || 0;
     this.nombreSimulacion = this.simulacionService.getNombreSimulacionActual() || 'Simulación sin nombre';
     this.jobIdActual = this.simulacionService.getJobIdSimulacionActual();
@@ -103,11 +126,18 @@ export class SimulacionResultado implements OnInit {
       }, 0);
     }
 
+    // Inicializar semestre seleccionado (primer semestre)
+    const semestres = Object.keys(this.resultadoSimulacion).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+    if (semestres.length > 0) {
+      this.semestreSeleccionado = semestres[0];
+      this.indiceSemestreSeleccionado = 0;
+    }
+
     this.calcularEstadisticasGenerales();
     setTimeout(() => this.crearGraficos(), 0);
   }
 
-  
+
 
   /* ======= Enlace hacia el módulo de recomendaciones (selector) ======= */
 
@@ -169,7 +199,7 @@ export class SimulacionResultado implements OnInit {
 
     // console.log('Créditos en curso:', creditosEnCurso);
     // console.log('Tiene simulación:', tieneSimulacion);
-    
+
     if (tieneSimulacion) {
       return Math.max(this.creditosFaltantesTotales - creditosEnCurso - totalCursados, 0);
     } else {
@@ -178,7 +208,7 @@ export class SimulacionResultado implements OnInit {
 
   }
 
-  public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number} {
+  public calcularResumen(materias: Materia[]): { totalCreditos: number, totalMaterias: number, horasEstudio: number } {
     const totalCreditos = materias.reduce((sum, m) => sum + m.creditos, 0);
     const horasEstudio = (totalCreditos * 48 / 18 / 5);
     return { totalCreditos, totalMaterias: materias.length, horasEstudio: Number(horasEstudio.toFixed(2)) };
@@ -212,7 +242,7 @@ export class SimulacionResultado implements OnInit {
 
     // console.log('Créditos en curso:', creditosEnCurso);
     // console.log('Tiene simulación:', tieneSimulacion);
-    
+
     if (tieneSimulacion) {
       creditosFaltantes = Math.max(this.creditosFaltantesTotales - totalCreditos - creditosEnCurso, 0);
     } else {
@@ -278,7 +308,7 @@ export class SimulacionResultado implements OnInit {
 
     const color = d3.scaleOrdinal<string>()
       .domain(dataParaGrafico.map(d => d.tipo))
-      .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4"]);
+      .range(["#0077b6", "#00b4d8", "#90e0ef", "#caf0f8", "#ade8f4", "#005a8e", "#0096c7", "#48cae4", "#023e8a"]);
 
     const pie = d3.pie<{ tipo: string, cantidad: number }>().value(d => d.cantidad).sort(null);
     const arc = d3.arc<d3.PieArcDatum<{ tipo: string, cantidad: number }>>().innerRadius(radius * 0.5).outerRadius(radius * 0.9);

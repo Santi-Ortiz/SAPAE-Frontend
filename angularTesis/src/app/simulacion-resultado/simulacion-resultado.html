@@ -14,7 +14,8 @@
       Basado en tu progreso académico, preferencias y plan de estudios, te mostramos una simulación personalizada con
       las materias para tus próximos semestres. Con esto podrás conocer qué materias cursar para avanzar de forma
       eficiente
-      y tomar decisiones informadas. Puedes guardar esta simulación para futuras referencias o generar una nueva según
+      y tomar decisiones informadas. Puedes guardar esta simulación en la sección final de la página para futuras
+      referencias o generar una nueva según
       tus preferencias.
     </p>
 
@@ -42,8 +43,23 @@
       </div>
     </div>
 
-    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Visualizar Simulación en Plan de
+    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Simulación en Plan de
       Estudios</button>
+
+    <!-- Barra de navegación entre semestres -->
+    <div *ngIf="resultadoSimulacion && (resultadoSimulacion | keyvalue).length > 1" class="semestres-navigation">
+      <div class="nav-title">
+        <!-- <i class="fa-solid fa-compass"></i> -->
+        <span>Navegar por Semestres</span>
+      </div>
+      <div class="nav-buttons">
+        <button *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre" class="nav-semestre-btn"
+          (click)="navegarASemestre(semestre.key)" [attr.aria-label]="'Ir a Semestre ' + semestre.key">
+          <!-- <i class="fa-solid fa-calendar-days"></i> -->
+          <span>Semestre  {{ semestre.key }}</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <section *ngIf="resultadoSimulacion" class="simulacion-resultados">
