@@ -26,7 +26,8 @@
 
     <div class="contenedor-leyenda">
       <div class="leyenda-colores">
-        <div class="item"><span class="color perdida"></span> Materia Perdida</div>
+        <div class="item" *ngIf="vistaHistorico"><span class="color perdida"></span> Materia Perdida</div>
+        <div class="item" *ngIf="!vistaHistorico"><span class="color repetida"></span> Materia Repetida</div>
         <div class="item"><span class="color bloqueada"></span> Materia Cursada</div>
         <div class="item"><span class="color actual"></span> Materia Actual</div>
         <div class="item"><span class="color faltante"></span> Materia Faltante</div>

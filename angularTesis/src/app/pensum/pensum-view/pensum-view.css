@@ -97,8 +97,8 @@ p {
 }
 
 .caja.repetida {
-  border: 1px solid #00B4D8;
-  background-color: #CAF0F8;
+  border: 1px solid #d86100;
+  background-color: #ffd9ba;
   position: relative;
 }
 
@@ -314,6 +314,11 @@ p {
 .color.perdida {
   border: 1px solid #d80000;
   background-color: #f8caca;
+}
+
+.color.repetida {
+  border: 1px solid #d86100;
+  background-color: #ffd9ba;
 }
 
 .color.actual {
