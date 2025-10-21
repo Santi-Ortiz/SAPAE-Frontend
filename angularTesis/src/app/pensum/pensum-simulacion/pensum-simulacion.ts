@@ -20,6 +20,7 @@ import { PensumService } from '../../services/pensum.service';
 import { SimulacionService } from '../../services/simulacion.service';
 import { HistorialService } from '../../services/historial.service';
 import * as d3 from 'd3';
+import { MateriaService } from '../../services/materia.service';
 
 type GrupoMaterias = {
   key: string;
@@ -55,6 +56,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private simulacionService: SimulacionService,
     private pensumService: PensumService,
+    private materiaService: MateriaService,
     private historialService: HistorialService,
     private zone: NgZone,
     private cdr: ChangeDetectorRef
@@ -62,31 +64,38 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.progreso = this.historialService.getHistorial()!;
+    console.log("Progreso:", this.progreso);
 
-    this.subscriptions.push(
-      this.pensumService.obtenerPensum().pipe(
-        catchError(err => {
-          console.error('Error cargando pensum', err);
-          return of([] as PensumDTO[]);
-        })
-      ).subscribe(pensum => {
-        this.allPensum = pensum;
+    this.pensumService.obtenerPensum().pipe(
+      catchError(err => {
+        console.error('Error cargando pensum', err);
+        return of([] as PensumDTO[]);
+      })
+    ).subscribe(pensum => {
+      this.allPensum = pensum;
+      this.requisitosMap.clear();
 
-        this.requisitosMap.clear();
-        for (const m of this.allPensum) {
-          let req: string[] = [];
-          try {
-            const r = (m.requisitos?.length ? m.requisitos : JSON.parse(m.requisitosJson || '[]')) as (string | number)[];
-            req = r.map(String);
-          } catch {
-            req = [];
-          }
-          this.requisitosMap.set(String(m.codigo), req);
+      // Cargar requisitos desde la BD
+      this.allPensum.forEach(materia => {
+        if (materia.codigo) {
+          this.materiaService.getRequisitosDeMateria(materia.codigo).subscribe({
+            next: (requisitos: string[]) => {
+              // requisitos ya son códigos string
+              const codigos = requisitos.map(cod => String(cod));
+              this.requisitosMap.set(String(materia.codigo), codigos);
+              console.log(`Requisitos cargados para ${materia.codigo}:`, codigos);
+            },
+            error: (err) => {
+              console.error(`Error obteniendo requisitos de ${materia.codigo}:`, err);
+              this.requisitosMap.set(String(materia.codigo), []); // si falla, dejar vacío
+            }
+          });
         }
+      });
 
-        // Materias simuladas
-        this.subscriptions.push(
-          this.simulacionService.materiasSimuladasPorKey$.subscribe(grupos => {
+      // Procesar progreso del estudiante
+      if (this.progreso) {
+        this.simulacionService.materiasSimuladasPorKey$.subscribe(grupos => {
             if (grupos && Object.keys(grupos).length > 0) {
               this.soloMaterias = this.progreso?.materias ?? [];
               this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
@@ -105,11 +114,11 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
               this.materiasAgrupadas = [];
               this.cdr.detectChanges();
             }
-          })
-        );
-      })
-    );
-    this.resetearSeleccion();
+        })
+      }
+
+      this.resetearSeleccion();
+    });
   }
 
   getCodigo(m: Materia | MateriaDTO): string {
@@ -599,13 +608,28 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
     this.llegadasGlobal.clear();
     this.salidasGlobal.clear();
   
-    this.materiasSimuladas.forEach(materia => {
+    /*this.materiasSimuladas.forEach(materia => {
       const requisitos: string[] = materia.requisitos ?? [];
       const codigoDestino = String(materia.codigo).padStart(6, "0").trim();
   
       requisitos.forEach(req => {
         const reqCode = String(req).padStart(6, "0").trim();
   
+        if (!this.salidasGlobal.has(reqCode)) this.salidasGlobal.set(reqCode, []);
+        this.salidasGlobal.get(reqCode)!.push(codigoDestino);
+  
+        if (!this.llegadasGlobal.has(codigoDestino)) this.llegadasGlobal.set(codigoDestino, []);
+        this.llegadasGlobal.get(codigoDestino)!.push(reqCode);
+      });
+    });*/
+
+    this.requisitosMap.forEach((requisitos: string[], simulada: string) => {
+      const codigoDestino = String(simulada).padStart(6, "0").trim();
+
+      requisitos.forEach((requisitoCodigo: string) => {
+        const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
+
+        // relación requisito → faltante
         if (!this.salidasGlobal.has(reqCode)) this.salidasGlobal.set(reqCode, []);
         this.salidasGlobal.get(reqCode)!.push(codigoDestino);
   

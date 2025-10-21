@@ -32,4 +32,9 @@ export class MateriaService {
   deleteMateria(id: number) {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  getRequisitosDeMateria(codigo: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/codigo/${codigo}/requisitos`);
+  }
+
 }
