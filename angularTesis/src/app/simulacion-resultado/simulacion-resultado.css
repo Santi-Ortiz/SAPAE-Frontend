@@ -120,6 +120,28 @@ h1 {
   color: #0b3550;
 }
 
+/* ===== Leyenda con el mismo ancho de la tabla ===== */
+.legend-wrapper {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.resultado-semestre .legend-recom.legend-inline {
+  width: 100%;
+  margin: 10px auto 18px auto;
+  padding: 18px 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+  border: 1px solid #d6e6f3;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 119, 182, 0.08);
+  text-align: left;
+  transition: box-shadow 0.3s ease;
+}
+
+.resultado-semestre .legend-recom.legend-inline:hover {
+  box-shadow: 0 6px 18px rgba(0, 119, 182, 0.12);
+}
+
 /*--- RESULTADOS DE SIMULACIÓN ---*/
 
 .simulacion-resultados {
