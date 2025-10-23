@@ -21,10 +21,17 @@ export class Progreso {
   listaMateriasFaltantes?: Materia[] = [];
   archivoSeleccionado?: File;
   error?: string;
+
+  // ======== Tablas de Cursos ========
   cursosElectivas: MateriaDTO[] = [];
   cursosEnfasis: MateriaDTO[] = [];
   cursosComplementariaLenguas: MateriaDTO[] = [];
   cursosComplementariaInformacion: MateriaDTO[] = [];
+
+  // 🆕 Nuevos campos añadidos:
+  cursosComplementariaEstetica: MateriaDTO[] = [];
+  cursosComplementariaCienciaPolitica: MateriaDTO[] = [];
+
   cursosIA: MateriaDTO[] = [];
   cursosDesarrolloComputacion: MateriaDTO[] = [];
   cursosDesarrolloGestion: MateriaDTO[] = [];
@@ -38,10 +45,16 @@ export class Progreso {
   constructor() {
     this.materias = this.materias || [];
     this.listaMateriasFaltantes = this.listaMateriasFaltantes || [];
+
     this.cursosElectivas = this.cursosElectivas || [];
     this.cursosEnfasis = this.cursosEnfasis || [];
     this.cursosComplementariaLenguas = this.cursosComplementariaLenguas || [];
     this.cursosComplementariaInformacion = this.cursosComplementariaInformacion || [];
+
+    // Inicialización de nuevos campos
+    this.cursosComplementariaEstetica = this.cursosComplementariaEstetica || [];
+    this.cursosComplementariaCienciaPolitica = this.cursosComplementariaCienciaPolitica || [];
+
     this.cursosIA = this.cursosIA || [];
     this.cursosDesarrolloComputacion = this.cursosDesarrolloComputacion || [];
     this.cursosDesarrolloGestion = this.cursosDesarrolloGestion || [];

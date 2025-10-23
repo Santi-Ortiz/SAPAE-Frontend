@@ -28,6 +28,8 @@ export class Historial implements OnInit, AfterViewInit {
         { titulo: 'Énfasis', lista: this.historial.cursosEnfasis },
         { titulo: 'Complementaria Lenguas', lista: this.historial.cursosComplementariaLenguas },
         { titulo: 'Complementaria Información', lista: this.historial.cursosComplementariaInformacion },
+        { titulo: 'Complementaria Ciencia Política', lista: this.historial.cursosComplementariaCienciaPolitica },
+        { titulo: 'Complementaria Estética', lista: this.historial.cursosComplementariaEstetica },
         { titulo: 'Énfasis validado como Complementaria (IA)', lista: this.historial.cursosIA },
         { titulo: 'Énfasis Computación', lista: this.historial.cursosDesarrolloComputacion },
         { titulo: 'Énfasis Gestión', lista: this.historial.cursosDesarrolloGestion },
