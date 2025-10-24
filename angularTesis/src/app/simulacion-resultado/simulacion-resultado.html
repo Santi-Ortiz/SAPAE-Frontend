@@ -19,29 +19,7 @@
       tus preferencias.
     </p>
 
-    <!-- Leyenda de la columna Recomendación -->
-    <div class="legend-recom">
-      <div class="legend-title">
-        <i class="fa-solid fa-circle-info"></i>
-        <span>Guía de la columna <strong>Recomendación</strong></span>
-      </div>
-      <div class="legend-items">
-        <div class="legend-item">
-          <span class="legend-icon ok"><i class="fa-solid fa-check"></i></span>
-          <span class="legend-text">
-            Botón <strong>azul</strong> con ✓: puedes abrir el módulo de recomendaciones y <strong>reemplazar</strong>
-            esta materia.
-          </span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-icon no"><i class="fa-solid fa-xmark"></i></span>
-          <span class="legend-text">
-            Botón <strong>gris</strong> con ✕: esta materia <strong>no se puede reemplazar</strong> (no aplica o se
-            encuentra bloqueada).
-          </span>
-        </div>
-      </div>
-    </div>
+    <!-- Leyenda removida de aquí -->
 
     <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Simulación en Plan de
       Estudios</button>
@@ -66,6 +44,30 @@
     <div *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre" class="resultado-semestre"
       [attr.id]="'sem-' + semestre.key">
       <h2>Semestre {{ semestre.key }}</h2>
+
+      <!-- Leyenda (del mismo ancho que la tabla) -->
+      <div class="legend-wrapper">
+        <div class="legend-recom legend-inline">
+          <div class="legend-title">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Guía de la columna <strong>Recomendación</strong></span>
+          </div>
+          <div class="legend-items">
+            <div class="legend-item">
+              <span class="legend-icon ok"><i class="fa-solid fa-check"></i></span>
+              <span class="legend-text">
+                Botón <strong>azul</strong> con ✓: puedes abrir el módulo de recomendaciones y <strong>reemplazar</strong> esta materia.
+              </span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-icon no"><i class="fa-solid fa-xmark"></i></span>
+              <span class="legend-text">
+                Botón <strong>gris</strong> con ✕: esta materia <strong>no se puede reemplazar</strong> (no aplica o se encuentra bloqueada).
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <table class="materias-table">
         <thead>
