@@ -100,8 +100,8 @@ h1 {
 }
 
 .legend-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
@@ -119,7 +119,19 @@ h1 {
   color: #8a8a8a;
 }
 
+.legend-icon.important {
+  margin-top: 10px;
+  width: 40px;
+  background: #e9e03c;
+  color: #8a8a8a;
+}
+
 .legend-text strong {
+  color: #0b3550;
+}
+
+.legend-text.important {
+  margin-top: 10px;
   color: #0b3550;
 }
 

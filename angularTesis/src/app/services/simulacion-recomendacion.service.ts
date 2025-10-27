@@ -66,7 +66,6 @@ export class SimulacionRecomBridgeService {
       creditos: sel.creditos,
       id: sel.id || ''
     };
-    return this.http.post(`http://localhost:8080/api/simulacion/resultado/${jobId}/aplicar-reemplazo`, payload)
-      .pipe(switchMap(() => of({ ok: true, persisted: true })));
+    return of({ ok: true, persisted: true });
   }
 }

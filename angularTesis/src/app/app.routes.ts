@@ -29,6 +29,7 @@ export const routes: Routes = [
     { path: 'historial-simulaciones', component: HistorialSimulacionesComponent, canActivate: [AuthGuard] },
     { path: 'busquedas', component: BusquedasComponent, canActivate: [AuthGuard] },
     { path: 'recomendaciones', component: RecomendacionesComponent, canActivate: [AuthGuard] },
+    { path: 'recomendar-seleccion', component: RecomendacionesSelectorComponent, canActivate: [AuthGuard] },
     { path: 'main', component: Main, canActivate: [AuthGuard] },
     { path: 'login', component: Login },
     { path: 'registro', component: Registro },

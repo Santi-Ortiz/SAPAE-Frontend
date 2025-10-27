@@ -123,8 +123,8 @@ export class RecomendacionesSelectorComponent implements OnInit {
       }
     };
 
-    this.router.navigate(['/simulacion/mostrar'], navState).catch(() => {
-      window.location.href = '/simulacion/mostrar';
+    this.router.navigate(['/simulaciones/mostrar'], navState).catch(() => {
+      window.location.href = '/simulaciones/mostrar';
     });
   }
 }
