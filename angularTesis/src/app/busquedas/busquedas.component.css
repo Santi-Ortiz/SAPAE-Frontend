@@ -1,5 +1,4 @@
 .busquedas-container {
-  padding: 60px 30px;
   background-color: white;
   max-width: 800px;
   margin: 0 auto;
@@ -16,7 +15,7 @@
 .descripcion-seccion {
   font-size: 18px;
   text-align: center;
-  color: #444;
+  color: #6c757d;
   margin-bottom: 30px;
   line-height: 1.6;
 }

@@ -38,15 +38,15 @@
       <div class="form-grid">
         <div class="form-block">
           <div class="form-block-subtitle">Configuración General</div>
-
+          <small style="color: gray;">* Campos Obligatorios</small>
           <div class="form-group">
-            <label for="semestreInput">Cantidad de Semestres a Simular</label>
-            <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput" min="1" />
+            <label for="semestreInput">Cantidad de Semestres a Simular*</label>
+            <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput" (input)="ajustarNumeroSemestresSimulados()" min="10" />
             <small style="color: gray;">Se simularán {{ semestreInput }} semestres hacia adelante</small>
           </div>
         
           <div class="form-group">
-            <label for="tipoMatricula">Tipo de Matrícula</label>
+            <label for="tipoMatricula">Tipo de Matrícula*</label>
             <select id="tipoMatricula" name="tipoMatricula" [(ngModel)]="tipoMatricula" (change)="ajustarCreditos()">
               <option value="Media Matrícula">Media Matrícula</option>
               <option value="Matrícula completa">Matrícula completa</option>
@@ -62,15 +62,16 @@
 
         <div class="form-block">
           <div class="form-block-subtitle">Configuración por Semestre</div>
+          <small style="color: gray;">* Campos Obligatorios</small>
           <div class="form-group">
-            <label for="creditosInput">Cantidad Máxima de Créditos a Inscribir</label>
+            <label for="creditosInput">Cantidad Máxima de Créditos a Inscribir*</label>
             <input type="number" id="creditosInput" name="creditosInput" [(ngModel)]="creditosInput"
               [attr.max]="maxCreditos" (input)="ajustarCreditos()" min="1" />
             <small style="color: gray;">Máximo según tipo de matrícula: {{ maxCreditos }} créditos</small>
           </div>
 
           <div class="form-group">
-            <label for="materiasInput">Cantidad Máxima de Materias a Inscribir</label>
+            <label for="materiasInput">Cantidad Máxima de Materias a Inscribir*</label>
             <input type="number" id="materiasInput" name="materiasInput" [(ngModel)]="materiasInput" [attr.max]="maxMaterias" (input)="ajustarMaterias()" min="1" />
             <small style="color: gray;">Límite máximo: {{ maxMaterias }} materias</small>
           </div>
@@ -189,7 +190,7 @@
 
   <div class="modal-backdrop" *ngIf="camposIncompletos">
     <div class="modal-custom">
-      <h3>Campos incompletos</h3>
+      <h3>Campos Incompletos</h3>
       <p>Completa todos los campos de 'Nombre de Simulación' y 'Preferencias Académicas' antes de generar la simulación</p>
       <button (click)="camposIncompletos = false">Cerrar</button>
     </div>
@@ -197,7 +198,7 @@
 
   <div class="modal-backdrop" *ngIf="nombreDuplicadoModal">
     <div class="modal-custom">
-      <h3>Nombre duplicado</h3>
+      <h3>Nombre Duplicado</h3>
       <p>Ya tienes una simulación guardada con el nombre "{{ nombreSimulacion }}". Por favor, elige un nombre diferente para continuar.</p>
       <button (click)="nombreDuplicadoModal = false">Cerrar</button>
     </div>

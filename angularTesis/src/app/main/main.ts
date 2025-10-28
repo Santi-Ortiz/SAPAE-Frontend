@@ -158,11 +158,11 @@ export class Main implements AfterViewInit, OnInit, OnDestroy {
       description: 'Personaliza tu ruta académica según tus metas profesionales y preferencias.'
     },
     {
-      title: 'Prevenirás retrasos',
+      title: 'Evita retrasos innecesarios',
       description: 'Identifica posibles obstáculos y toma medidas preventivas a tiempo.'
     },
     {
-      title: 'Tomarás decisiones académicas con información confiable',
+      title: 'Toma decisiones académicas con información confiable',
       description: 'Recibe recomendaciones basadas en datos y estadísticas académicas.'
     }
   ];

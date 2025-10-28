@@ -43,6 +43,7 @@ export class SimulacionComponent implements OnInit {
 
   public readonly maxSelecciones = 3;
   public readonly maxMaterias = 10;
+  public readonly maxSemestres = 10;
   public camposIncompletos = false;
   public mostrarMensajeError = false;
   public nombreDuplicado = false;
@@ -71,10 +72,15 @@ export class SimulacionComponent implements OnInit {
   }
 
   generarSimulacion() {
-  if (!this.semestreInput || !this.creditosInput || !this.materiasInput || !this.nombreSimulacion) {
-    this.camposIncompletos = true;
-    return;
-  }
+    if (!this.semestreInput || !this.creditosInput || !this.materiasInput || !this.nombreSimulacion) {
+      this.camposIncompletos = true;
+      return;
+    }
+
+    if(this.nombreDuplicado) {
+      this.nombreDuplicadoModal = true;
+      return;
+    }
 
     // Verificar si el progreso está completado (excepto si eligió práctica profesional)
     if (this.verificarProgresoCompletado() && !this.practicaProfesional) {
@@ -165,6 +171,12 @@ export class SimulacionComponent implements OnInit {
   ajustarMaterias() {
     if(this.materiasInput && this.materiasInput > this.maxMaterias) {
       this.materiasInput = this.maxMaterias;
+    }
+  }
+
+  ajustarNumeroSemestresSimulados() {
+    if(this.semestreInput && this.semestreInput > this.maxSemestres) {
+      this.semestreInput = this.maxSemestres;
     }
   }
 

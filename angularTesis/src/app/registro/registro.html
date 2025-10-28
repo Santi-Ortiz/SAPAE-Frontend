@@ -28,52 +28,28 @@
 
     <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
       <label>Primer nombre*</label>
-      <input
-        type="text"
-        name="primerNombre"
-        formControlName="primerNombre"
-        [class.input-error]="getErrorMessage('primerNombre')"
-        class="input-estilizado"
-        placeholder="Ingrese su primer nombre"
-        required
-      />
+      <input type="text" name="primerNombre" formControlName="primerNombre"
+        [class.input-error]="getErrorMessage('primerNombre')" class="input-estilizado"
+        placeholder="Ingrese su primer nombre" required />
       <small *ngIf="getErrorMessage('primerNombre')" class="mensaje-error">
         {{ getErrorMessage('primerNombre') }}
       </small>
 
       <label>Segundo nombre (Opcional)</label>
-      <input
-        type="text"
-        name="segundoNombre"
-        formControlName="segundoNombre"
-        class="input-estilizado"
-        placeholder="Ingrese su segundo nombre"
-      />
+      <input type="text" name="segundoNombre" formControlName="segundoNombre" class="input-estilizado"
+        placeholder="Ingrese su segundo nombre" />
 
       <label>Primer apellido*</label>
-      <input
-        type="text"
-        name="primerApellido"
-        formControlName="primerApellido"
-        [class.input-error]="getErrorMessage('primerApellido')"
-        class="input-estilizado"
-        placeholder="Ingrese su primer apellido"
-        required
-      />
+      <input type="text" name="primerApellido" formControlName="primerApellido"
+        [class.input-error]="getErrorMessage('primerApellido')" class="input-estilizado"
+        placeholder="Ingrese su primer apellido" required />
       <small *ngIf="getErrorMessage('primerApellido')" class="mensaje-error">
         {{ getErrorMessage('primerApellido') }}
       </small>
 
       <label>Segundo apellido*</label>
-      <input
-        type="text"
-        name="segundoApellido"
-        formControlName="segundoApellido"
-        class="input-estilizado"
-        placeholder="Ingrese su segundo apellido"
-        [class.input-error]="getErrorMessage('segundoApellido')"
-        required
-      />
+      <input type="text" name="segundoApellido" formControlName="segundoApellido" class="input-estilizado"
+        placeholder="Ingrese su segundo apellido" [class.input-error]="getErrorMessage('segundoApellido')" required />
       <small *ngIf="getErrorMessage('segundoApellido')" class="mensaje-error">
         {{ getErrorMessage('segundoApellido') }}
       </small>
@@ -105,15 +81,8 @@
       </small>
 
       <label>Correo electrónico institucional*</label>
-      <input
-        type="email"
-        name="correo"
-        formControlName="correo"
-        class="input-estilizado"
-        placeholder="ejemplo@javeriana.edu.co"
-        [class.input-error]="getErrorMessage('correo')"
-        required
-      />
+      <input type="email" name="correo" formControlName="correo" class="input-estilizado"
+        placeholder="ejemplo@javeriana.edu.co" [class.input-error]="getErrorMessage('correo')" required />
       <small *ngIf="getErrorMessage('correo')" class="mensaje-error">
         {{ getErrorMessage('correo') }}
       </small>
@@ -121,19 +90,10 @@
       <label>Contraseña*</label>
       <div class="grupo-input">
         <i class="fa-solid fa-lock icono"></i>
-        <input
-          [type]="mostrarLaContrasena ? 'text' : 'password'"
-          name="clave"
-          formControlName="contrasenia"
-          class="input-estilizado"
-          placeholder="Ingrese al menos 8 caracteres"
-        />
-        <i
-          class="fa-solid icono icono-ojo"
-          [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
-          (click)="mostrarContrasena()"
-          title="Mostrar/Ocultar contraseña"
-        ></i>
+        <input [type]="mostrarLaContrasena ? 'text' : 'password'" name="clave" formControlName="contrasenia"
+          class="input-estilizado" placeholder="Ingrese al menos 8 caracteres" />
+        <i class="fa-solid icono icono-ojo" [ngClass]="mostrarLaContrasena ? 'fa-eye' : 'fa-eye-slash'"
+          (click)="mostrarContrasena()" title="Mostrar/Ocultar contraseña"></i>
       </div>
       <small *ngIf="getErrorMessage('contrasenia')" class="mensaje-error">
         {{ getErrorMessage('contrasenia') }}
@@ -171,5 +131,22 @@
         </button>
       </p>
     </form>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="mostrarModalError">
+    <div class="modal-error">
+      <div class="modal-header-error">
+        <i class="fa-solid fa-circle-exclamation icono-error"></i>
+        <h3>{{ tituloModalError }}</h3>
+      </div>
+      <div class="modal-body-error">
+        <p>{{ mensajeModalError }}</p>
+      </div>
+      <div class="modal-footer-error">
+        <button class="btn-cerrar-modal" (click)="cerrarModal()">
+          Entendido
+        </button>
+      </div>
+    </div>
   </div>
 </div>
