@@ -26,7 +26,7 @@ export class Historial implements OnInit, AfterViewInit {
       this.tablasExtra = [
         { titulo: 'Electivas Universidad', lista: this.historial.cursosElectivas },
         { titulo: 'Énfasis', lista: this.historial.cursosEnfasis },
-        { titulo: 'Complementaria Lenguas', lista: this.historial.cursosComplementariaLenguas },
+        { titulo: 'Complementarias', lista: this.historial.cursosComplementariaLenguas },
         { titulo: 'Complementaria Información', lista: this.historial.cursosComplementariaInformacion },
         { titulo: 'Complementaria Ciencia Política', lista: this.historial.cursosComplementariaCienciaPolitica },
         { titulo: 'Complementaria Estética', lista: this.historial.cursosComplementariaEstetica },
