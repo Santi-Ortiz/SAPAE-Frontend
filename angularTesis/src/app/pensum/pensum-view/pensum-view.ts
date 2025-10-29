@@ -83,10 +83,10 @@ export class PensumView implements OnInit, AfterViewInit {
       if (this.progreso) {
         this.soloMaterias = this.progreso.materias ?? [];
         this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
+        const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
         if (this.vistaHistorico) {
-          this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, this.allPensum);
+          this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, pensumReemplazado);
         } else {
-          const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
           this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
         }        
         this.cdr.detectChanges();
@@ -145,6 +145,7 @@ export class PensumView implements OnInit, AfterViewInit {
       }
     }
   
+    
     // último semestre cursado
     const ultimoSemestre = Math.max(...Array.from(cicloToSemestre.values()));
   
@@ -164,7 +165,10 @@ export class PensumView implements OnInit, AfterViewInit {
         if (!isNaN(califNum) && califNum < 3) {
           clase = "perdida";
         } else if (semestre === ultimoSemestre) {
+          if(m.calif === 'SIN CALIFICACIÓN')
           clase = "actual";
+          else
+          clase = "bloqueada";
         }
   
         // incluir solo materias con créditos válidos (>0)
@@ -199,7 +203,7 @@ export class PensumView implements OnInit, AfterViewInit {
       todas.filter(m => m.calif !== 'SIN CALIFICACIÓN').map(m => m.codigo)
     );
   
-    // 🧮 Contar cuántas veces se cursó cada materia
+    // Contar cuántas veces se cursó cada materia
     const contadorRepeticiones = new Map<string, number>();
     for (const m of todas) {
       const codigo = m.codigo;
@@ -233,16 +237,14 @@ export class PensumView implements OnInit, AfterViewInit {
         }
       }
   
-      // ✅ Guardamos la etiqueta como un atributo data-* para el HTML
+      // Guardamos la etiqueta como un atributo data-* para el HTML
       const item: PensumItem = { ...m, cssClass: clase };
       (item as any).dataEtiqueta = etiqueta;
   
       semestreMap.get(m.semestre)!.push(item);
     });
   
-    // 🔗 Asegurar que las relaciones (requisitos) sigan mostrándose
-    // Si tienes un método que dibuja las líneas, aquí se conserva la estructura base.
-    // (Generalmente el dibujo ocurre después en la vista, no en este método)
+    // Asegurar que las relaciones (requisitos) sigan mostrándose
   
     return Array.from(semestreMap.entries())
       .sort(([a], [b]) => a - b)
@@ -250,93 +252,82 @@ export class PensumView implements OnInit, AfterViewInit {
         semestre,
         materias: materias.map(m => ({
           ...m,
-          requisitos: m.requisitos ?? [] // 👈 mantiene los requisitos del pensum
+          requisitos: m.requisitos ?? [] // mantiene los requisitos del pensum
         }))
       }));
   }
-  
-  
-  
-   
-  agruparMateriasFaltantes(progreso: any,pensum: PensumDTO[]): { semestre: number; materias: PensumItem[] }[] {
+
+  agruparMateriasFaltantes(progreso: Progreso, pensum: PensumDTO[]): { semestre: number; materias: PensumItem[] }[] {
     if (!progreso || !pensum || pensum.length === 0) return [];
   
     const semestreActual: number = progreso.semestre ?? 0;
     const proximoSemestre = semestreActual + 1;
   
-    // Conjunto de códigos ya cursados (en tu código usas m.curso como código)
-    const materiasCursadasCodigos = new Set<string>(
-      (progreso.materias ?? []).map((m: any) => String(m.curso))
+    // Normalizar todos los códigos del progreso
+    const todas = (progreso?.materias ?? []).map(m => ({
+      codigo: this.normCodigo(m.curso),
+      calif: m.calif
+    }));
+  
+    const cursandoSet = new Set(
+      todas.filter(m => m.calif === 'SIN CALIFICACIÓN').map(m => m.codigo)
     );
   
+    const cursadasSet = new Set(
+      todas.filter(m => m.calif !== 'SIN CALIFICACIÓN').map(m => m.codigo)
+    );
+  
+    // Identificar materias faltantes del pensum
+    const materiasFaltantes: PensumDTO[] = pensum.filter(m => {
+      const codigoNorm = this.normCodigo(m.codigo);
+      // Una materia es faltante si NO está cursando y NO está cursada
+      return !cursandoSet.has(codigoNorm) && !cursadasSet.has(codigoNorm);
+    });
+  
+    // Agrupar por semestre destino
     const agrupadoPorSemestre = new Map<number, PensumItem[]>();
-    const addedCodes = new Set<string>();
   
-    // Normalizar string para comparar sin case y sin acentos si quieres (aquí solo lowercase)
-    const normalize = (s?: string) => (s || "").toLowerCase().trim();
-  
-    // Construir lista de pensum items faltantes
-    const faltantesPensumItems: PensumDTO[] = [];
-  
-    if (progreso.listaMateriasFaltantes && progreso.listaMateriasFaltantes.length > 0) {
-      // Si el progreso trae una lista explícita de faltantes intentamos mapearla al pensum
-      for (const lf of progreso.listaMateriasFaltantes) {
-        // lf puede ser string o objeto { nombre: ... } según tu implementación
-        const textoLF: string = typeof lf === "string" ? lf : (lf.nombre ?? lf.codigo ?? "");
-        const textoNorm = normalize(textoLF);
-  
-        // Buscar por codigo exacto primero, luego por nombre exacto, luego por contains
-        let match = pensum.find(p => String(p.codigo) === textoLF || normalize(p.codigo) === textoNorm);
-        if (!match) {
-          match = pensum.find(p => normalize(p.nombre) === textoNorm);
-        }
-        if (!match) {
-          match = pensum.find(p => normalize(p.nombre).includes(textoNorm));
-        }
-  
-        if (match && !addedCodes.has(String(match.codigo))) {
-          faltantesPensumItems.push(match);
-          addedCodes.add(String(match.codigo));
-        }
-      }
-    } else {
-      // Tomar todas las del pensum que no están cursadas
-      for (const p of pensum) {
-        if (!materiasCursadasCodigos.has(String(p.codigo)) && !addedCodes.has(String(p.codigo))) {
-          faltantesPensumItems.push(p);
-          addedCodes.add(String(p.codigo));
-        }
-      }
-    }
-  
-    // Asignar cada materia faltante a su semestre destino:
-    // - si pensum.semestre > semestreActual => target = pensum.semestre
-    // - si pensum.semestre <= semestreActual => target = semestreActual + 1 
-    for (const p of faltantesPensumItems) {
-      const semOriginal = Number(p.semestre ?? proximoSemestre);
+    for (const materia of materiasFaltantes) {
+      const semOriginal = Number(materia.semestre ?? proximoSemestre);
+      
+      // Lógica de semestre destino:
+      // - Si la materia es de un semestre futuro: mantener su semestre original
+      // - Si la materia es del semestre actual o pasado: moverla al próximo semestre
       const semestreDestino = semOriginal > semestreActual ? semOriginal : proximoSemestre;
   
       if (!agrupadoPorSemestre.has(semestreDestino)) {
         agrupadoPorSemestre.set(semestreDestino, []);
       }
   
-      const item: PensumItem = { ...(p as PensumDTO), cssClass: "faltante" };
+      const item: PensumItem = { 
+        ...materia, 
+        cssClass: "faltante",
+        requisitos: materia.requisitos ?? []
+      };
+      
       agrupadoPorSemestre.get(semestreDestino)!.push(item);
     }
   
-    // Ordenar semestres ascendente y devolver en el formato esperado
+    // Ordenar semestres ascendente y devolver
     return Array.from(agrupadoPorSemestre.entries())
       .sort((a, b) => a[0] - b[0])
       .map(([semestre, materias]) => ({ semestre, materias }));
   }
   
-  
   private reemplazarGenericas(pensum: PensumDTO[], progreso: Progreso): PensumDTO[] {
     const electivas = progreso.cursosElectivas ?? [];
+    
+    // Complementarias ahora incluyen TODOS los cursos que pueden contar como complementarias
     const complementarias = [
       ...(progreso.cursosComplementariaLenguas ?? []),
-      ...(progreso.cursosComplementariaInformacion ?? [])
+      ...(progreso.cursosComplementariaInformacion ?? []),
+      ...(progreso.cursosComplementariaCienciaPolitica ?? []),
+      ...(progreso.cursosComplementariaEstetica ?? []),
+      ...(progreso.cursosIA ?? []), // Énfasis validado como Complementaria (IA)
+      ...(progreso.cursosCVtoIA ?? []), // CV validado como IA
+      ...(progreso.cursosSIGtoIA ?? []) // SIG validado como IA
     ];
+    
     const enfasis = progreso.cursosEnfasis ?? [];
     const basicas = progreso.cursosElectivaBasicas ?? [];
   
@@ -351,23 +342,59 @@ export class PensumView implements OnInit, AfterViewInit {
     return pensum.map(m => {
       const nombreNorm = (m.nombre ?? '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   
+      // Electivas de Ciencias Básicas
       if (nombreNorm.includes("basicas") && basicas[idxBasica]) {
         const real = basicas[idxBasica++];
-        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+        return new PensumDTO(
+          String(real.curso), 
+          real.titulo, 
+          normalizarCred(real.cred ?? real.cred), 
+          m.semestre, 
+          "[]", 
+          []
+        );
       }
+  
+      // Electivas Universidad
       if (nombreNorm.includes("electiva") && electivas[idxElectiva]) {
         const real = electivas[idxElectiva++];
-        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+        return new PensumDTO(
+          String(real.curso), 
+          real.titulo, 
+          normalizarCred(real.cred ?? real.cred), 
+          m.semestre, 
+          "[]", 
+          []
+        );
       }
+  
+      // Complementarias (ahora incluye énfasis validados)
       if (nombreNorm.includes("complementaria") && complementarias[idxCompl]) {
         const real = complementarias[idxCompl++];
-        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+        return new PensumDTO(
+          String(real.curso ?? real.curso), 
+          real.titulo, 
+          normalizarCred(real.cred ?? real.cred), 
+          m.semestre, 
+          "[]", 
+          []
+        );
       }
+  
+      // Énfasis
       if ((nombreNorm.includes("énfasis") || nombreNorm.includes("enfasis")) && enfasis[idxEnfasis]) {
         const real = enfasis[idxEnfasis++];
-        return new PensumDTO(String(real.curso), real.titulo, normalizarCred(real.cred ?? real.cred), m.semestre, "[]", []);
+        return new PensumDTO(
+          String(real.curso), 
+          real.titulo, 
+          normalizarCred(real.cred ?? real.cred), 
+          m.semestre, 
+          "[]", 
+          []
+        );
       }
-      return m; // no era genérica → devolver igual
+  
+      return m; // No era genérica → devolver igual
     });
   }
 
@@ -851,13 +878,12 @@ export class PensumView implements OnInit, AfterViewInit {
    */
   cambiarVista(): void {
     this.vistaHistorico = !this.vistaHistorico;
-  
+    // plan de estudios completo → con reemplazo de genéricas
+    const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
     if (this.vistaHistorico) {
       // histórico → agrupamos solo las materias cursadas/faltantes
-      this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, this.allPensum);
+      this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, pensumReemplazado);
     } else {
-      // plan de estudios completo → con reemplazo de genéricas
-      const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
       this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
     }
   
