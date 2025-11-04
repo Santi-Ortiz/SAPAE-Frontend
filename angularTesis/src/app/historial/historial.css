@@ -350,3 +350,42 @@ button:hover {
 .credit-square.cursando {
   background: #82e0f3;
 }
+
+.info-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0077B6;
+  color: white;
+  font-size: 12px;
+  text-align: center;
+  line-height: 18px;
+  margin-left: 6px;
+  cursor: pointer;
+  position: relative;
+  font-weight: bold;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #0077B6;
+  color: #fff;
+  text-align: left;
+  padding: 8px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10;
+  top: 22px;
+  left: -5px;
+  font-size: 12px;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.info-icon:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
