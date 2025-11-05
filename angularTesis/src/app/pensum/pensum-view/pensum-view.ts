@@ -90,22 +90,54 @@ export class PensumView implements OnInit, AfterViewInit {
       });
 
       // Procesar progreso del estudiante
-      if (this.progreso) {
-        this.soloMaterias = this.progreso.materias ?? [];
-        this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
-        const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
-        if (this.vistaHistorico) {
-          this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, pensumReemplazado);
-        } else {
-          this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
-        }
-
-        this.cdr.detectChanges();
-        this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
-      }
+    if (this.progreso) {
+      this.soloMaterias = this.progreso.materias ?? [];
+      this.materiasCursadasCodigos = new Set(this.soloMaterias.map(m => m.curso));
+      
+      // ✨ Llamar al método centralizado que procesa las vistas
+      this.procesarMateriasFaltantes();
+      
+      this.cdr.detectChanges();
+      this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
+    }
 
       this.resetearSeleccion();
     });
+  }
+
+  /**
+   * Procesa las materias faltantes según la vista actual y completa créditos si es necesario
+   */
+  private procesarMateriasFaltantes(): void {
+    if (!this.progreso || !this.allPensum) return;
+    
+    const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
+    
+    // Agrupar según la vista actual
+    if (this.vistaHistorico) {
+      this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, pensumReemplazado);
+    } else {
+      this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
+    }
+    
+    // VERIFICAR Y COMPLETAR CRÉDITOS FALTANTES
+    const validacion = this.verificarCreditosFaltantes(this.materiasFaltantes, this.progreso);
+    
+    if (!validacion.valido) {
+      console.log('⚠️ Faltan créditos, agregando materias genéricas');
+      console.table(validacion.diferencias);
+      
+      // Agregar materias genéricas para completar los créditos faltantes
+      this.materiasFaltantes = this.completarCreditosFaltantes(
+        this.materiasFaltantes, 
+        validacion.diferencias, 
+        this.progreso
+      );
+      
+      console.log('✓ Materias genéricas agregadas:', this.materiasFaltantes);
+    } else {
+      console.log('✓ Los créditos coinciden correctamente con el historial');
+    }
   }
 
   getRequisitosJson(codigoDestino: string): string {
@@ -409,6 +441,148 @@ export class PensumView implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Verifica que los créditos faltantes mostrados en el plan de estudios
+   * coincidan con los valores del historial
+   */
+    verificarCreditosFaltantes(
+      materiasFaltantesPorSemestre: { semestre: number; materias: PensumItem[] }[],
+      historial: any
+    ): {
+      valido: boolean;
+      diferencias: {
+        [key: string]: { esperado: number; actual: number };
+      };
+    } {
+      // Calcular créditos del historial
+      const creditosHistorial = {
+        electivas: historial.faltanElectiva || 0,
+        complementarias: historial.faltanComplementaria || 0,
+        enfasis: historial.faltanEnfasis || 0,
+        electivaBasicas: historial.faltanElectivaBasicas || 0
+      };
+    
+      // Sumar créditos de las materias faltantes en pantalla
+      const creditosPantalla = {
+        electivas: 0,
+        complementarias: 0,
+        enfasis: 0,
+        electivaBasicas: 0
+      };
+    
+      materiasFaltantesPorSemestre.forEach(grupo => {
+        grupo.materias.forEach(materia => {
+          const creditos = Number(materia.creditos) || 0;
+          const nombreNorm = (materia.nombre ?? '').toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    
+          // Clasificar según el tipo de materia
+          if (nombreNorm.includes("basicas") || nombreNorm.includes("basica")) {
+            creditosPantalla.electivaBasicas += creditos;
+          } else if (nombreNorm.includes("electiva")) {
+            creditosPantalla.electivas += creditos;
+          } else if (nombreNorm.includes("complementaria")) {
+            creditosPantalla.complementarias += creditos;
+          } else if (nombreNorm.includes("énfasis") || nombreNorm.includes("enfasis")) {
+            creditosPantalla.enfasis += creditos;
+          } else {
+            // Las materias que no son genéricas son del núcleo
+            //creditosPantalla.nucleo += creditos;
+          }
+        });
+      });
+    
+      // Comparar y detectar diferencias
+      const diferencias: { [key: string]: { esperado: number; actual: number } } = {};
+      let valido = true;
+    
+      const categorias: Array<keyof typeof creditosHistorial> = [
+        'electivas', 'complementarias', 'enfasis', 'electivaBasicas'
+      ];
+    
+      categorias.forEach(categoria => {
+        if (creditosHistorial[categoria] !== creditosPantalla[categoria]) {
+          valido = false;
+          diferencias[categoria] = {
+            esperado: creditosHistorial[categoria],
+            actual: creditosPantalla[categoria]
+          };
+        }
+      });
+    
+      return { valido, diferencias };
+    }
+
+  /**
+ * Agrega materias genéricas cuando faltan créditos en alguna categoría
+ */
+  private completarCreditosFaltantes(
+    materiasFaltantesPorSemestre: { semestre: number; materias: PensumItem[] }[],
+    diferencias: any,
+    progreso: Progreso
+  ): { semestre: number; materias: PensumItem[] }[] {
+    
+    const semestreActual = progreso.semestre ?? 0;
+    const proximoSemestre = semestreActual + 1;
+    
+    // Encontrar o crear el grupo del próximo semestre
+    let grupoProximoSemestre = materiasFaltantesPorSemestre.find(g => g.semestre === proximoSemestre);
+    
+    if (!grupoProximoSemestre) {
+      grupoProximoSemestre = { semestre: proximoSemestre, materias: [] };
+      materiasFaltantesPorSemestre.push(grupoProximoSemestre);
+      // Reordenar
+      materiasFaltantesPorSemestre.sort((a, b) => a.semestre - b.semestre);
+    }
+    
+    // Mapeo de categorías a nombres de materias genéricas
+    const nombresCategorias: { [key: string]: string } = {
+      electivas: 'Electiva',
+      complementarias: 'Complementaria',
+      enfasis: 'Énfasis',
+      electivaBasicas: 'Electiva Ciencias Básicas'
+    };
+
+    // Mapeo de categorías a códigos
+    const codigosPorCategoria: { [key: string]: string } = {
+      electivas: '0',
+      complementarias: '1',
+      enfasis: '5',
+      electivaBasicas: '0'
+    };
+    
+    // Agregar materias genéricas por cada categoría con créditos faltantes
+    Object.entries(diferencias).forEach(([categoria, diff]: [string, any]) => {
+      const creditosFaltantes = diff.esperado - diff.actual;
+      
+      if (creditosFaltantes > 0) {
+        // Obtener el código según la categoría
+        const codigo = codigosPorCategoria[categoria] || '0';
+        // Usar el constructor de PensumDTO
+        const materiaGenerica = new PensumDTO(
+          codigo,          
+          nombresCategorias[categoria] || categoria, 
+          creditosFaltantes,                         
+          proximoSemestre,                
+          '[]',                                      
+          []                                         
+        );
+        
+        // Agregar la clase CSS
+        const materiaItem: PensumItem = {
+          ...materiaGenerica,
+          cssClass: 'faltante generica'
+        };
+        
+        console.log(`Agregando: ${materiaGenerica.nombre} (${creditosFaltantes} créditos)`);
+        grupoProximoSemestre!.materias.push(materiaItem);
+      }
+    });
+    
+    return materiasFaltantesPorSemestre;
+  }
+
   esMateriaBloqueada(materia: PensumDTO | MateriaDTO): boolean {
     const codigo = this.getCodigo(materia);
     //  Si ya fue cursada → bloquear SIEMPRE
@@ -425,23 +599,6 @@ export class PensumView implements OnInit, AfterViewInit {
     if (this.materiasCursadasCodigos.has(codSel)) return;
 
     this.conexionesActivas = [codSel];
-    let tieneConexiones = false;
-
-    this.allPensum.forEach(materia => {
-      try {
-        const codMat = this.normCodigo(materia.codigo);
-        const parsed = JSON.parse(materia.requisitosJson || '[]');
-        const requisitos: string[] = (Array.isArray(parsed) ? parsed : [])
-          .map(r => this.normCodigo(r));
-
-        /* La seleccionada es requisito de otra (flecha de salida)
-        if (requisitos.includes(codSel)) {
-          this.conexionesActivas.push(codMat);
-          tieneConexiones = true;
-        }*/
-
-      } catch { }
-    });
 
     // Quitar duplicados y asegurar todo normalizado
     this.conexionesActivas = Array.from(new Set(this.conexionesActivas.map(c => this.normCodigo(c))));
@@ -882,18 +1039,14 @@ export class PensumView implements OnInit, AfterViewInit {
    */
   cambiarVista(): void {
     this.vistaHistorico = !this.vistaHistorico;
-    // plan de estudios completo → con reemplazo de genéricas
-    const pensumReemplazado = this.reemplazarGenericas(this.allPensum, this.progreso);
-    if (this.vistaHistorico) {
-      // histórico → agrupamos solo las materias cursadas/faltantes
-      this.materiasFaltantes = this.agruparMateriasFaltantes(this.progreso, pensumReemplazado);
-    } else {
-      this.materiasFaltantes = this.agruparPorSemestrePensum(pensumReemplazado, this.progreso);
-    }
-  
+    
+    // ✨ Usar el método centralizado que verifica y completa créditos
+    this.procesarMateriasFaltantes();
+    
+    // Actualizar clases CSS para los labels
     const historicoLabel = document.getElementById('historico-label');
     const planLabel = document.getElementById('plan-label');
-  
+    
     if (this.vistaHistorico) {
       historicoLabel?.classList.add('active');
       planLabel?.classList.remove('active');
@@ -901,10 +1054,13 @@ export class PensumView implements OnInit, AfterViewInit {
       historicoLabel?.classList.remove('active');
       planLabel?.classList.add('active');
     }
-
+    
     this.resetearSeleccion();
-  
     console.log(`Vista cambiada a: ${this.vistaHistorico ? 'Tu histórico' : 'Según plan de estudios'}`);
+    
+    // Redibujar conexiones después del cambio
+    this.cdr.detectChanges();
+    this.zone.onStable.pipe(take(1)).subscribe(() => this.dibujarConexiones());
   }
 
   private resetearSeleccion(): void {
