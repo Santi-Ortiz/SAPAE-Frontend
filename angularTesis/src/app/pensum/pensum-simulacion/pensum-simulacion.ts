@@ -280,19 +280,20 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private configurarSVG(svg: SVGElement, contenedor: HTMLElement) {
-    const { scrollWidth: width, scrollHeight: height } = contenedor;
-    svg.setAttribute('width', `${width}`);
-    svg.setAttribute('height', `${height}`);
-    svg.innerHTML = '';
-  }
-
-  private dibujarCurvas(
+      const { scrollWidth: width, scrollHeight: height } = contenedor;
+      svg.setAttribute('width', `${width}`);
+      svg.setAttribute('height', `${height}`);
+      svg.innerHTML = ''; // limpiar SVG
+    }
+  
+    private dibujarCurvas(
       d3svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
       cajas: HTMLElement[],
       salidas: Map<string, string[]>,
       llegadas: Map<string, string[]>,
       contenedor: HTMLElement
     ) {
+      console.log("Dibujando curvas de requisitos...");
       // --- Marcadores ---
       d3svg.select("defs").remove();
       const defs = d3svg.append("defs");
@@ -322,7 +323,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         gapCentersX.push(rightEdge + (nextLeft - rightEdge) / 2);
       }
     
-      // parámetros ajustados (canales más pegados)
+      // par�metros ajustados (canales m�s pegados)
       const offsetHorizBase = 12;
       const laneSpacingY = 8;
       const laneSpacingX = 6;
@@ -347,13 +348,13 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         .y(d => d[1])
         .curve(d3.curveStep);
     
-      // --- GRID & ocupación de CAJAS ---
+      // --- GRID & ocupaci�n de CAJAS ---
       const cellSize = Math.max(7, Math.round(Math.max(laneSpacingX, laneSpacingY) * 0.1));
       const occupied: Set<string> = new Set();
       const keyOf = (gx: number, gy: number) => `${gx},${gy}`;
     
       function toGridCoord(x: number, y: number): [number, number] {
-        // índices de celda
+        // �ndices de celda
         return [Math.round(x / cellSize), Math.round(y / cellSize)];
       }
     
@@ -377,11 +378,11 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     
-      // NO marcamos líneas como ocupadas para que se puedan sobreescribir,
-      // pero sí usaremos la grid para detectar cajas y desplazar canales.
+      // NO marcamos l�neas como ocupadas para que se puedan sobreescribir,
+      // pero s� usaremos la grid para detectar cajas y desplazar canales.
       function reservarEnGridNoOccupy(x: number, y: number): [number, number] {
         const [gx0, gy0] = toGridCoord(x, y);
-        // buscamos la celda más cercana (sin marcarla)
+        // buscamos la celda m�s cercana (sin marcarla)
         const free = findFreeCellNear(gx0, gy0, 6) || [gx0, gy0];
         return fromGridCoord(free[0], free[1]);
       }
@@ -408,7 +409,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         return null;
       }
     
-      // Verifica si algún bloque de celdas en el rectángulo (x1,y1)-(x2,y2) está ocupado
+      // Verifica si alg�n bloque de celdas en el rect�ngulo (x1,y1)-(x2,y2) est� ocupado
       function rectIntersectsOccupied(x1: number, y1: number, x2: number, y2: number): boolean {
         const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
         const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
@@ -431,7 +432,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         if (!occupied.has(keyOf(gx, gyStart))) return fromGridCoord(gx, gyStart)[1];
     
         for (let r = 1; r <= maxSearch; r++) {
-          // priorizar dirección del destino: primero hacia afuera del rectángulo central
+          // priorizar direcci�n del destino: primero hacia afuera del rect�ngulo central
           const up = gyStart - r;
           const down = gyStart + r;
           if (!occupied.has(keyOf(gx, up))) return fromGridCoord(gx, up)[1];
@@ -441,7 +442,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         return yDeseado;
       }
     
-      // --- Reservar las áreas ocupadas por las cajas en el grid (con padding) ---
+      // --- Reservar las �reas ocupadas por las cajas en el grid (con padding) ---
       const padding = 4; // ajustable
       cajas.forEach(caja => {
         const left = caja.offsetLeft - padding;
@@ -484,30 +485,50 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
           const colOriIdx = columnas.findIndex(c => origen.closest(".semestre-columna") === c);
           const colDestIdx = columnas.findIndex(c => destino.closest(".semestre-columna") === c);
     
-          // --- Caso especial: columnas adyacentes y cajas cercanas (línea recta) ---
+          // --- Caso especial: columnas adyacentes y cajas cercanas (dos giros, no diagonal) ---
           const distanciaX = Math.abs(xDestino - xOrigen);
           const distanciaY = Math.abs(yDestino - yOrigen);
+  
           if (colOriIdx !== colDestIdx && distanciaX < 70 && distanciaY < 25) {
             const capa = esActiva ? capaLineasResaltadas : capaLineas;
+  
+            // Elegimos un canal intermedio X donde realizar la transici�n vertical.
+            // Preferimos el gapCentersX entre las columnas si existe; si no, usamos el punto medio.
+            const preferredGap = gapCentersX[colOriIdx] ?? gapCentersX[Math.max(0, colOriIdx - 1)] ?? (xOrigen + xDestino) / 2;
+            // Aseguramos que el canal no est� dentro de las cajas (margen)
+            const canalX = Math.max(Math.min(preferredGap, Math.max(xOrigen, xDestino) - 8), Math.min(xOrigen, xDestino) + 8);
+  
+            // Puntos: salir horizontal del origen hasta canalX, ir vertical al nivel del destino, y entrar horizontal al destino.
+            const xEntradaDestino = xDestino - offsetLlegada; // punto justo antes de entrar a la caja destino
+  
+            // Usamos comandos SVG M, L para mantener l�neas rectas en �ngulo recto.
+            const d = [
+              `M ${xOrigen} ${yOrigen}`,        // inicio un pel�n dentro del borde derecho del origen
+              `L ${canalX} ${yOrigen}`,              // horizontal hasta el canal
+              `L ${canalX} ${yDestino}`,             // vertical en el canal hasta la altura de la entrada destino
+              `L ${xEntradaDestino} ${yDestino}`,    // horizontal hasta justo antes del destino
+              `L ${xDestino} ${yDestino}`            // entrada final al centro/destino (opcional)
+            ].join(" ");
+  
             const path = capa.append("path")
-              .attr("d", `M ${xOrigen} ${yOrigen} L ${xDestino} ${yDestino}`)
+              .attr("d", d)
               .attr("fill", "none")
               .attr("stroke", colorLinea)
               .attr("stroke-width", esActiva ? 2 : 1.6)
               .attr("marker-end", `url(#flecha-${tipo}-izquierda)`);
-    
+  
             if (esActiva) {
               path.classed("resaltada", true);
               destino.classList.add("resaltada");
               origen.classList.add("resaltada");
               path.raise();
             }
-    
-            // no ocupamos celdas por la línea: permitimos solapamiento
+  
+            // no ocupamos celdas por la l�nea: permitimos solapamiento
             return;
           }
     
-          // --- calcular canal X base (canales pequeños) ---
+          // --- calcular canal X base (canales peque�os) ---
           let rawXChannel: number;
           if (colOriIdx < colDestIdx) {
             const gapX = gapCentersX[colOriIdx] ?? (xOrigen + shortRun);
@@ -542,14 +563,14 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
           const [snapX, snapY] = reservarEnGridNoOccupy(rawXChannel, channelYraw);
           const channelYGrid = findFreeY(snapX, snapY);
     
-          // Si origen y destino casi comparten Y, forzamos un pequeño quiebre (no recta) salvo caso cercano
+          // Si origen y destino casi comparten Y, forzamos un peque�o quiebre (no recta) salvo caso cercano
           let puntosRuta: [number, number][];
           if (Math.abs(yDestino - yOrigen) < 20 && colOriIdx !== colDestIdx) {
             // comprobar si la recta horizontal entre xOrigen->xDestino cruza alguna caja;
-            // si no, se puede usar la ruta directa corta; si sí, forzamos quiebre mínimo.
+            // si no, se puede usar la ruta directa corta; si s�, forzamos quiebre m�nimo.
             const horizontalCrosses = rectIntersectsOccupied(xOrigen, yOrigen - 1, xDestino, yOrigen + 1);
             if (!horizontalCrosses && distanciaX < 90) {
-              // usar una ruta corta con pequeño salto al canal
+              // usar una ruta corta con peque�o salto al canal
               puntosRuta = [
                 [xOrigen, yOrigen],
                 [snapX, yOrigen],
@@ -557,7 +578,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
                 [xDestino, yDestino]
               ];
             } else {
-              // forzar pequeño quiebre para que no atraviese cajas
+              // forzar peque�o quiebre para que no atraviese cajas
               puntosRuta = [
                 [xOrigen, yOrigen],
                 [snapX, yOrigen],
@@ -578,7 +599,7 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
             ];
           }
     
-          // dibujar la ruta — no marcamos esas celdas como ocupadas para permitir solapamiento
+          // dibujar la ruta no marcamos esas celdas como ocupadas para permitir solapamiento
           const capa = esActiva ? capaLineasResaltadas : capaLineas;
           const path = capa.append("path")
             .attr("d", lineGenerator(puntosRuta)!)
@@ -596,68 +617,58 @@ export class PensumSimulacion implements OnInit, AfterViewInit, OnDestroy {
         });
       });
     }
-
-  dibujarConexiones() {
-    const svg = this.svgRef?.nativeElement;
-    const contenedor = this.contenedorRef?.nativeElement;
-    if (!svg || !contenedor) return;
+    
+    private redibujarHandler!: () => void;
   
-    this.configurarSVG(svg, contenedor);
-    const d3svg = d3.select(svg);
+    dibujarConexiones(): void {
+      const svg = this.svgRef?.nativeElement;
+      const contenedor = this.contenedorRef?.nativeElement;
+      if (!svg || !contenedor) return;
   
-    this.llegadasGlobal.clear();
-    this.salidasGlobal.clear();
+      // Configurar el SVG base
+      this.configurarSVG(svg, contenedor);
+      const d3svg = d3.select(svg);
   
-    /*this.materiasSimuladas.forEach(materia => {
-      const requisitos: string[] = materia.requisitos ?? [];
-      const codigoDestino = String(materia.codigo).padStart(6, "0").trim();
+      // Mapas globales de conexiones
+      const salidasGlobal = new Map<string, string[]>();
+      const llegadasGlobal = new Map<string, string[]>();
   
-      requisitos.forEach(req => {
-        const reqCode = String(req).padStart(6, "0").trim();
+      // Recorre todo el mapa de requisitos (clave = materia faltante, valor = lista de requisitos)
+      this.requisitosMap.forEach((requisitos: string[], faltante: string) => {
+        const codigoFaltante = String(faltante).padStart(6, "0").trim();
   
-        if (!this.salidasGlobal.has(reqCode)) this.salidasGlobal.set(reqCode, []);
-        this.salidasGlobal.get(reqCode)!.push(codigoDestino);
+        requisitos.forEach((requisitoCodigo: string) => {
+          const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
   
-        if (!this.llegadasGlobal.has(codigoDestino)) this.llegadasGlobal.set(codigoDestino, []);
-        this.llegadasGlobal.get(codigoDestino)!.push(reqCode);
+          // relación requisito → faltante
+          if (!salidasGlobal.has(reqCode)) salidasGlobal.set(reqCode, []);
+          salidasGlobal.get(reqCode)!.push(codigoFaltante);
+  
+          if (!llegadasGlobal.has(codigoFaltante)) llegadasGlobal.set(codigoFaltante, []);
+          llegadasGlobal.get(codigoFaltante)!.push(reqCode);
+        });
       });
-    });*/
-
-    this.requisitosMap.forEach((requisitos: string[], simulada: string) => {
-      const codigoDestino = String(simulada).padStart(6, "0").trim();
-
-      requisitos.forEach((requisitoCodigo: string) => {
-        const reqCode = String(requisitoCodigo).padStart(6, "0").trim();
-
-        // relación requisito → faltante
-        if (!this.salidasGlobal.has(reqCode)) this.salidasGlobal.set(reqCode, []);
-        this.salidasGlobal.get(reqCode)!.push(codigoDestino);
   
-        if (!this.llegadasGlobal.has(codigoDestino)) this.llegadasGlobal.set(codigoDestino, []);
-        this.llegadasGlobal.get(codigoDestino)!.push(reqCode);
-      });
-    });
+      console.log("Llegadas:", llegadasGlobal);
+      console.log("Salidas:", salidasGlobal);
   
-    //console.log("Llegadas simuladas (una sola vez):", this.llegadasGlobal);
-    //console.log("Salidas simuladas (una sola vez):", this.salidasGlobal);
+      const cajas = Array.from(document.querySelectorAll<HTMLElement>('.caja'));
   
-    const cajas = Array.from(document.querySelectorAll<HTMLElement>(".caja"));
+      // Dibujar todas las curvas inicialmente
+      this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor);
   
-    // Dibujar todas las curvas
-    this.dibujarCurvas(d3svg, cajas, this.salidasGlobal, this.llegadasGlobal, contenedor);
+      // Evita duplicar listeners al redibujar
+      window.removeEventListener("scroll", this.redibujarHandler);
+      window.removeEventListener("resize", this.redibujarHandler);
   
-    if (!this.listenersAgregados) {
-      this.listenersAgregados = true;
+      // Define el handler una sola vez
+      this.redibujarHandler = () => {
+        this.dibujarCurvas(d3svg, cajas, salidasGlobal, llegadasGlobal, contenedor);
+      };
   
-      window.addEventListener("scroll", () =>
-        this.dibujarCurvas(d3svg, cajas, this.salidasGlobal, this.llegadasGlobal, contenedor)
-      );
-  
-      window.addEventListener("resize", () =>
-        this.dibujarCurvas(d3svg, cajas, this.salidasGlobal, this.llegadasGlobal, contenedor)
-      );
+      window.addEventListener("scroll", this.redibujarHandler);
+      window.addEventListener("resize", this.redibujarHandler);
     }
-  }
 
   ngOnDestroy(): void {
     // Limpiar todas las suscripciones
