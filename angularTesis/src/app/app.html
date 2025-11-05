@@ -62,7 +62,8 @@
       </div>
 
       <!-- Aviso de última semana de retiro -->
-      <div class="info-retiro-sidebar" *ngIf="infoRetiro && !semanaActual?.esUltimaSemanaRetiro">
+      <div class="info-retiro-sidebar"
+        *ngIf="infoRetiro && !semanaActual?.esUltimaSemanaRetiro && (semanaActual?.numero <= infoRetiro.semanaLimite)">
         <i class="fas fa-info-circle"></i>
         <div class="info-content">
           <div class="info-texto">Última semana para retirar: Semana {{ infoRetiro.semanaLimite }}</div>
