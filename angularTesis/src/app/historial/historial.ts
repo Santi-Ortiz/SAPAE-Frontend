@@ -37,7 +37,7 @@ export class Historial implements OnInit, AfterViewInit {
         { titulo: 'CV validado como IA', lista: this.historial.cursosCVtoIA },
         { titulo: 'SIG validado como IA', lista: this.historial.cursosSIGtoIA },
         { titulo: 'Electiva de Ciencias Básicas', lista: this.historial.cursosElectivaBasicas },
-        { titulo: 'Seguridad', lista: this.historial.cursosSeguridad }
+        { titulo: 'Énfasis Desarrollo de Software y Seguridad', lista: this.historial.cursosSeguridad }
       ];
     }
 
