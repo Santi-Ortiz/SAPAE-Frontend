@@ -21,19 +21,22 @@
 
     <!-- Leyenda removida de aquí -->
 
-    <button class="visualizar-simulacion" (click)="visualizarSimulacion()">Simulación en Plan de
-      Estudios</button>
+    <!-- Caja destacada para visualizar simulación -->
+    <div class="visualizar-destacado">
+      <h3>Resultado en Plan de Estudios</h3>
+      <p>Visualiza tu simulación directamente en el plan de estudios para una vista interactiva</p>
+      <button class="visualizar-simulacion" (click)="visualizarSimulacion()">
+        Simulación en Plan de Estudios
+      </button>
+    </div>
 
-    <!-- Barra de navegación entre semestres -->
-    <div *ngIf="resultadoSimulacion && (resultadoSimulacion | keyvalue).length > 1" class="semestres-navigation">
-      <div class="nav-title">
-        <!-- <i class="fa-solid fa-compass"></i> -->
-        <span>Navegar por Semestres</span>
-      </div>
+    <!-- Caja destacada para navegación por semestres -->
+    <div *ngIf="resultadoSimulacion && (resultadoSimulacion | keyvalue).length > 1" class="navegacion-destacado">
+      <h3>Navegar por Semestres</h3>
+      <p>Accede rápidamente a cada semestre simulado para revisar las materias y estadísticas</p>
       <div class="nav-buttons">
         <button *ngFor="let semestre of resultadoSimulacion | keyvalue:orderByNumericSemestre" class="nav-semestre-btn"
           (click)="navegarASemestre(semestre.key)" [attr.aria-label]="'Ir a Semestre ' + semestre.key">
-          <!-- <i class="fa-solid fa-calendar-days"></i> -->
           <span>Semestre {{ semestre.key }}</span>
         </button>
       </div>
@@ -71,7 +74,8 @@
           <div class="legend-item">
             <span class="legend-icon important"> <i class="fa-solid fa-triangle-exclamation"></i> </span>
             <span class="legend-text important"><strong>Importante:</strong> La materia reemplazada será añadida al
-              semestre simulado si es elegida previamente al guardado de la simulación. Una vez guardada, no se podrá realizar el cambio de una materia.</span>
+              semestre simulado si es elegida previamente al guardado de la simulación. Una vez guardada, no se podrá
+              realizar el cambio de una materia.</span>
           </div>
         </div>
       </div>

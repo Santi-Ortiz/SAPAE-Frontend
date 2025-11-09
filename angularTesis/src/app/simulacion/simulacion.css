@@ -1,4 +1,3 @@
-
 /*--- ESTILOS GENERALES ---*/
 .simulacion-container {
   text-align: center;
@@ -109,7 +108,7 @@
   background: #fff;
   border-radius: 20px;
   padding: 18px 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -309,24 +308,56 @@
   animation: fadeIn 0.3s ease-in;
 }
 
-/* Boton historial de simulaciones*/
+
+.historial-destacado {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid #00B4D8;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+
+.historial-destacado h3 {
+  color: #0077B6;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+}
+
+.historial-destacado p {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
 .historial-button {
-  display: block;
-  margin: 30px auto;
-  padding: 12px 24px;
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 500;
   background-color: #0077B6;
-  border: none;
   color: white;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
 }
 
 .historial-button:hover {
   background-color: #005f8a;
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.25);
 }
+
+.button-icon {
+  font-size: 20px;
+}
+
 
 /* Modal para los campos incompletos de los formularios*/
 
@@ -334,7 +365,7 @@
   background: #fff;
   padding: 32px 24px;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   text-align: center;
   min-width: 320px;
   opacity: 0;
@@ -366,8 +397,11 @@
 
 .modal-backdrop {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.45);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -376,8 +410,13 @@
 }
 
 @keyframes fadeBackdrop {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeModal {
@@ -385,8 +424,50 @@
     opacity: 0;
     transform: translateY(-30px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/*--- TOOLTIPS INFORMATIVOS ---*/
+
+.info-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0077B6;
+  color: white;
+  font-size: 12px;
+  text-align: center;
+  line-height: 18px;
+  margin-left: 6px;
+  cursor: pointer;
+  position: relative;
+  font-weight: bold;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #0076b6eb;
+  color: #fff;
+  text-align: left;
+  padding: 8px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10;
+  top: 22px;
+  left: -5px;
+  font-size: 12px;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.info-icon:hover .tooltip-text,
+.info-icon:focus .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }

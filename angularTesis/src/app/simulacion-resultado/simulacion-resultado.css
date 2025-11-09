@@ -135,7 +135,66 @@ h1 {
   color: #0b3550;
 }
 
-/* ===== Barra de Navegación entre Semestres ===== */
+/* ===== Caja destacada para navegación por semestres ===== */
+.navegacion-destacado {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid #00B4D8;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+.navegacion-destacado h3 {
+  color: #0077B6;
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.navegacion-destacado p {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.navegacion-destacado .nav-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.navegacion-destacado .nav-semestre-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: #0077B6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
+}
+
+.navegacion-destacado .nav-semestre-btn:hover {
+  background-color: #005f8a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.25);
+}
+
+.navegacion-destacado .nav-semestre-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
+}
+
+/* ===== Barra de Navegación entre Semestres (ANTIGUA - mantener por si acaso) ===== */
 .semestres-navigation {
   width: 100%;
   max-width: 900px;
@@ -204,6 +263,7 @@ h1 {
   font-size: 16px;
   color: #CAF0F8;
 }
+
 /* ===== Leyenda con el mismo ancho de la tabla ===== */
 .legend-wrapper {
   width: 80%;
@@ -457,22 +517,59 @@ h1 {
   background-color: #005f8a;
 }
 
+
+/* Caja destacada para visualizar simulación */
+.visualizar-destacado {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid #00B4D8;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+.visualizar-destacado h3 {
+  color: #0077B6;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+}
+
+.visualizar-destacado p {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .visualizar-simulacion {
-  display: block;
-  margin: 30px auto;
-  padding: 12px 24px;
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 500;
   background-color: #0077B6;
-  border: none;
   color: white;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
 }
 
 .visualizar-simulacion:hover {
   background-color: #005f8a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.25);
 }
+
+.visualizar-simulacion:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
+}
+
 
 /* Botón guardar simulación */
 .guardar-simulacion {
