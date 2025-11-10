@@ -27,6 +27,15 @@
   gap: 16px;
 }
 
+/* Igual que en el componente de recomendaciones:
+   bloque que envuelve textarea + nota para compartir ancho */
+.input-block {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
 textarea {
   width: 100%;
   max-width: 600px;
@@ -41,17 +50,18 @@ textarea {
   color: #333;
 }
 
+/* Hint genérico igual que en recomendaciones */
 .hint {
+  margin-top: 2px;
   font-size: 13px;
   margin-bottom: 5px;
-  margin-left: 170px;
   color: #4a6072;
-  gap: 0px;
 }
 
+/* Nota del modelo debajo del textarea, mismo estilo/ancho */
 .nota-modelo {
   width: 100%;
-  /* un poco más pegado al textarea */
+  margin-top: 6px;
 }
 
 button {
