@@ -41,6 +41,19 @@ textarea {
   color: #333;
 }
 
+.hint {
+  font-size: 13px;
+  margin-bottom: 5px;
+  margin-left: 170px;
+  color: #4a6072;
+  gap: 0px;
+}
+
+.nota-modelo {
+  width: 100%;
+  /* un poco más pegado al textarea */
+}
+
 button {
   background-color: #0077B6;
   color: white;

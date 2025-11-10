@@ -6,6 +6,9 @@
 
   <div class="formulario">
     <textarea [(ngModel)]="pregunta" placeholder="Ej: ¿Cuál es la calificación mínima aprobatoria?"></textarea>
+    <div class="hint nota-modelo">
+        La información proporcionada por el modelo debe ser validada por el estudiante.
+      </div>
     <button (click)="consultarIA()">Consultar</button>
   </div>
 

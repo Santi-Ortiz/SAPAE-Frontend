@@ -35,7 +35,7 @@
       <input type="text" id="nombreSimulacion" name="nombreSimulacion" [(ngModel)]="nombreSimulacion"
         placeholder="Ej: Mi simulación semestre 2025-2" maxlength="50" (input)="validarNombreSimulacion()" />
       <small style="color: gray;" *ngIf="!nombreDuplicado">Este nombre servirá para identificar cada simulación que
-        realice</small>
+        realices</small>
       <small style="color: #0077b6;" *ngIf="nombreDuplicado"><strong>Ya tienes una simulación guardada con este nombre.
           Por favor, elige otro nombre.</strong></small>
     </div>
@@ -64,7 +64,7 @@
               </span>
             </label>
             <input type="number" id="semestreInput" name="semestreInput" [(ngModel)]="semestreInput"
-              (input)="ajustarNumeroSemestresSimulados()" min="1" />
+              (input)="ajustarNumeroSemestresSimulados()" min="1" [attr.max]="10"/>
             <small style="color: gray;">Se simularán {{ semestreInput }} semestres hacia adelante</small>
           </div>
 

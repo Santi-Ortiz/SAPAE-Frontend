@@ -192,9 +192,16 @@
     </table>
   </section>
 
-  <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
-  <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar
-    Simulación</button>
+  <!-- Caja destacada para acciones de simulación -->
+  <div class="acciones-destacado">
+    <h3>Acciones de Simulación</h3>
+    <p>Elige qué deseas hacer con tu simulación actual</p>
+    <div class="acciones-buttons">
+      <button class="nueva-simulacion" (click)="volverFormSimulacion()">Generar Nueva Simulación</button>
+      <button *ngIf="!simulacionGuardada" class="guardar-simulacion" (click)="guardarSimulacion()">Guardar
+        Simulación</button>
+    </div>
+  </div>
 
   <!-- Modal de confirmación -->
   <div class="modal-backdrop" *ngIf="mostrarModalGuardar">

@@ -498,27 +498,67 @@ h1 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.acciones-destacado {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid #00B4D8;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 30px auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.acciones-destacado h3 {
+  color: #0077B6;
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.acciones-destacado p {
+  color: #333;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.acciones-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
 /*--- BOTONES ---*/
 
 .nueva-simulacion {
-  display: block;
-  margin: 30px auto;
-  padding: 12px 24px;
-  font-size: 16px;
-  background-color: #0077B6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  background-color: #005a8e;
   border: none;
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 90, 142, 0.2);
 }
 
 .nueva-simulacion:hover {
-  background-color: #005f8a;
+  background-color: #004a73;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 90, 142, 0.3);
+}
+
+.nueva-simulacion:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 90, 142, 0.2);
 }
 
 
-/* Caja destacada para visualizar simulación */
 .visualizar-destacado {
   background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
   border: 2px solid #00B4D8;
@@ -571,18 +611,31 @@ h1 {
 }
 
 
-/* Botón guardar simulación */
 .guardar-simulacion {
-  display: block;
-  margin: 30px auto;
-  padding: 12px 24px;
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
   background-color: #0077B6;
   border: none;
   color: white;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
+}
+
+.guardar-simulacion:hover {
+  background-color: #005f8a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.3);
+}
+
+.guardar-simulacion:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 119, 182, 0.2);
 }
 
 /* --- MENSAJE DE SIMULACIÓN GUARDADA ---*/
