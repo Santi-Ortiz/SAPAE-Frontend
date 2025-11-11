@@ -17,6 +17,7 @@ export class Historial implements OnInit, AfterViewInit {
   public tablasExtra: { titulo: string; lista: any[] }[] = [];
   constructor(private historialService: HistorialService) { };
   mostrarTodasMaterias = false;
+  mostrarTodasFaltantes = false;
 
   ngOnInit() {
     const data = this.historialService.getHistorial();
@@ -74,5 +75,14 @@ export class Historial implements OnInit, AfterViewInit {
       : this.historial.materias.slice(0, 5);
   }
 
-
+  get materiasFaltantesVisibles() {
+    return this.mostrarTodasFaltantes
+      ? this.historial.listaMateriasFaltantes
+      : this.historial.listaMateriasFaltantes?.slice(0, 5);
+  }
+  
+  get tieneVariasMateriasFaltantes(): boolean {
+    return (this.historial.listaMateriasFaltantes?.length ?? 0) > 5;
+  }
+  
 }

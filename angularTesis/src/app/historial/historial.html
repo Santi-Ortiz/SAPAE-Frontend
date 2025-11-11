@@ -107,14 +107,22 @@
         <h3>Materias Faltantes</h3>
         <table class="faltantes">
           <tbody>
-            <tr *ngFor="let mat of historial.listaMateriasFaltantes">
+            <tr *ngFor="let mat of materiasFaltantesVisibles">
               <td>{{ mat.nombre }}</td>
               <td>{{ mat.creditos }} créditos</td> 
               <td>{{ mat.codigo }}</td>
             </tr>
-          <tbody>
+          </tbody>
         </table>
       </div>
+
+      <!-- Btón ver más registros -->
+      <div class="centrar-boton" *ngIf="tieneVariasMateriasFaltantes" style="margin-top: 10px;">
+        <button (click)="mostrarTodasFaltantes = !mostrarTodasFaltantes">
+          {{ mostrarTodasFaltantes ? 'Ver menos' : 'Ver más' }}
+        </button>
+      </div>
+
   
       <!-- Historial de cursos -->
       <div *ngIf="historial.materias?.length" class="tabla-materias">
