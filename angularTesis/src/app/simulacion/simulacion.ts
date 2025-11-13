@@ -255,17 +255,18 @@ export class SimulacionComponent implements OnInit {
   }
 
   verificarProgresoCompletado(): boolean {
-    const noHayMateriasFaltantes = !this.progresoActual.materiasFaltantes || this.progresoActual.materiasFaltantes === 0;
     const noHayListaMateriasFaltantes = !this.progresoActual.listaMateriasFaltantes || this.progresoActual.listaMateriasFaltantes.length === 0;
     const noFaltanElectivas = !this.progresoActual.faltanElectiva || this.progresoActual.faltanElectiva === 0;
     const noFaltanComplementarias = !this.progresoActual.faltanComplementaria || this.progresoActual.faltanComplementaria === 0;
     const noFaltanEnfasis = !this.progresoActual.faltanEnfasis || this.progresoActual.faltanEnfasis === 0;
     const noFaltanElectivasCB = !this.progresoActual.faltanElectivaBasicas || this.progresoActual.faltanElectivaBasicas === 0;
 
-    return (noHayMateriasFaltantes || noHayListaMateriasFaltantes) && 
+    const resultado = noHayListaMateriasFaltantes && 
            noFaltanElectivas && 
            noFaltanComplementarias && 
            noFaltanEnfasis && 
            noFaltanElectivasCB;
+
+    return resultado;
   }
 }
