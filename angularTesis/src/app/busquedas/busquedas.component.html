@@ -5,7 +5,6 @@
   </p>
 
   <div class="formulario">
-    <!-- Bloque textarea + nota, igual que en recomendaciones -->
     <div class="input-block">
       <textarea
         [(ngModel)]="pregunta"
@@ -21,7 +20,7 @@
     <button (click)="consultarIA()">Consultar</button>
   </div>
 
-  <!-- Spinner mientras carga -->
+  <!-- Spinner -->
   <div *ngIf="cargando" class="mensaje-cargando">
     <div class="spinner"></div>
     <p>Consultando, un momento por favor...</p>
@@ -33,19 +32,58 @@
     <p>{{ respuesta }}</p>
   </div>
 
-  <!-- Aviso informativo (siempre visible) -->
+  <!-- Aviso original (no se modifica) -->
   <div class="aviso-busquedas">
     <div class="aviso-texto">
       <h2>Recuerda que ...</h2>
       <p>Solo podrás realizar búsquedas relacionadas con:</p>
       <ul>
-        <li>Información de la carrera</li>
-        <li>Información de la universidad</li>
         <li>Reglamento de la universidad</li>
+        <li>Información de la carrera</li>
       </ul>
     </div>
     <div class="aviso-imagen">
       <img src="assets/images/recordatorio.png" alt="Recordatorio SAPAE" />
     </div>
+  </div>
+
+  <!-- NUEVAS CAJAS ELEGANTES DE SECCIONES -->
+
+  <h2 class="secciones-title">¿Qué temas puedes encontrar en los documentos?</h2>
+
+  <!-- Caja de reglamento -->
+  <div class="fuente-box">
+    <h3 class="fuente-title">📘 Reglamento de Estudiantes</h3>
+    <ul class="fuente-list">
+      <li>Disposiciones generales y definición de estudiante.</li>
+      <li>Derechos y deberes del estudiante.</li>
+      <li>Ingreso a la Universidad: inscripción, selección y admisión, traslados, transferencias.</li>
+      <li>Matrícula: ordinaria, extraordinaria, condicional, retiro temporal y reintegro.</li>
+      <li>Inscripción, retiro y abandono de asignaturas.</li>
+      <li>Evaluaciones académicas y evaluaciones supletorias.</li>
+      <li>Homologación, reconocimiento y validación de asignaturas/créditos.</li>
+      <li>Calificaciones, revisión de calificaciones y promedios.</li>
+      <li>Prueba académica y exclusión por rendimiento académico.</li>
+      <li>Grados y requisitos de grado: trabajo de grado, preparatorios, ceremonia.</li>
+      <li>Faltas disciplinarias: leves, graves, gravísimas, y sanciones.</li>
+    </ul>
+  </div>
+
+  <!-- Caja de información de la carrera -->
+  <div class="fuente-box">
+    <h3 class="fuente-title">🎓 Información de la Carrera</h3>
+    <ul class="fuente-list">
+      <li>Información general de la Facultad de Ingeniería y del programa.</li>
+      <li>Acreditaciones nacionales e internacionales.</li>
+      <li>Duración del programa y número total de créditos.</li>
+      <li>Distribución de créditos: núcleo fundamental, electivas, complementarias.</li>
+      <li>Núcleo fundamental: ciencias básicas, ingeniería aplicada, socio-humanística.</li>
+      <li>Núcleo de énfasis y créditos mínimos requeridos.</li>
+      <li>Electivas y oferta de cursos interdisciplinarios.</li>
+      <li>Práctica profesional: objetivos, duración y créditos.</li>
+      <li>Requisitos de graduación: inglés B2, trabajo de grado, SaberPro.</li>
+      <li>Sistema de créditos académicos.</li>
+      <li>Semilleros de investigación y oportunidades académicas.</li>
+    </ul>
   </div>
 </section>

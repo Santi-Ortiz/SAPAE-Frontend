@@ -173,3 +173,58 @@ button:hover {
   object-fit: cover;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
+
+/* Título sobre las nuevas cajas */
+.secciones-title {
+  margin-top: 45px;
+  font-size: 26px;
+  text-align: center;
+  color: #0077B6;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Cajas nuevas de fuentes */
+.fuente-box {
+  background: #e8f6ff;
+  border: 2px solid #00B4D8;
+  border-radius: 18px;
+  padding: 24px;
+  margin: 18px auto;
+  max-width: 760px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.fuente-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0077B6;
+  margin-bottom: 14px;
+}
+
+.fuente-list {
+  list-style: disc;
+  padding-left: 22px;
+}
+
+.fuente-list li {
+  font-size: 16px;
+  margin-bottom: 6px;
+  line-height: 1.45;
+  color: #3d4d56;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .fuente-box {
+    padding: 18px;
+  }
+
+  .fuente-title {
+    font-size: 18px;
+  }
+
+  .fuente-list li {
+    font-size: 15px;
+  }
+}
