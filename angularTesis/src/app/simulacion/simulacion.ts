@@ -258,7 +258,17 @@ export class SimulacionComponent implements OnInit {
     const noHayListaMateriasFaltantes = !this.progresoActual.listaMateriasFaltantes || this.progresoActual.listaMateriasFaltantes.length === 0;
     const noFaltanElectivas = !this.progresoActual.faltanElectiva || this.progresoActual.faltanElectiva === 0;
     const noFaltanComplementarias = !this.progresoActual.faltanComplementaria || this.progresoActual.faltanComplementaria === 0;
-    const noFaltanEnfasis = !this.progresoActual.faltanEnfasis || this.progresoActual.faltanEnfasis === 0;
+    const enfasisViendo = (this.progresoActual.materias || [])
+      .filter(m => {
+        const esTipoSi = ((m.tipo || '').trim().toLowerCase() === 'si');
+        const codigo = (m.curso || '').trim();
+        const esCodigoEnfasis = codigo === '031339' || codigo === '034814';
+        return esTipoSi && esCodigoEnfasis;
+      })
+      .reduce((sum, m) => sum + (m.cred || 0), 0);
+
+    const faltanEnfasisActual = (this.progresoActual.faltanEnfasis || 0) - enfasisViendo ;
+    const noFaltanEnfasis = faltanEnfasisActual <= 0;
     const noFaltanElectivasCB = !this.progresoActual.faltanElectivaBasicas || this.progresoActual.faltanElectivaBasicas === 0;
 
     const resultado = noHayListaMateriasFaltantes && 
